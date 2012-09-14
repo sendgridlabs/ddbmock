@@ -5,7 +5,6 @@ class Key(object):
     min_len = 1
     max_len = 255
 
-
     def validate(self, name, typename):
         cls = type(self)
         if typename not in cls.valid_types:
@@ -24,6 +23,15 @@ class Key(object):
             "AttributeName": self.name,
             "AttributeType": self.typename,
         }
+
+    @classmethod
+    def from_dict(cls, data):
+        if u'AttributeName' not in data:
+            raise TypeError("No attribute name")
+        if u'AttributeType' not in data:
+            raise TypeError("No attribute type")
+
+        return cls(data[u'AttributeName'], data[u'AttributeType'])
 
 class PrimaryKey(Key):
     valid_types = ['N', 'S', 'B']
@@ -64,6 +72,32 @@ class Table(object):
         self.rt = self._validate_throughput_value(rt)
         self.wt = self._validate_throughput_value(wt)
 
+    @classmethod
+    def from_dict(cls, data):
+        if u'TableName' not in data:
+            raise TypeError("No table name supplied")
+        if u'ProvisionedThroughput' not in data:
+            raise TypeError("No throughput provisioned")
+        if u'KeySchema' not in data:
+            raise TypeError("No schema")
+        if u'WriteCapacityUnits' not in data[u'ProvisionedThroughput']:
+            raise TypeError("No WRITE throughput provisioned")
+        if u'ReadCapacityUnits' not in data[u'ProvisionedThroughput']:
+            raise TypeError("No READ throughput provisioned")
+
+        if u'HashKeyElement' not in data[u'KeySchema']:
+            raise TypeError("No hash_key")
+        if u'RangeKeyElement' in data[u'KeySchema']:
+            range_key = PrimaryKey.from_dict(data[u'KeySchema'][u'RangeKeyElement'])
+        hash_key = PrimaryKey.from_dict(data[u'KeySchema'][u'HashKeyElement'])
+
+        return cls( data[u'TableName'],
+                    data[u'ProvisionedThroughput'][u'ReadCapacityUnits'],
+                    data[u'ProvisionedThroughput'][u'WriteCapacityUnits'],
+                    hash_key,
+                    range_key,
+                  )
+
     def to_dict(self):
         ret = {
             "CreationDateTime":1.309988345372E9, #stub
@@ -101,10 +135,10 @@ class DynamoDB(object):
             return self.data[name]
         return None
 
-    def create_table(self, name, *k):
+    def create_table(self, name, data):
         if name in self.data:
             return None
-        self.data[name] = Table(name, *k)
+        self.data[name] = Table.from_dict(data)
         return self.data[name]
 
     def delete_table(self, name):
