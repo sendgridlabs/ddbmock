@@ -38,9 +38,11 @@ Ideal for test environment. For stage and production I highly recommend using
 DynamoDB servers. ddbmock comes with no warranty and *will* **loose your data**.
 
 ::
+
     $ pserve development.ini # launch the server on 0.0.0.0:6543
 
 ::
+
     import boto
     from ddbmock import connect_ddbmock
 
@@ -69,6 +71,7 @@ Ideal for unit testing or small scale automated functional tests. Nice to play
 around with boto DynamoDB too :)
 
 ::
+
     import ddbmock, boto
 
     # Wire-up boto and ddbmock together
