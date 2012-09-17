@@ -11,9 +11,9 @@ requires = [
     'waitress',
     ]
 
-setup(name='ddb-mock',
+setup(name='ddbmock',
       version='0.1',
-      description='ddb-mock',
+      description='ddbmock',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Programming Language :: Python",

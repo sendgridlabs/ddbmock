@@ -2,12 +2,9 @@ from pyramid.view import view_config
 from ddbmock.database import DynamoDB, PrimaryKey
 from ddbmock.errors import *
 
-
-@view_config(route_name='describe_table', renderer='json')
+# Real work
 @WrapExceptions
-def create_table(request):
-    post = request.json
-
+def _describe_table(post):
     if u'TableName' not in post:
         raise TypeError("No table name supplied")
 
@@ -20,3 +17,8 @@ def create_table(request):
     return {
         "Table": table.to_dict()
     }
+
+# Pyramid route wrapper
+@view_config(route_name='describe_table', renderer='json')
+def describe_table(request):
+    return _describe_table(request.json)

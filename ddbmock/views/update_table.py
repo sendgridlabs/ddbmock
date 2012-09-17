@@ -2,11 +2,9 @@ from pyramid.view import view_config
 from ddbmock.database import DynamoDB
 from ddbmock.errors import *
 
-@view_config(route_name='update_table', renderer='json')
+# Real work
 @WrapExceptions
-def update_table(request):
-    post = request.json
-
+def _update_table(post):
     if u'TableName' not in post:
         raise TypeError("No table name supplied")
     if u'ProvisionedThroughput' not in post:
@@ -25,7 +23,12 @@ def update_table(request):
                             post[u'ProvisionedThroughput'][u'WriteCapacityUnits'],
                             )
 
-    #FIXME: statis should be "UPDATING"
+    #FIXME: status should be "UPDATING"
     return {
         "TableDescription": table.to_dict()
     }
+
+# Pyramid route wrapper
+@view_config(route_name='update_table', renderer='json')
+def update_table(request):
+    return _update_table(request.json)
