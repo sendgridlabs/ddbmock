@@ -34,6 +34,13 @@ def main(global_config, **settings):
     config.scan()
     return config.make_wsgi_app()
 
+def connect_ddbmock(host='localhost', port=6543):
+    import boto
+    from boto.regioninfo import RegionInfo
+    endpoint = '{}:{}'.format(host:port)
+    region = RegionInfo(name='ddbmock', endpoint=endpoint)
+    return boto.connect_dynamodb(region=region, port=port, is_secure=False)
+
 # Monkey patch magic, required for the Boto entry point
 # Request hijacking Yeah !
 def connect_boto():
@@ -43,9 +50,9 @@ def connect_boto():
 # Wrap the exception handling logic
 def _do_request(action, post):
     try:
+        import importlib.import_module as _import
         target = routes[action]
-        dest = __import__('ddbmock.views.{dest}._{dest}'.format(dest=target),
-                        globals(), locals(), [], -1)
+        dest = _import('ddbmock.views.{dest}._{dest}'.format(dest=target))
         return (200, json.dumps(dest(post)))
     except KeyError:
         err = InternalFailure("Method: {} does not exist".format(action))
