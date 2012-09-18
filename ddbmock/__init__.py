@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json, time
 from ddbmock.errors import *
 from pyramid.config import Configurator

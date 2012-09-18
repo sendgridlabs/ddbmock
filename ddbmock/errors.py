@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class DDBError(Exception):
     def to_dict(self):
         name = type(self).__name__

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 def dynamodb_router_factory(handler, registry):
     # if timing support is enabled, return a wrapper
     def dynamodb_router(request):
