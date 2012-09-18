@@ -37,7 +37,7 @@ def main(global_config, **settings):
 def connect_ddbmock(host='localhost', port=6543):
     import boto
     from boto.regioninfo import RegionInfo
-    endpoint = '{}:{}'.format(host:port)
+    endpoint = '{}:{}'.format(host,port)
     region = RegionInfo(name='ddbmock', endpoint=endpoint)
     return boto.connect_dynamodb(region=region, port=port, is_secure=False)
 
