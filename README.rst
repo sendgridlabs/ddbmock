@@ -72,10 +72,11 @@ around with boto DynamoDB too :)
 
 ::
 
-    import ddbmock, boto
+    import boto
+    from ddbmock import connect_boto
 
     # Wire-up boto and ddbmock together
-    ddbmock.connect_boto()
+    db = connect_boto()
 
     # Done ! just use it wherever in your project as usual.
     db = boto.connect_dynamodb()

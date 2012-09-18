@@ -46,16 +46,19 @@ def connect_ddbmock(host='localhost', port=6543):
 # Monkey patch magic, required for the Boto entry point
 # Request hijacking Yeah !
 def connect_boto():
+    import boto
     from boto.dynamodb.layer1 import Layer1
     Layer1.make_request = _boto_make_request
+    return boto.connect_dynamodb()
 
 # Wrap the exception handling logic
 def _do_request(action, post):
     try:
-        import importlib.import_module as _import
+        from importlib import import_module
         target = routes[action]
-        dest = _import('ddbmock.views.{dest}._{dest}'.format(dest=target))
-        return (200, json.dumps(dest(post)))
+        mod = import_module('ddbmock.views.{}'.format(target))
+        func = getattr(mod, '_{}'.format(target))
+        return (200, json.dumps(func(post)))
     except KeyError:
         err = InternalFailure("Method: {} does not exist".format(action))
     except ImportError:
@@ -63,7 +66,7 @@ def _do_request(action, post):
     except DDBError as e:
         err = e
 
-    return (err.status, json.dumps(err.to_dict()))
+    return err.status, json.dumps(err.to_dict())
 
 # Boto lib version entry point
 def _boto_make_request(self, action, body='', object_hook=None):
@@ -78,14 +81,14 @@ def _boto_make_request(self, action, body='', object_hook=None):
     # - request ID
     # - simulate retry/throughput errors ?
     # FIXME: dump followed by load... can be better...
-    import boto # do not make boto a global dependancy
+    import boto  # do not make boto a global dependancy
 
     target = '%s_%s.%s' % (self.ServiceName, self.Version, action)
     start = time.time()
-    (status, ret) = _do_request(action, json.loads(body))
-    elapsed = (time.time() - start)*1000
+    status, ret = _do_request(action, json.loads(body))
+    elapsed = (time.time() - start) * 1000
     request_id = 'STUB'
-    boto.log.debug('RequestId: %s' % request_id)
+    boto.log.debug('RequestId: %s', request_id)
     boto.perflog.info('dynamodb %s: id=%s time=%sms',
                       target, request_id, int(elapsed))
     boto.log.debug(ret)

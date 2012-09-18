@@ -30,7 +30,7 @@ class ServiceUnavailableException(ServerError): pass
 def WrapExceptions(func):
     def wrapped(*args):
         try:
-            return func(*args[1:])
+            return func(*args)
         except (TypeError, ValueError) as e:
             raise ValidationException(*e.args)
     return wrapped
