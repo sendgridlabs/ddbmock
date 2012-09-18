@@ -8,7 +8,7 @@ from pyramid.config import Configurator
 routes = {
     'BatchGetItem':   'batch_get_item',
     'BatchWriteItem': 'batch_write_item',
-    'CreateTable':    'batch_write_item',
+    'CreateTable':    'create_table',
     'DeleteItem':     'delete_item',
     'DeleteTable':    'delete_table',
     'DescribeTable':  'describe_table',
@@ -58,11 +58,11 @@ def _do_request(action, post):
         target = routes[action]
         mod = import_module('ddbmock.views.{}'.format(target))
         func = getattr(mod, '_{}'.format(target))
-        return (200, json.dumps(func(post)))
-    except KeyError:
-        err = InternalFailure("Method: {} does not exist".format(action))
-    except ImportError:
-        err = InternalFailure("Method: {} not yet implemented".format(action))
+        return 200, json.dumps(func(post))
+    #except KeyError:
+    #    err = InternalFailure("Method: {} does not exist".format(action))
+    #except ImportError:
+    #    err = InternalFailure("Method: {} not yet implemented".format(action))
     except DDBError as e:
         err = e
 
@@ -92,4 +92,5 @@ def _boto_make_request(self, action, body='', object_hook=None):
     boto.perflog.info('dynamodb %s: id=%s time=%sms',
                       target, request_id, int(elapsed))
     boto.log.debug(ret)
+    # TODO: exception handling
     return json.loads(ret, object_hook=object_hook)

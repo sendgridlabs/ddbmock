@@ -55,9 +55,10 @@ class Table(object):
 
         if u'HashKeyElement' not in data[u'KeySchema']:
             raise TypeError("No hash_key")
+        hash_key = PrimaryKey.from_dict(data[u'KeySchema'][u'HashKeyElement'])
+        range_key = None
         if u'RangeKeyElement' in data[u'KeySchema']:
             range_key = PrimaryKey.from_dict(data[u'KeySchema'][u'RangeKeyElement'])
-        hash_key = PrimaryKey.from_dict(data[u'KeySchema'][u'HashKeyElement'])
 
         return cls( data[u'TableName'],
                     data[u'ProvisionedThroughput'][u'ReadCapacityUnits'],
