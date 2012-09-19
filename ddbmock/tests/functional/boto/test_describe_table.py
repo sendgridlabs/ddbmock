@@ -12,7 +12,7 @@ TABLE_HK_TYPE = u'N'
 TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
-class TestListTables(unittest.TestCase):
+class TestDescribeTables(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
         from ddbmock.database.table import Table

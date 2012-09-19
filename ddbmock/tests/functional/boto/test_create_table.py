@@ -29,7 +29,7 @@ TABLE_SCHEMA_INVALID1 = {
 
 # Not much can be tested here as most bugs are caught by Boto :)
 
-class TestListTables(unittest.TestCase):
+class TestCreateTable(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
         DynamoDB().hard_reset()

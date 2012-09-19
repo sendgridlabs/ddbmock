@@ -7,12 +7,14 @@ TABLE_NAME = 'Table-1'
 TABLE_NAME_404= 'Waldo'
 TABLE_RT = 45
 TABLE_WT = 123
+TABLE_RT2 = 10
+TABLE_WT2 = 10
 TABLE_HK_NAME = u'hash_key'
 TABLE_HK_TYPE = u'N'
 TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
-class TestDeleteTables(unittest.TestCase):
+class TestUpdateTables(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
         from ddbmock.database.table import Table
@@ -32,23 +34,31 @@ class TestDeleteTables(unittest.TestCase):
         from ddbmock.database.db import DynamoDB
         DynamoDB().hard_reset()
 
-    def test_delete(self):
+    def test_update(self):
         from ddbmock import connect_boto
         from ddbmock.database.db import DynamoDB
 
         db = connect_boto()
 
-        db.layer1.delete_table(TABLE_NAME)
+        db.layer1.update_table(TABLE_NAME, {'ReadCapacityUnits': TABLE_RT2,
+                                            'WriteCapacityUnits': TABLE_WT2})
 
         data = DynamoDB().data
-        assert TABLE_NAME not in DynamoDB().data
+        assert TABLE_NAME in DynamoDB().data
+        table = DynamoDB().data[TABLE_NAME]
 
-    def test_delete_404(self):
+        self.assertEqual(TABLE_NAME, table.name)
+        self.assertEqual(TABLE_RT2, table.rt)
+        self.assertEqual(TABLE_WT2, table.wt)
+
+    def test_update_404(self):
         from ddbmock import connect_boto
         from boto.exception import BotoServerError
 
         db = connect_boto()
 
-        self.assertRaises(BotoServerError, db.layer1.delete_table,
+        self.assertRaises(BotoServerError, db.layer1.update_table,
                           TABLE_NAME_404,
+                          {'ReadCapacityUnits': TABLE_RT2,
+                           'WriteCapacityUnits': TABLE_WT2},
                          )

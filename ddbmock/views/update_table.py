@@ -16,8 +16,8 @@ def _update_table(post):
     if u'ReadCapacityUnits' not in post[u'ProvisionedThroughput']:
         raise TypeError("No READ throughput provisioned")
 
-
-    table = DynamoDB().get_table(post[u'TableName'])
+    name = post[u'TableName']
+    table = DynamoDB().get_table(name)
     if table is None:
         raise ResourceNotFoundException("Table {} does not exist".format(name))
 
