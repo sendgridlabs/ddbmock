@@ -5,5 +5,5 @@ from ddbmock.errors import DDBError
 
 @view_config(context=DDBError, renderer='json')
 def failed_validation(exc, request):
-    request.response.status = exc.status
+    request.response_status = '{} {}'.format(exc.status, exc.status_str)
     return exc.to_dict()

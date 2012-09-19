@@ -1,25 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import json, time
-from ddbmock.errors import *
+from ddbmock.router import routes
 from pyramid.config import Configurator
-
-# src: dest
-routes = {
-    'BatchGetItem':   'batch_get_item',
-    'BatchWriteItem': 'batch_write_item',
-    'CreateTable':    'create_table',
-    'DeleteItem':     'delete_item',
-    'DeleteTable':    'delete_table',
-    'DescribeTable':  'describe_table',
-    'GetItem':        'get_item',
-    'ListTables':     'list_tables',
-    'PutItem':        'put_item',
-    'Query':          'query',
-    'Scan':           'scan',
-    'UpdateItem':     'update_item',
-    'UpdateTable':    'update_table',
-}
 
 # Pyramid entry point
 def main(global_config, **settings):
@@ -36,6 +18,7 @@ def main(global_config, **settings):
     config.scan()
     return config.make_wsgi_app()
 
+# Regular "over the network" connection wrapper.
 def connect_ddbmock(host='localhost', port=6543):
     import boto
     from boto.regioninfo import RegionInfo
@@ -48,49 +31,6 @@ def connect_ddbmock(host='localhost', port=6543):
 def connect_boto():
     import boto
     from boto.dynamodb.layer1 import Layer1
-    Layer1.make_request = _boto_make_request
+    from router.botopatch import boto_make_request
+    Layer1.make_request = boto_make_request
     return boto.connect_dynamodb()
-
-# Wrap the exception handling logic
-def _do_request(action, post):
-    try:
-        from importlib import import_module
-        target = routes[action]
-        mod = import_module('ddbmock.views.{}'.format(target))
-        func = getattr(mod, '_{}'.format(target))
-        return 200, json.dumps(func(post))
-    #except KeyError:
-    #    err = InternalFailure("Method: {} does not exist".format(action))
-    #except ImportError:
-    #    err = InternalFailure("Method: {} not yet implemented".format(action))
-    except DDBError as e:
-        err = e
-
-    return err.status, json.dumps(err.to_dict())
-
-# Boto lib version entry point
-def _boto_make_request(self, action, body='', object_hook=None):
-    # from an external point of view, this function behaves exactly as the
-    # original version. It only avoids all the HTTP and network overhead.
-    # Even logs are preserved !
-    # route to take is in 'action'
-    # TODO:
-    # - handle auth
-    # - handle route errors (404)
-    # - handle all exceptions
-    # - request ID
-    # - simulate retry/throughput errors ?
-    # FIXME: dump followed by load... can be better...
-    import boto  # do not make boto a global dependancy
-
-    target = '%s_%s.%s' % (self.ServiceName, self.Version, action)
-    start = time.time()
-    status, ret = _do_request(action, json.loads(body))
-    elapsed = (time.time() - start) * 1000
-    request_id = 'STUB'
-    boto.log.debug('RequestId: %s', request_id)
-    boto.perflog.info('dynamodb %s: id=%s time=%sms',
-                      target, request_id, int(elapsed))
-    boto.log.debug(ret)
-    # TODO: exception handling
-    return json.loads(ret, object_hook=object_hook)

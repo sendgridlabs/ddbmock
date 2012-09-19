@@ -10,8 +10,8 @@ class DDBError(Exception):
             "message": msg,
         }
 
-class BadRequest(DDBError): status=400
-class ServerError(DDBError): status=500
+class BadRequest(DDBError):  status=400; status_str='Bad Request'
+class ServerError(DDBError): status=500; status_str='InternalServerError'
 
 class AccessDeniedException(BadRequest): pass
 class ConditionalCheckFailedException(BadRequest): pass
