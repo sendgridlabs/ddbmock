@@ -2,10 +2,12 @@
 
 from pyramid.view import view_config
 from ddbmock.database import DynamoDB
-from ddbmock.errors import *
+from ddbmock.validators import dynamodb_api_validate
+from ddbmock.errors import wrap_exceptions
 
 # Real work
 @wrap_exceptions
+@dynamodb_api_validate
 def list_tables(post):
     return {
         'TableNames': DynamoDB().list_tables()

@@ -2,10 +2,12 @@
 
 from pyramid.view import view_config
 from ddbmock.database import DynamoDB
-from ddbmock.errors import *
+from ddbmock.validators import dynamodb_api_validate
+from ddbmock.errors import wrap_exceptions, ResourceInUseException
 
 # Real work
 @wrap_exceptions
+@dynamodb_api_validate
 def create_table(post):
     table = DynamoDB().create_table(post[u'TableName'], post)
 

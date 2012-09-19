@@ -2,14 +2,13 @@
 
 from pyramid.view import view_config
 from ddbmock.database import DynamoDB
-from ddbmock.errors import *
+from ddbmock.validators import dynamodb_api_validate
+from ddbmock.errors import wrap_exceptions, ResourceNotFoundException
 
 # Real work
 @wrap_exceptions
+@dynamodb_api_validate
 def delete_table(post):
-    if u'TableName' not in post:
-        raise TypeError("No table name supplied")
-
     name = post[u'TableName']
     ret = DynamoDB().delete_table(name)
     if ret is None:

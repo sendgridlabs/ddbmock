@@ -2,6 +2,8 @@
 
 from .table import Table
 
+# All validations are performed on *incomming* data => already done :)
+
 class DynamoDB(object):
     shared_data = {
         'data': {}

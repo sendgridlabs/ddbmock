@@ -2,19 +2,18 @@
 
 from pyramid.view import view_config
 from ddbmock.database import DynamoDB
-from ddbmock.errors import *
+from ddbmock.validators import dynamodb_api_validate
+from ddbmock.errors import wrap_exceptions, ResourceNotFoundException
 
 # Real work
 @wrap_exceptions
+@dynamodb_api_validate
 def describe_table(post):
-    if u'TableName' not in post:
-        raise TypeError("No table name supplied")
-
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
 
     if table is None:
-        raise TypeError("Table {} does not exist".format(name))
+        raise ResourceNotFoundException("Table {} does not exist".format(name))
 
     return {
         "Table": table.to_dict()
