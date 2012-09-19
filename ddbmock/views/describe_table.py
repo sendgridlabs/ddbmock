@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pyramid.view import view_config
-from ddbmock.database import DynamoDB, PrimaryKey
+from ddbmock.database import DynamoDB
 from ddbmock.errors import *
 
 # Real work

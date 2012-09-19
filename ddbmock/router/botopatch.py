@@ -22,6 +22,7 @@ def _do_exception(err):
 # Wrap the request logic
 def _do_request(action, post):
     # handles the request and wrap exceptions
+    # Fixme: theses wrappers makes it very hard to find the actual issue...
     try:
         target = routes[action]
         mod = import_module('ddbmock.views.{}'.format(target))
