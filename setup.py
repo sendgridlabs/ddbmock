@@ -12,12 +12,14 @@ install_requires = [
 
     'pyramid',
     'waitress',
-    'webtest'
+    'webtest',
+    'voluptuous',
 ]
 
 tests_requires = [
     # d2to1 bootstrap
     'd2to1',
+    'voluptuous',
     'pyramid',
     'boto',
 

@@ -5,8 +5,8 @@ from ddbmock.database import DynamoDB
 from ddbmock.errors import *
 
 # Real work
-@WrapExceptions
-def _create_table(post):
+@wrap_exceptions
+def create_table(post):
     table = DynamoDB().create_table(post[u'TableName'], post)
 
     if table is None:
@@ -18,7 +18,6 @@ def _create_table(post):
     }
 
 # Pyramid route wrapper
-@view_config(route_name='create_table', renderer='json')
-def create_table(request):
-    return _create_table(request.json)
-
+@view_config(route_name='pyramid_create_table', renderer='json')
+def pyramid_create_table(request):
+    return create_table(request.json)

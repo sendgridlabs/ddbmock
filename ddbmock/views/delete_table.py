@@ -5,8 +5,8 @@ from ddbmock.database import DynamoDB
 from ddbmock.errors import *
 
 # Real work
-@WrapExceptions
-def _delete_table(post):
+@wrap_exceptions
+def delete_table(post):
     if u'TableName' not in post:
         raise TypeError("No table name supplied")
 
@@ -20,6 +20,6 @@ def _delete_table(post):
     }
 
 # Pyramid route wrapper
-@view_config(route_name='delete_table', renderer='json')
-def delete_table(request):
-    return _delete_table(request.json)
+@view_config(route_name='pyramid_delete_table', renderer='json')
+def pyramid_delete_table(request):
+    return delete_table(request.json)

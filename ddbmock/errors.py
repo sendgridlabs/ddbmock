@@ -27,7 +27,7 @@ class InternalFailure(ServerError): pass
 class InternalServerError(ServerError): pass
 class ServiceUnavailableException(ServerError): pass
 
-def WrapExceptions(func):
+def wrap_exceptions(func):
     def wrapped(*args):
         try:
             return func(*args)

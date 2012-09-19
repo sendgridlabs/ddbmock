@@ -26,7 +26,7 @@ def _do_request(action, post):
     try:
         target = routes[action]
         mod = import_module('ddbmock.views.{}'.format(target))
-        func = getattr(mod, '_{}'.format(target))
+        func = getattr(mod, target)
         return json.dumps(func(post))
     except KeyError:
         err = InternalFailure("Method: {} does not exist".format(action))

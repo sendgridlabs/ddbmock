@@ -5,8 +5,8 @@ from ddbmock.database import DynamoDB
 from ddbmock.errors import *
 
 # Real work
-@WrapExceptions
-def _update_table(post):
+@wrap_exceptions
+def update_table(post):
     if u'TableName' not in post:
         raise TypeError("No table name supplied")
     if u'ProvisionedThroughput' not in post:
@@ -31,6 +31,6 @@ def _update_table(post):
     }
 
 # Pyramid route wrapper
-@view_config(route_name='update_table', renderer='json')
-def update_table(request):
-    return _update_table(request.json)
+@view_config(route_name='pyramid_update_table', renderer='json')
+def pyramid_update_table(request):
+    return update_table(request.json)
