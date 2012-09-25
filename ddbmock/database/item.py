@@ -37,3 +37,29 @@ class Item(dict):
                 raise ConditionalCheckFailedException(
                     "Expected field '{}'' = '{}'. Got '{}'".format(
                     fieldname, condition[u'Value'], self[fieldname]))
+
+    def read_key(self, key, name=None):
+        """Provided ``key``, read field value at ``name`` or ``key.name`` if not
+        specified. If the field does not exist, this is a "ValueError". In case
+        it exists, also check the type compatibility. If it does not match, raise
+        TypeError.
+
+        :ivar key: ``Key`` or ``PrimaryKey`` to read
+        :ivar name: override name field of key
+        :return: field value
+        """
+        if key is None:
+            return False
+        if name is None:
+            name = key.name
+
+        try:
+            typename, value = self[name].iteritems().next()
+        except KeyError:
+            raise ValueError('Field {} not found'.format(key.name))
+
+        if key.typename != typename:
+            raise TypeError('Expected key type = {} for field {}. Got {}'.format(
+                key.typename, key.name, typename))
+
+        return value

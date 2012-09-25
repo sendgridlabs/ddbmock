@@ -26,37 +26,26 @@ class Table(object):
         self.rt = rt
         self.wt = wt
 
-    def _read_primary_key(self, key, item, name=False):
-        if key is None:
-            return False
-        if name == False:
-            name = key.name
-        typename, value = self._key_from_dict((item[name]))
-        if key.typename != typename:
-            raise TypeError('Primary key {} is not of type {}. Got {}'.format(key.name, key.typename, typename))
-        return value
-
-    def _key_from_dict(self, key):
-        return key.iteritems().next()
-
     def put(self, item, expected):
+        item = Item(item)
         try:
-            hash = self._read_primary_key(self.hash_key, item)
-            range = self._read_primary_key(self.range_key, item)
+            hash = item.read_key(self.hash_key)
+            range = item.read_key(self.range_key)
         except KeyError:
             raise ValidationException("Either hash, range or both key is missing")
 
         old = self.data[hash][range]
         old.assert_match_expected(expected)
 
-        self.data[hash][range] = Item(item)
+        self.data[hash][range] = item
 
         return old
 
     def get(self, key, fields):
+        key = Item(key)
         try:
-            hash = self._read_primary_key(self.hash_key, key, u'HashKeyElement')
-            range = self._read_primary_key(self.range_key, key, u'RangeKeyElement')
+            hash = key.read_key(self.hash_key, u'HashKeyElement')
+            range = key.read_key(self.range_key, u'RangeKeyElement')
         except KeyError:
             raise ValidationException("Either hash, range or both key is missing")
 
