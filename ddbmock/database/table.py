@@ -6,6 +6,20 @@ from ddbmock.errors import ValidationException
 
 # All validations are performed on *incomming* data => already done :)
 
+def _filter(item, fields):
+    """
+    Return a dict containing only the keys specified in ``fields``. If
+    ``fields`` evaluates to False (None, empty, ...), the original dict is
+    returned untouched.
+
+    :ivar item: dict to filter
+    :ivar fields: array of name of keys to keep
+    :return: filtered ``item``
+    """
+    if fields:
+        return dict((k, v) for k, v in item.items() if k in fields)
+    return item
+
 class Table(object):
     def __init__(self, name, rt, wt, hash_key, range_key):
         self.name = name
@@ -25,10 +39,12 @@ class Table(object):
         self.rt = rt
         self.wt = wt
 
-    def _read_primary_key(self, key, item):
+    def _read_primary_key(self, key, item, name=False):
         if key is None:
             return False
-        typename, value = self._key_from_dict((item[key.name]))
+        if name == False:
+            name = key.name
+        typename, value = self._key_from_dict((item[name]))
         if key.typename != typename:
             raise TypeError('Primary key {} is not of type {}. Got {}'.format(key.name, key.typename, typename))
         return value
@@ -55,14 +71,16 @@ class Table(object):
 
         return old
 
-    def get(self, key):
-        hash = self._key_from_dict(key[u'HashKeyElement'])
-        if u'RangeKeyElement' in range:
-            range = self._key_from_dict(key[u'RangeKeyElement'])
-        else:
-            range = False
+    def get(self, key, fields):
+        try:
+            hash = self._read_primary_key(self.hash_key, key, u'HashKeyElement')
+            range = self._read_primary_key(self.range_key, key, u'RangeKeyElement')
+        except KeyError:
+            raise ValidationException("Either hash, range or both key is missing")
 
-        return self._get(hash, range)
+        item = self._get(hash, range)
+
+        return _filter(item, fields)
 
     @classmethod
     def from_dict(cls, data):

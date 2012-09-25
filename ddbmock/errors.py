@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from voluptuous import Invalid
-
 class DDBError(Exception):
     def to_dict(self):
         name = type(self).__name__
@@ -33,6 +31,7 @@ def wrap_exceptions(func):
     def wrapped(*args):
         try:
             return func(*args)
-        except (TypeError, ValueError, Invalid) as e:
+        except (TypeError, ValueError) as e:
+            raise
             raise ValidationException(*e.args)
     return wrapped

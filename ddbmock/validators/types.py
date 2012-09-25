@@ -50,8 +50,8 @@ return_values = all(
 )
 
 consistent_read = all(
-    boolean(msg="Consistent_read parameter must be a boolean"),
     default_to(False),
+    boolean(msg="Consistent_read parameter must be a boolean"),
 )
 
 # DynamoDB data types
@@ -88,26 +88,38 @@ primary_key = {
     u'AttributeType': primary_key_type,
 }
 
-key_schema = {
+table_key_schema = {
     u'HashKeyElement': primary_key,
     optional(u'RangeKeyElement'): primary_key,
 }
 
 # Fixme: max 1 item
-field_value = {
+key_field_value = {
     optional(u'N'): field_number_value,
     optional(u'S'): field_string_value,
     optional(u'B'): field_binary_value,
+}
+
+field_value = key_field_value.copy()
+field_value.update({
     optional(u'NS'): field_number_set_value,
     optional(u'SS'): field_string_set_value,
     optional(u'BS'): field_binary_set_value,
-}
+})
 
 item_schema = {
     required(field_name): field_value,
 }
 
-attributes_to_get_schema = [unicode]
+get_key_schema = {
+    u'HashKeyElement': key_field_value,
+    optional(u'RangeKeyElement'): key_field_value,
+}
+
+attributes_to_get_schema = all(
+    default_to([]),
+    [unicode],
+)
 
 # TODO
 expected_schema = {extra: object}
