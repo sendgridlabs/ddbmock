@@ -149,5 +149,44 @@ class TestPutItem(unittest.TestCase):
                           db.layer1.put_item,
                           TABLE_NAME2, ITEM5)
 
+    def test_put_h_expect_no_exist(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.exception import DynamoDBResponseError
 
+        db = connect_boto()
 
+        ddb_expected = {
+            TABLE_HK_NAME: {u'Exists': False}
+        }
+
+        db.layer1.put_item(TABLE_NAME2, ITEM3, expected=ddb_expected)
+
+        self.assertRaisesRegexp(DynamoDBResponseError, 'ConditionalCheckFailedException',
+            db.layer1.put_item,
+            TABLE_NAME2, ITEM4, expected=ddb_expected
+        )
+        self.assertEqual(ITEM3, self.t2.data[HK_VALUE][False])
+
+    def test_put_h_expect_field_value(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.exception import DynamoDBResponseError
+
+        db = connect_boto()
+
+        ddb_expected = {
+            u'relevant_data': {
+                u'Exists': True,
+                u'Value': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='}
+            }
+        }
+
+        db.layer1.put_item(TABLE_NAME2, ITEM3)
+        self.assertEqual(ITEM3, self.t2.data[HK_VALUE][False])
+        db.layer1.put_item(TABLE_NAME2, ITEM4, expected=ddb_expected)
+        self.assertEqual(ITEM4, self.t2.data[HK_VALUE][False])
+        self.assertRaisesRegexp(DynamoDBResponseError, 'ConditionalCheckFailedException',
+            db.layer1.put_item,
+            TABLE_NAME2, ITEM4, expected=ddb_expected
+        )

@@ -12,8 +12,9 @@ def put_item(post):
     #FIXME: this line is a temp workaround
     if u'ReturnValues' not in post:
         post[u'ReturnValues'] = u"NONE"
+    if u'Expected' not in post:
+        post[u'Expected'] = {}
 
-    #TODO: expected values
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
     if table is None:
@@ -21,7 +22,7 @@ def put_item(post):
 
     ret = {
         "ConsumedCapacityUnits": 1, #FIXME: stub
-        "Attributes": table.put(post[u'Item']),
+        "Attributes": table.put(post[u'Item'], post[u'Expected']),
     }
 
     if post[u'ReturnValues'] == "ALL_OLD":

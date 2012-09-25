@@ -47,8 +47,8 @@ class TestGetItem(unittest.TestCase):
         db.data[TABLE_NAME]  = self.t1
         db.data[TABLE_NAME2] = self.t2
 
-        self.t1.put(ITEM)
-        self.t2.put(ITEM2)
+        self.t1.put(ITEM, {})
+        self.t2.put(ITEM2, {})
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB

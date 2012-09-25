@@ -34,8 +34,6 @@ def _do_request(action, post):
         err = InternalFailure("Method: {} not yet implemented".format(action))
     except DDBError as e:
         err = e
-    except:
-        raise
 
     return _do_exception(err)
 

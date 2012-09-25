@@ -121,15 +121,10 @@ attributes_to_get_schema = all(
     [unicode],
 )
 
-# TODO
-expected_schema = {extra: object}
-
-
-'''{"TableName":"Table1",
-    "Item":{
-        "AttributeName1":{"S":"AttributeValue1"},
-        "AttributeName2":{"N":"AttributeValue2"},
-        "AttributeName5":{"B":"dmFsdWU="}
-    },
-    "Expected":{"AttributeName3":{"Value": {"S":"AttributeValue"}, "Exists":Boolean}},
-    "ReturnValues":"ReturnValuesConstant"}'''
+expected_schema = {
+    field_name: any(
+        {"Exists":false},
+        {"Exists":true, "Value": field_value}, # pas sur de la vraie syntaxe :/
+        {"Value":field_value},
+    )
+}

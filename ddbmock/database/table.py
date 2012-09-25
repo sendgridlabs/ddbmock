@@ -2,7 +2,7 @@
 
 from .key import Key, PrimaryKey
 from collections import defaultdict
-from ddbmock.errors import ValidationException
+from ddbmock.errors import ValidationException, ConditionalCheckFailedException
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -19,6 +19,29 @@ def _filter(item, fields):
     if fields:
         return dict((k, v) for k, v in item.items() if k in fields)
     return item
+
+def _assert_item_matches_expected(item, expected):
+    """
+    Raise ConditionalCheckFailedException if ``item`` does not match ``expected``
+    values. ``expected`` schema is raw conditions as defined by DynamoDb.
+
+    :ivar item: dict to check
+    :ivar expected: conditions to validate
+    :raises: ConditionalCheckFailedException
+    """
+    for fieldname, condition in expected.iteritems():
+        if u'Exists' in condition and not condition[u'Exists']:
+            if fieldname in item:
+                raise ConditionalCheckFailedException(
+                    "Field '{}' should not exist".format(fieldname))
+            continue
+        if fieldname not in item:
+            raise ConditionalCheckFailedException(
+                "Field '{}' should exist".format(fieldname))
+        if item[fieldname] != condition[u'Value']:
+            raise ConditionalCheckFailedException(
+                "Expected field '{}'' = '{}'. Got '{}'".format(
+                fieldname, condition[u'Value'], item[fieldname]))
 
 class Table(object):
     def __init__(self, name, rt, wt, hash_key, range_key):
@@ -56,9 +79,9 @@ class Table(object):
         try:
             return self.data[hash][range]
         except KeyError:
-            return False
+            return {}
 
-    def put(self, item):
+    def put(self, item, expected):
         try:
             hash = self._read_primary_key(self.hash_key, item)
             range = self._read_primary_key(self.range_key, item)
@@ -66,6 +89,7 @@ class Table(object):
             raise ValidationException("Either hash, range or both key is missing")
 
         old = self._get(hash, range)
+        _assert_item_matches_expected(old, expected)
 
         self.data[hash][range] = item
 

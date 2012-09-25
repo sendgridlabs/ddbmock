@@ -32,6 +32,5 @@ def wrap_exceptions(func):
         try:
             return func(*args)
         except (TypeError, ValueError) as e:
-            raise
             raise ValidationException(*e.args)
     return wrapped
