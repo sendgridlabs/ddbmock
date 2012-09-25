@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from .key import Key, PrimaryKey
+from collections import defaultdict
+from ddbmock.errors import ValidationException
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -12,6 +14,7 @@ class Table(object):
         self.hash_key = hash_key
         self.range_key = range_key
         self.status = "ACTIVE"
+        self.data = defaultdict(dict)
 
     def delete(self):
         #stub
@@ -21,6 +24,45 @@ class Table(object):
         # TODO: check update rate
         self.rt = rt
         self.wt = wt
+
+    def _read_primary_key(self, key, item):
+        if key is None:
+            return False
+        typename, value = self._key_from_dict((item[key.name]))
+        if key.typename != typename:
+            raise TypeError('Primary key {} is not of type {}. Got {}'.format(key.name, key.typename, typename))
+        return value
+
+    def _key_from_dict(self, key):
+        return key.iteritems().next()
+
+    def _get(self, hash, range):
+        try:
+            return self.data[hash][range]
+        except KeyError:
+            return False
+
+    def put(self, item):
+        try:
+            hash = self._read_primary_key(self.hash_key, item)
+            range = self._read_primary_key(self.range_key, item)
+        except KeyError:
+            raise ValidationException("Either hash, range or both key is missing")
+
+        old = self._get(hash, range)
+
+        self.data[hash][range] = item
+
+        return old
+
+    def get(self, key):
+        hash = self._key_from_dict(key[u'HashKeyElement'])
+        if u'RangeKeyElement' in range:
+            range = self._key_from_dict(key[u'RangeKeyElement'])
+        else:
+            range = False
+
+        return self._get(hash, range)
 
     @classmethod
     def from_dict(cls, data):

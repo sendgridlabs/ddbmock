@@ -7,7 +7,7 @@ import json, time
 import boto
 
 from importlib import import_module
-from boto.exception import BotoServerError
+from boto.exception import DynamoDBResponseError
 from boto.dynamodb.exceptions import DynamoDBValidationError as DDBValidationErr
 from ddbmock.router import routes
 from ddbmock.errors import *
@@ -17,7 +17,7 @@ def _do_exception(err):
     if isinstance(err, ValidationException):
         raise DDBValidationErr(err.status, err.status_str, err.to_dict())
     else:
-        raise BotoServerError(err.status, err.status_str, err.to_dict())
+        raise DynamoDBResponseError(err.status, err.status_str, err.to_dict())
 
 # Wrap the request logic
 def _do_request(action, post):
@@ -34,6 +34,8 @@ def _do_request(action, post):
         err = InternalFailure("Method: {} not yet implemented".format(action))
     except DDBError as e:
         err = e
+    except:
+        raise
 
     return _do_exception(err)
 

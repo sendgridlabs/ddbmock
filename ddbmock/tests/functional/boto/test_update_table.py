@@ -4,7 +4,7 @@ import unittest
 import boto
 
 TABLE_NAME = 'Table-1'
-TABLE_NAME_404= 'Waldo'
+TABLE_NAME_404 = 'Waldo'
 TABLE_RT = 45
 TABLE_WT = 123
 TABLE_RT2 = 10

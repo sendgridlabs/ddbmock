@@ -2,9 +2,20 @@
 
 # Very bad import statement
 from voluptuous import *
+from decimal import *
 import re
 
+# backport, will be in following releases
+def default_to(default_value, msg=None):
+    def f(v):
+        if v is None:
+            v = default_value
+        return v
+    return f
+
 # Elementary types
+
+base_64 = re.compile(r'^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$')
 
 table_name = all(
     unicode,
@@ -32,6 +43,39 @@ throughtput = all(
     range(1, 10000, msg="throughtput value must be between 1 and 10000"),
 )
 
+return_values = all(
+    default_to(u'NONE'),
+    unicode,
+    #any(u'NONE', u'ALL_OLD', msg="If specified, return value may only be one of 'NONE' or 'ALL_OLD'"),
+)
+
+consistent_read = all(
+    boolean(msg="Consistent_read parameter must be a boolean"),
+    default_to(False),
+)
+
+# DynamoDB data types
+
+field_name = unicode
+
+field_number_value = all(
+    length(max=38, msg="Maximum number precision is 38 digits"), # Fixme hackish
+    coerce(Decimal, msg="Number values shall be... numbers :)"),
+    range(min=Decimal('1E-128'), max=Decimal('1E+126'), msg="Number values must be between 10^-128 to 10^+126"),
+)
+
+field_string_value = unicode
+
+field_binary_value = all(
+    unicode,
+    match(base_64, msg="Binary data must be base64 encoded"),
+
+)
+
+field_number_set_value = [field_number_value]
+field_string_set_value = [field_string_value]
+field_binary_set_value = [field_binary_value]
+
 # complex types
 
 provisioned_throughtput = {
@@ -48,3 +92,32 @@ key_schema = {
     u'HashKeyElement': primary_key,
     optional(u'RangeKeyElement'): primary_key,
 }
+
+# Fixme: max 1 item
+field_value = {
+    optional(u'N'): field_number_value,
+    optional(u'S'): field_string_value,
+    optional(u'B'): field_binary_value,
+    optional(u'NS'): field_number_set_value,
+    optional(u'SS'): field_string_set_value,
+    optional(u'BS'): field_binary_set_value,
+}
+
+item_schema = {
+    required(field_name): field_value,
+}
+
+attributes_to_get_schema = [unicode]
+
+# TODO
+expected_schema = {extra: object}
+
+
+'''{"TableName":"Table1",
+    "Item":{
+        "AttributeName1":{"S":"AttributeValue1"},
+        "AttributeName2":{"N":"AttributeValue2"},
+        "AttributeName5":{"B":"dmFsdWU="}
+    },
+    "Expected":{"AttributeName3":{"Value": {"S":"AttributeValue"}, "Exists":Boolean}},
+    "ReturnValues":"ReturnValuesConstant"}'''
