@@ -1,47 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from .key import Key, PrimaryKey
+from .item import Item
 from collections import defaultdict
-from ddbmock.errors import ValidationException, ConditionalCheckFailedException
+from ddbmock.errors import ValidationException
 
 # All validations are performed on *incomming* data => already done :)
-
-def _filter(item, fields):
-    """
-    Return a dict containing only the keys specified in ``fields``. If
-    ``fields`` evaluates to False (None, empty, ...), the original dict is
-    returned untouched.
-
-    :ivar item: dict to filter
-    :ivar fields: array of name of keys to keep
-    :return: filtered ``item``
-    """
-    if fields:
-        return dict((k, v) for k, v in item.items() if k in fields)
-    return item
-
-def _assert_item_matches_expected(item, expected):
-    """
-    Raise ConditionalCheckFailedException if ``item`` does not match ``expected``
-    values. ``expected`` schema is raw conditions as defined by DynamoDb.
-
-    :ivar item: dict to check
-    :ivar expected: conditions to validate
-    :raises: ConditionalCheckFailedException
-    """
-    for fieldname, condition in expected.iteritems():
-        if u'Exists' in condition and not condition[u'Exists']:
-            if fieldname in item:
-                raise ConditionalCheckFailedException(
-                    "Field '{}' should not exist".format(fieldname))
-            continue
-        if fieldname not in item:
-            raise ConditionalCheckFailedException(
-                "Field '{}' should exist".format(fieldname))
-        if item[fieldname] != condition[u'Value']:
-            raise ConditionalCheckFailedException(
-                "Expected field '{}'' = '{}'. Got '{}'".format(
-                fieldname, condition[u'Value'], item[fieldname]))
 
 class Table(object):
     def __init__(self, name, rt, wt, hash_key, range_key):
@@ -79,7 +43,7 @@ class Table(object):
         try:
             return self.data[hash][range]
         except KeyError:
-            return {}
+            return Item()
 
     def put(self, item, expected):
         try:
@@ -89,9 +53,9 @@ class Table(object):
             raise ValidationException("Either hash, range or both key is missing")
 
         old = self._get(hash, range)
-        _assert_item_matches_expected(old, expected)
+        old.assert_match_expected(expected)
 
-        self.data[hash][range] = item
+        self.data[hash][range] = Item(item)
 
         return old
 
@@ -104,7 +68,7 @@ class Table(object):
 
         item = self._get(hash, range)
 
-        return _filter(item, fields)
+        return item.filter(fields)
 
     @classmethod
     def from_dict(cls, data):
