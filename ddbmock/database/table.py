@@ -2,8 +2,10 @@
 
 from .key import Key, PrimaryKey
 from .item import Item
+from sys import getsizeof
 from collections import defaultdict
 from ddbmock.errors import ValidationException
+import time
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -16,13 +18,29 @@ class Table(object):
         self.range_key = range_key
         self.status = "ACTIVE"
         self.data = defaultdict(lambda: defaultdict(Item))
+        self.creation_time = time.time()
+        self.last_increase_time = 0
+        self.last_decrease_time = 0
+        self.count = 0
 
     def delete(self):
         #stub
         self.status = "DELETING"
 
     def update_throughput(self, rt, wt):
-        # TODO: check update rate
+        # is decrease ?
+        if self.rt > rt or self.wt > wt:
+            current_time = time.time()
+            if current_time - self.last_decrease_time < 24*60*60:
+                return # Brrr, silent ignore. Should raise something but what ?
+            self.last_decrease_time = current_time
+
+        # is increase ?
+        if self.rt < rt or self.wt < wt:
+            if self.rt * 2 < rt or self.wt * 2 < wt:
+                return # Brrr, silent ignore. Should raise something but what ?
+            self.last_increase_time = time.time()
+
         self.rt = rt
         self.wt = wt
 
@@ -38,6 +56,10 @@ class Table(object):
         old.assert_match_expected(expected)
 
         self.data[hash][range] = item
+
+        # If this a new item, increment counter
+        if not old:
+            self.count += 1
 
         return old
 
@@ -68,21 +90,29 @@ class Table(object):
                   )
 
     def to_dict(self):
+        """Serialize table metadata for the describe table method. ItemCount and
+        TableSizeBytes are accurate but highly depends on CPython > 2.6. Do not
+        rely on it to project the actual size on a real DynamoDB implementation.
+        """
         ret = {
-            "CreationDateTime":1.309988345372E9, #stub
-            "ItemCount": 0, # Stub
+            "CreationDateTime": self.creation_time,
+            "ItemCount": self.count,
             "KeySchema": {
                 "HashKeyElement": self.hash_key.to_dict(),
             },
             "ProvisionedThroughput": {
-                "LastIncreaseDateTime": 1.309988345384E9, #stub
                 "ReadCapacityUnits": self.rt,
                 "WriteCapacityUnits": self.wt,
             },
             "TableName": self.name,
-            "TableSizeBytes": -1, #STUB
+            "TableSizeBytes": getsizeof(self.data),
             "TableStatus": self.status
         }
+
+        if self.last_increase_time:
+            ret[u'ProvisionedThroughput'][u'LastIncreaseDateTime'] = self.last_increase_time
+        if self.last_decrease_time:
+            ret[u'ProvisionedThroughput'][u'LastDecreaseDateTime'] = self.last_decrease_time
 
         if self.range_key is not None:
             ret[u'KeySchema'][u'RangeKeyElement'] = self.range_key.to_dict()
