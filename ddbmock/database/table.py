@@ -15,7 +15,7 @@ class Table(object):
         self.hash_key = hash_key
         self.range_key = range_key
         self.status = "ACTIVE"
-        self.data = defaultdict(dict)
+        self.data = defaultdict(lambda: defaultdict(Item))
 
     def delete(self):
         #stub
@@ -39,12 +39,6 @@ class Table(object):
     def _key_from_dict(self, key):
         return key.iteritems().next()
 
-    def _get(self, hash, range):
-        try:
-            return self.data[hash][range]
-        except KeyError:
-            return Item()
-
     def put(self, item, expected):
         try:
             hash = self._read_primary_key(self.hash_key, item)
@@ -52,7 +46,7 @@ class Table(object):
         except KeyError:
             raise ValidationException("Either hash, range or both key is missing")
 
-        old = self._get(hash, range)
+        old = self.data[hash][range]
         old.assert_match_expected(expected)
 
         self.data[hash][range] = Item(item)
@@ -66,7 +60,7 @@ class Table(object):
         except KeyError:
             raise ValidationException("Either hash, range or both key is missing")
 
-        item = self._get(hash, range)
+        item = self.data[hash][range]
 
         return item.filter(fields)
 

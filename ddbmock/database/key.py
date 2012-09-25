@@ -18,4 +18,4 @@ class Key(object):
         return cls(data[u'AttributeName'], data[u'AttributeType'])
 
 class PrimaryKey(Key):
-    valid_types = ['N', 'S', 'B']
+    pass
