@@ -45,8 +45,7 @@ throughtput = all(
 
 return_values = all(
     default_to(u'NONE'),
-    unicode,
-    #any(u'NONE', u'ALL_OLD', msg="If specified, return value may only be one of 'NONE' or 'ALL_OLD'"),
+    any(u'NONE', u'ALL_OLD', msg="If specified, return value may only be one of 'NONE' or 'ALL_OLD'"),
 )
 
 consistent_read = all(
