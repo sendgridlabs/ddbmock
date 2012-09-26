@@ -94,7 +94,7 @@ class TestGetItem(unittest.TestCase):
             u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE},
         }
 
-        self.assertEquals(expected, db.layer1.get_item(TABLE_NAME, key,consistent_read=True))
+        self.assertEquals(expected, db.layer1.get_item(TABLE_NAME, key, consistent_read=True))
 
     def test_get_h(self):
         from ddbmock import connect_boto

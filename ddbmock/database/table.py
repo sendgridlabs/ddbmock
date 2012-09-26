@@ -44,6 +44,24 @@ class Table(object):
         self.rt = rt
         self.wt = wt
 
+    def delete_item(self, key, expected):
+        key = Item(key)
+        try:
+            hash = key.read_key(self.hash_key, u'HashKeyElement')
+            range = key.read_key(self.range_key, u'RangeKeyElement')
+        except KeyError:
+            raise ValidationException("Either hash, range or both key is missing")
+
+        old = self.data[hash][range]
+        old.assert_match_expected(expected)
+
+        if self.range_key is None:
+            del self.data[hash]
+        else:
+            del self.data[hash][range]
+
+        return old
+
     def put(self, item, expected):
         item = Item(item)
         try:

@@ -34,5 +34,5 @@ def wrap_exceptions(func):
         except (TypeError, ValueError) as e:
             raise ValidationException(*e.args)
         except KeyError as e:
-            raise InternalServerError(*e.args)
+            raise InternalServerError(e.__name__, *e.args)
     return wrapped
