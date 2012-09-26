@@ -46,11 +46,8 @@ class Table(object):
 
     def delete_item(self, key, expected):
         key = Item(key)
-        try:
-            hash = key.read_key(self.hash_key, u'HashKeyElement')
-            range = key.read_key(self.range_key, u'RangeKeyElement')
-        except KeyError:
-            raise ValidationException("Either hash, range or both key is missing")
+        hash = key.read_key(self.hash_key, u'HashKeyElement')
+        range = key.read_key(self.range_key, u'RangeKeyElement')
 
         old = self.data[hash][range]
         old.assert_match_expected(expected)
@@ -64,11 +61,8 @@ class Table(object):
 
     def put(self, item, expected):
         item = Item(item)
-        try:
-            hash = item.read_key(self.hash_key)
-            range = item.read_key(self.range_key)
-        except KeyError:
-            raise ValidationException("Either hash, range or both key is missing")
+        hash = item.read_key(self.hash_key)
+        range = item.read_key(self.range_key)
 
         old = self.data[hash][range]
         old.assert_match_expected(expected)
@@ -83,11 +77,8 @@ class Table(object):
 
     def get(self, key, fields):
         key = Item(key)
-        try:
-            hash = key.read_key(self.hash_key, u'HashKeyElement')
-            range = key.read_key(self.range_key, u'RangeKeyElement')
-        except KeyError:
-            raise ValidationException("Either hash, range or both key is missing")
+        hash = key.read_key(self.hash_key, u'HashKeyElement')
+        range = key.read_key(self.range_key, u'RangeKeyElement')
 
         item = self.data[hash][range]
 
