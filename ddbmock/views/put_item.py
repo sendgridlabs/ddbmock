@@ -32,6 +32,6 @@ def put_item(post):
         return ret
 
 # Pyramid route wrapper
-@view_config(route_name='pyramid_put_item', renderer='json')
+@view_config(route_name='put_item', renderer='json')
 def pyramid_put_item(request):
     return pyramid_put_item(request.json)

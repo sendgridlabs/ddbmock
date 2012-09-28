@@ -19,6 +19,6 @@ def delete_table(post):
     }
 
 # Pyramid route wrapper
-@view_config(route_name='pyramid_delete_table', renderer='json')
+@view_config(route_name='delete_table', renderer='json')
 def pyramid_delete_table(request):
     return delete_table(request.json)

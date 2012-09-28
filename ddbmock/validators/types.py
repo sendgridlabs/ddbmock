@@ -99,12 +99,14 @@ key_field_value = {
     optional(u'B'): field_binary_value,
 }
 
-field_value = key_field_value.copy()
-field_value.update({
+set_field_value = {
     optional(u'NS'): field_number_set_value,
     optional(u'SS'): field_string_set_value,
     optional(u'BS'): field_binary_set_value,
-})
+}
+
+field_value = key_field_value.copy()
+field_value.update(set_field_value)
 
 item_schema = {
     required(field_name): field_value,
@@ -127,3 +129,19 @@ expected_schema = {
         {"Value":field_value},
     )
 }
+
+# Tss, y'a pas idee de faire des API aussi tordu...
+# catches only half of the validity conditions :/
+update_action_schema = any(
+    {"Value": field_value},  # FIXME: find a way to add "action=put" where nothing specified
+    {"Value": field_value, "Action": "PUT"},
+    {"Value": field_value, "Action": "ADD"},
+    {"Value": set_field_value, "Action": "DELETE"},
+    {"Action": "DELETE"},
+)
+
+attribute_update_schema = {
+    field_name: update_action_schema
+}
+
+#{"AttributeName3":{"Value":{"S":"AttributeValue3_New"},"Action":"PUT"}},

@@ -24,6 +24,6 @@ def update_table(post):
     }
 
 # Pyramid route wrapper
-@view_config(route_name='pyramid_update_table', renderer='json')
+@view_config(route_name='update_table', renderer='json')
 def pyramid_update_table(request):
     return update_table(request.json)

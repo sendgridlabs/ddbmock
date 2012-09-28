@@ -20,6 +20,6 @@ def describe_table(post):
     }
 
 # Pyramid route wrapper
-@view_config(route_name='pyramid_describe_table', renderer='json')
+@view_config(route_name='describe_table', renderer='json')
 def pyramid_describe_table(request):
     return describe_table(request.json)

@@ -8,7 +8,7 @@ from ddbmock.errors import wrap_exceptions, ResourceNotFoundException
 # Real work
 @wrap_exceptions
 @dynamodb_api_validate
-def delete_item(post):
+def update_item(post):
     #FIXME: this line is a temp workaround
     if u'ReturnValues' not in post:
         post[u'ReturnValues'] = u"NONE"
@@ -22,7 +22,11 @@ def delete_item(post):
 
     ret = {
         "ConsumedCapacityUnits": 1, #FIXME: stub
-        "Attributes": table.delete_item(post[u'Key'], post[u'Expected']),
+        "Attributes": table.update_item(
+            post[u'Key'],
+            post[u'AttributeUpdates'],
+            post[u'Expected'],
+        ),
     }
 
     if post[u'ReturnValues'] == "ALL_OLD":
@@ -32,6 +36,6 @@ def delete_item(post):
         return ret
 
 # Pyramid route wrapper
-@view_config(route_name='delete_item', renderer='json')
-def pyramid_delete_item(request):
-    return pyramid_delete_item(request.json)
+@view_config(route_name='update_item', renderer='json')
+def pyramid_update_item(request):
+    return pyramid_put_item(request.json)

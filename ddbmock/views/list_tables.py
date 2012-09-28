@@ -14,6 +14,6 @@ def list_tables(post):
     }
 
 # Pyramid route wrapper
-@view_config(route_name='pyramid_list_tables', renderer='json')
+@view_config(route_name='list_tables', renderer='json')
 def pyramid_list_tables(request):
     return list_tables(request.json)

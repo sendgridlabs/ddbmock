@@ -9,13 +9,12 @@ from ddbmock.errors import ValidationException
 # Unless otherwise specified, all attributes are required
 def dynamodb_api_validate(api):
     def wrapped(post):
-        #import ipdb; ipdb.set_trace()
         name = api.__name__
         mod = import_module('.{}'.format(name), __name__)
         validate = Schema(getattr(mod, 'post'), required=True)
         try:
             validate(post)
         except Invalid as e:
-            raise ValidationException(*e.args)
+            raise ValidationException(e.errors)
         return api(post)
     return wrapped

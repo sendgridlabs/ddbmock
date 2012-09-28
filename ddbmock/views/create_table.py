@@ -20,6 +20,6 @@ def create_table(post):
     }
 
 # Pyramid route wrapper
-@view_config(route_name='pyramid_create_table', renderer='json')
+@view_config(route_name='create_table', renderer='json')
 def pyramid_create_table(request):
     return create_table(request.json)

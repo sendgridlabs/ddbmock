@@ -5,7 +5,7 @@ from .item import Item
 from sys import getsizeof
 from collections import defaultdict
 from ddbmock.errors import ValidationException
-import time
+import time, copy
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -46,28 +46,60 @@ class Table(object):
 
     def delete_item(self, key, expected):
         key = Item(key)
-        hash = key.read_key(self.hash_key, u'HashKeyElement')
-        range = key.read_key(self.range_key, u'RangeKeyElement')
+        hash_key = key.read_key(self.hash_key, u'HashKeyElement')
+        range_key = key.read_key(self.range_key, u'RangeKeyElement')
 
-        old = self.data[hash][range]
+        old = self.data[hash_key][range_key]
         old.assert_match_expected(expected)
 
         if self.range_key is None:
-            del self.data[hash]
+            del self.data[hash_key]
         else:
-            del self.data[hash][range]
+            del self.data[hash_key][range_key]
+
+        if not old.is_new():
+            # If this NOT new item, decrement counter
+            self.count -= 1
+
+        return old
+
+    def update_item(self, key, actions, expected):
+        key = Item(key)
+        hash_key = key.read_key(self.hash_key, u'HashKeyElement')
+        range_key = key.read_key(self.range_key, u'RangeKeyElement')
+
+        # Need a deep copy as we will *modify* it
+        old = copy.deepcopy(self.data[hash_key][range_key])
+        old.assert_match_expected(expected)
+
+        # Make sure we are not altering a key
+        if self.hash_key.name in actions:
+            raise ValidationException("UpdateItem can not alter the hash_key.")
+        if self.range_key is not None and self.range_key.name in actions:
+            raise ValidationException("UpdateItem can not alter the range_key.")
+
+        self.data[hash_key][range_key].apply_actions(actions)
+
+        # If new item:
+        if old.is_new():
+            # increment counter
+            self.count += 1
+            # append the keys, this is a new item
+            self.data[hash_key][range_key][self.hash_key.name] = hash_key
+            if self.range_key is not None:
+                self.data[hash_key][range_key][self.range_key.name] = range_key
 
         return old
 
     def put(self, item, expected):
         item = Item(item)
-        hash = item.read_key(self.hash_key)
-        range = item.read_key(self.range_key)
+        hash_key = item.read_key(self.hash_key)
+        range_key = item.read_key(self.range_key)
 
-        old = self.data[hash][range]
+        old = self.data[hash_key][range_key]
         old.assert_match_expected(expected)
 
-        self.data[hash][range] = item
+        self.data[hash_key][range_key] = item
 
         # If this a new item, increment counter
         if not old:
@@ -77,10 +109,10 @@ class Table(object):
 
     def get(self, key, fields):
         key = Item(key)
-        hash = key.read_key(self.hash_key, u'HashKeyElement')
-        range = key.read_key(self.range_key, u'RangeKeyElement')
+        hash_key = key.read_key(self.hash_key, u'HashKeyElement')
+        range_key = key.read_key(self.range_key, u'RangeKeyElement')
 
-        item = self.data[hash][range]
+        item = self.data[hash_key][range_key]
 
         return item.filter(fields)
 
