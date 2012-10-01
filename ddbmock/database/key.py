@@ -7,6 +7,14 @@ class Key(object):
         self.name = name
         self.typename = typename
 
+    def read(self, key):
+        typename, value = key.items()[0]
+        if self.typename != typename:
+            raise TypeError('Expected key type = {} for field {}. Got {}'.format(
+                self.typename, self.name, typename))
+
+        return value
+
     def to_dict(self):
         return {
             "AttributeName": self.name,

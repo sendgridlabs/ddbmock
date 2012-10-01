@@ -32,4 +32,4 @@ def get_item(post):
 # Pyramid route wrapper
 @view_config(route_name='get_item', renderer='json')
 def pyramid_get_item(request):
-    return pyramid_get_item(request.json)
+    return get_item(request.json)

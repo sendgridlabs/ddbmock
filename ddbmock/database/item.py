@@ -2,6 +2,7 @@
 
 from ddbmock.errors import ConditionalCheckFailedException
 from decimal import Decimal
+from . import comparison
 
 class Item(dict):
     def filter(self, fields):
@@ -97,6 +98,29 @@ class Item(dict):
                     "Expected field '{}'' = '{}'. Got '{}'".format(
                     fieldname, condition[u'Value'], self[fieldname]))
 
+    def field_match(self, name, condition):
+        """Check if a field matches a condition. Return False when field not
+        found, or do not match. If condition is None, it is considered to match.
+
+        :ivar name: name of the field to test
+        :ivar condition: raw dict describing the condition {"OPERATOR": FIELDDEFINITION}
+        :return: True on success
+        """
+        # Arcording to specif, no condition means match
+        if condition is None:
+            return True
+
+        # read the item
+        if name not in self:
+            return False
+        value = self[name]
+
+        # Load the test operator from the comparison module. Thamks to input
+        # validation, no try/except required
+        condition_operator = condition[u'ComparisonOperator'].lower()
+        operator = getattr(comparison, condition_operator)
+        return operator(value, *condition[u'AttributeValueList'])
+
     def read_key(self, key, name=None):
         """Provided ``key``, read field value at ``name`` or ``key.name`` if not
         specified. If the field does not exist, this is a "ValueError". In case
@@ -113,12 +137,8 @@ class Item(dict):
             name = key.name
 
         try:
-            typename, value = self[name].iteritems().next()
+            field = self[name]
         except KeyError:
             raise ValueError('Field {} not found'.format(name))
 
-        if key.typename != typename:
-            raise TypeError('Expected key type = {} for field {}. Got {}'.format(
-                key.typename, name, typename))
-
-        return value
+        return key.read(field)

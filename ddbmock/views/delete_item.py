@@ -34,4 +34,4 @@ def delete_item(post):
 # Pyramid route wrapper
 @view_config(route_name='delete_item', renderer='json')
 def pyramid_delete_item(request):
-    return pyramid_delete_item(request.json)
+    return delete_item(request.json)

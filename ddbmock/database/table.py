@@ -116,6 +116,33 @@ class Table(object):
 
         return item.filter(fields)
 
+    def query(self, hash_key, rk_condition, fields, start, reverse, limit):
+        """Scans all items at hash_key and return matches as well as last
+        evaluated key if more than 1MB was scanned.
+
+        :ivar hash_key: Element describing the hash_key, no type checkeing performed
+        :ivar rk_condition: Condition which must be matched by the range_key. If None, all is returned.
+        :ivar fields: return only these fields is applicable
+        :ivar start: key structure. where to start iteration
+        :ivar reverse: wether to scan the collection backward
+        :ivar limit: max number of items to parse in this batch
+        :return: results, last_key
+        """
+        #FIXME: naive implementation
+        #TODO:
+        # - reverse
+        # - esk
+        # - limit
+        # - size limit
+        # - last evaluated key
+
+        hk_name = self.hash_key.read(hash_key)
+        rk_name = self.range_key.name
+        data = self.data[hk_name]
+
+        return [item.filter(fields) for item in data.values()
+                if item.field_match(rk_name, rk_condition)], None
+
     @classmethod
     def from_dict(cls, data):
         hash_key = PrimaryKey.from_dict(data[u'KeySchema'][u'HashKeyElement'])

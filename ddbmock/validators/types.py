@@ -53,6 +53,16 @@ consistent_read = all(
     boolean(msg="Consistent_read parameter must be a boolean"),
 )
 
+limit = all(
+    int,
+    range(min=1, msg="Limit parameter must be a positive integer")
+)
+
+scan_index_forward = all(
+    boolean(msg="ScanIndexForward must be either True either False"),
+    default_to(True),
+)
+
 # DynamoDB data types
 
 field_name = unicode
@@ -93,7 +103,7 @@ table_key_schema = {
 }
 
 # Fixme: max 1 item
-key_field_value = {
+simple_field_value = {
     optional(u'N'): field_number_value,
     optional(u'S'): field_string_value,
     optional(u'B'): field_binary_value,
@@ -105,8 +115,15 @@ set_field_value = {
     optional(u'BS'): field_binary_set_value,
 }
 
-field_value = key_field_value.copy()
+key_field_value = simple_field_value
+field_value = simple_field_value.copy()
 field_value.update(set_field_value)
+
+single_str_num_bin_list = [all(length(min=1, max=1), simple_field_value)]
+single_str_bin_list = [all(length(min=1, max=1), {
+    optional(u'S'): field_string_value,
+    optional(u'B'): field_binary_value,
+})]
 
 item_schema = {
     required(field_name): field_value,
@@ -144,4 +161,12 @@ attribute_update_schema = {
     field_name: update_action_schema
 }
 
-#{"AttributeName3":{"Value":{"S":"AttributeValue3_New"},"Action":"PUT"}},
+range_key_condition = any(
+    {
+        u"ComparisonOperator": any(u"EQ", u"GT", u"GE", u"LT", u"LE", u"BETWEEN"),
+        u"AttributeValueList": single_str_num_bin_list,
+    },{
+        u"ComparisonOperator": u"BEGINS_WITH",
+        u"AttributeValueList": single_str_bin_list,
+    },
+)
