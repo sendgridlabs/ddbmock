@@ -248,7 +248,7 @@ class TestUpdateItem(unittest.TestCase):
 
         ADD_VALUE = 2
 
-        expected = {u'N': Decimal(42 + ADD_VALUE)}
+        expected = {u'N': unicode(42 + ADD_VALUE)}
 
         # regular increment
         db.layer1.update_item(TABLE_NAME2, key, {
@@ -257,15 +257,13 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(expected, self.t2.data[HK_VALUE][False][FIELD_NUM_NAME])
 
     def test_update_item_push_to_set_ok(self):
-        # sometimes weird black magic types occures in test. these are related
-        # to internal "DB" logic. it does not affect real API output at all
         from ddbmock import connect_boto
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         db = connect_boto()
 
         expected1 = {u'SS': [u'item1', u'item2', u'item3', u'item4']}
-        expected2 = {u'SS': set([u'item1', u'item2', u'item3', u'item4', u'item5'])}
+        expected2 = {u'SS': [u'item2', u'item3', u'item1', u'item4', u'item5']}
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},

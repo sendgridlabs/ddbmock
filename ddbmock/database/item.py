@@ -58,11 +58,13 @@ class Item(dict):
                 ftypename, fvalue = self[fieldname].items()[0]
 
                 if ftypename == u"N":
-                    self[fieldname][u"N"] = Decimal(value) + Decimal(fvalue)
+                    data = Decimal(value) + Decimal(fvalue)
+                    self[fieldname][u"N"] = unicode(data)
                 elif ftypename in [u"NS", u"SS", u"BS"]:
                     if ftypename != typename:
                         raise TypeError("Expected type {t} for ADD in type {t}. Got {}".format(typename, t=ftypename))
-                    self[fieldname][typename] = set(fvalue).union(value)
+                    data = set(fvalue).union(value)
+                    self[fieldname][typename] = list(data)
                 else:
                     TypeError("Only N, NS, SS and BS types supports ADD operation. Got {}".format(ftypename))
             else:
