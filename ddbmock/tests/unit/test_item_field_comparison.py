@@ -69,3 +69,18 @@ class TestItemFieldComparison(unittest.TestCase):
         self.assertTrue(between({u'N': u'42'}, {u'N': u'7'}, {u'N': u'123'}))
         self.assertTrue(between({u'N': u'42'}, {u'N': u'42'}, {u'N': u'42'}))
         self.assertFalse(between({u'N': u'42'}, {u'N': u'43'}, {u'N': u'123'}))
+
+    def test_type_mismatch(self):
+        from ddbmock.database.comparison import (
+            between, begins_with, eq, lt, le, gt, ge)
+
+        target = {u'S': u'waldo'}
+        rule = {u'N': u'123'}
+
+        self.assertRaises(TypeError, eq, target, rule)
+        self.assertRaises(TypeError, lt, target, rule)
+        self.assertRaises(TypeError, le, target, rule)
+        self.assertRaises(TypeError, gt, target, rule)
+        self.assertRaises(TypeError, ge, target, rule)
+        self.assertRaises(TypeError, begins_with, target, rule)
+        self.assertRaises(TypeError, between, target, rule, rule)
