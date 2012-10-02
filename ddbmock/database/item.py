@@ -98,6 +98,13 @@ class Item(dict):
                     "Expected field '{}'' = '{}'. Got '{}'".format(
                     fieldname, condition[u'Value'], self[fieldname]))
 
+    def match(self, conditions):
+        for name, condition in conditions.iteritems():
+            if not self.field_match(name, condition):
+                return False
+
+        return True
+
     def field_match(self, name, condition):
         """Check if a field matches a condition. Return False when field not
         found, or do not match. If condition is None, it is considered to match.
@@ -112,8 +119,9 @@ class Item(dict):
 
         # read the item
         if name not in self:
-            return False
-        value = self[name]
+            value = None
+        else:
+            value = self[name]
 
         # Load the test operator from the comparison module. Thamks to input
         # validation, no try/except required

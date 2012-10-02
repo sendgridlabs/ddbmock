@@ -161,6 +161,7 @@ attribute_update_schema = {
     field_name: update_action_schema
 }
 
+# Conditions shared by query and scan
 range_key_condition = any(
     {
         u"ComparisonOperator": any(u"EQ", u"GT", u"GE", u"LT", u"LE", u"BETWEEN"),
@@ -170,3 +171,22 @@ range_key_condition = any(
         u"AttributeValueList": single_str_bin_list,
     },
 )
+
+# Conditions only implemented in scan
+scan_condition = any(
+    range_key_condition,
+    {
+        u"ComparisonOperator": any(u"NULL", u"NOT_NULL"),
+    },{
+        u"ComparisonOperator": any(u"CONTAINS", u"NOT_CONTAINS"),
+        u"AttributeValueList": single_str_num_bin_list,
+    },{
+        u"ComparisonOperator": u"IN",
+        u"AttributeValueList": [simple_field_value],
+    },
+)
+
+# Scan filter
+scan_filter = {
+    field_name: scan_condition,
+}

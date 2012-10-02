@@ -138,10 +138,44 @@ class Table(object):
 
         hk_name = self.hash_key.read(hash_key)
         rk_name = self.range_key.name
-        data = self.data[hk_name]
+        results = []
 
-        return [item.filter(fields) for item in data.values()
-                if item.field_match(rk_name, rk_condition)], None
+        for item in self.data[hk_name].values():
+            if item.field_match(rk_name, rk_condition):
+                results.append(item.filter(fields))
+
+        return results, None
+
+    def scan(self, scan_conditions, fields, start, limit):
+        """Scans a whole table, no matter the structure, and return matches as
+        well as the the last_evaluated key if applicable and the actually scanned
+        item count.
+
+        :ivar scan_conditions: Dict of key:conditions to match items against. If None, all is returned.
+        :ivar fields: return only these fields is applicable
+        :ivar start: key structure. where to start iteration
+        :ivar limit: max number of items to parse in this batch
+        :return: results, last_key, scanned_count
+        """
+        #FIXME: naive implementation (too)
+        #TODO:
+        # - reverse
+        # - esk
+        # - limit
+        # - size limit
+        # - last evaluated key
+
+        scanned_count = 0
+        results = []
+
+        for outer in self.data.values():
+            for item in outer.values():
+                scanned_count += 1
+                if item.match(scan_conditions):
+                    results.append(item.filter(fields))
+
+        return results, None, scanned_count
+
 
     @classmethod
     def from_dict(cls, data):

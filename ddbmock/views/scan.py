@@ -8,18 +8,16 @@ from ddbmock.errors import wrap_exceptions, ResourceNotFoundException, Validatio
 # Real work
 @wrap_exceptions
 @dynamodb_api_validate
-def query(post):
+def scan(post):
     #FIXME: this line is a temp workaround
-    if u'RangeKeyCondition' not in post:
-        post[u'RangeKeyCondition'] = None
+    if u'ScanFilter' not in post:
+        post[u'ScanFilter'] = {}
     if u'AttributesToGet' not in post:
         post[u'AttributesToGet'] = []
     if u'Count' not in post:
         post[u'Count'] = False
     if u'Limit' not in post:
         post[u'Limit'] = None
-    if u'ScanIndexForward' not in post:
-        post[u'ScanIndexForward'] = True
     if u'ExclusiveStartKey' not in post:
         post[u'ExclusiveStartKey'] = None
 
@@ -31,12 +29,10 @@ def query(post):
     if table is None:
         raise ResourceNotFoundException("Table {} does not exist".format(name))
 
-    results, last_key = table.query(
-        post[u'HashKeyValue'],
-        post[u'RangeKeyCondition'],
+    results, last_key, scanned_count = table.scan(
+        post[u'ScanFilter'],
         post[u'AttributesToGet'],
         post[u'ExclusiveStartKey'],
-        not post[u'ScanIndexForward'],
         post[u'Limit'],
     )
 
@@ -44,7 +40,8 @@ def query(post):
 
     ret = {
         "Count": count,
-        "ConsumedCapacityUnits": 0.5*count, #FIXME: stub
+        "ScannedCount": scanned_count,
+        "ConsumedCapacityUnits": 0.5*scanned_count, #FIXME: stub
         #TODO: last evaluated key where applicable
     }
 
@@ -54,6 +51,6 @@ def query(post):
     return ret
 
 # Pyramid route wrapper
-@view_config(route_name='query', renderer='json')
-def pyramid_query(request):
-    return query(request.json)
+@view_config(route_name='scan', renderer='json')
+def pyramid_scan(request):
+    return scan(request.json)
