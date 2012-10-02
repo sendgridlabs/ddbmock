@@ -17,8 +17,6 @@ def delete_item(post):
 
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
-    if table is None:
-        raise ResourceNotFoundException("Table {} does not exist".format(name))
 
     ret = {
         "ConsumedCapacityUnits": 1, #FIXME: stub

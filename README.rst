@@ -79,7 +79,6 @@ around with boto DynamoDB too :)
     db = connect_boto()
 
     # Done ! just use it wherever in your project as usual.
-    db = boto.connect_dynamodb()
     db.list_tables() # get list of tables (empty at this stage)
 
 

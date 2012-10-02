@@ -21,8 +21,6 @@ def get_item(post):
     #TODO: ConsistentRead
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
-    if table is None:
-        raise ResourceNotFoundException("Table {} does not exist".format(name))
 
     return {
         "ConsumedCapacityUnits": capacity, #FIXME: stub

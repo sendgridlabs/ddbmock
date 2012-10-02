@@ -49,7 +49,7 @@ ITEM5 = {
 }
 
 # Please note that most query features are not yet implemented hence not tested
-class TestGetItem(unittest.TestCase):
+class TestQuery(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
         from ddbmock.database.table import Table

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from .table import Table
+from collections import defaultdict
+from ddbmock.errors import ResourceNotFoundException
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -22,7 +24,7 @@ class DynamoDB(object):
     def get_table(self, name):
         if name in self.data:
             return self.data[name]
-        return None
+        raise ResourceNotFoundException("Table {} does not exist".format(name))
 
     def create_table(self, name, data):
         if name in self.data:
@@ -32,8 +34,25 @@ class DynamoDB(object):
 
     def delete_table(self, name):
         if name not in self.data:
-            return None
+            raise ResourceNotFoundException("Table {} does not exist".format(name))
         self.data[name].delete()
         ret = self.data[name].to_dict()
         del self.data[name]
+        return ret
+
+    def get_batch(self, batch):
+        ret = defaultdict(dict)
+
+        for tablename, keys in batch.iteritems():
+            fields = keys[u'AttributesToGet'] if u'AttributesToGet' in keys else []
+            table = self.get_table(tablename)
+            units = 0
+            items = []
+            for key in keys[u'Keys']:
+                item = table.get(key, fields)
+                units += 0.5  # STUB
+                if item: items.append(item)
+            ret[tablename][u'Items'] = items
+            ret[tablename][u'ConsumedCapacityUnits'] = len(items)*0.5
+
         return ret

@@ -55,7 +55,7 @@ consistent_read = all(
 
 limit = all(
     int,
-    range(min=1, msg="Limit parameter must be a positive integer")
+    range(min=1, msg="Limit parameter must be a positive integer"),
 )
 
 scan_index_forward = all(
@@ -141,9 +141,9 @@ attributes_to_get_schema = all(
 
 expected_schema = {
     field_name: any(
-        {"Exists":false},
-        {"Exists":true, "Value": field_value}, # pas sur de la vraie syntaxe :/
-        {"Value":field_value},
+        {"Exists": false},
+        {"Exists": true, "Value": field_value}, # pas sur de la vraie syntaxe :/
+        {"Value": field_value},
     )
 }
 

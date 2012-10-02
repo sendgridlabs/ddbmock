@@ -112,6 +112,9 @@ class Table(object):
         hash_key = key.read_key(self.hash_key, u'HashKeyElement')
         range_key = key.read_key(self.range_key, u'RangeKeyElement')
 
+        if self.range_key is None and u'RangeKeyElement' in key:
+            raise ValidationException("Table {} has no range_key".format(self.name))
+
         item = self.data[hash_key][range_key]
 
         return item.filter(fields)

@@ -28,8 +28,6 @@ def query(post):
 
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
-    if table is None:
-        raise ResourceNotFoundException("Table {} does not exist".format(name))
 
     results, last_key = table.query(
         post[u'HashKeyValue'],
