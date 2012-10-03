@@ -2,6 +2,8 @@
 Current Status
 ##############
 
+This documents reflects ddbmock status as of 3/10/12. It may be outdated.
+
 Methods support
 ===============
 
@@ -9,7 +11,7 @@ Methods support
 - ``DeleteTable`` DONE
 - ``UpdateTable`` DONE
 - ``DescribeTable`` DONE
-- ``GetItem DONE
+- ``GetItem`` DONE
 - ``PutItem`` DONE
 - ``DeleteItem`` DONE
 - ``UpdateItem`` ALMOST
@@ -33,12 +35,32 @@ Some comparison might not work as expected on binary data as it is performed on
 the base64 representation instead of the binary one. Please report a bug if this
 is a problem for you, or, even better, open a pull request :)
 
+All operators exists as lower case functions in ``ddbmock.database.comparison``.
+This list can easily be extended to add new/custom operators.
+
 Common to ``Query`` and ``Scan``
 --------------------------------
+
+- ``EQ`` DONE
+- ``LE`` DONE
+- ``LT`` DONE
+- ``GE`` DONE
+- ``GT`` DONE
+- ``BEGINS_WITH`` DONE
+- ``BETWEEN`` DONE
 
 Specific to ``Scan``
 --------------------
 
+- ``NULL`` DONE
+- ``NOT_NULL`` DONE
+- ``CONTAINS`` DONE
+- ``NOT_CONTAINS`` DONE
+- ``IN`` DONE
+
+``IN`` operator is the only that can not be imported directly as it overlaps
+builtin ``in`` keyword. If you need it, either import it with ``getattr`` on the
+module or as ``in_test`` which, anyway, is its internal name.
 
 Rates and size limitations
 ==========================
@@ -50,6 +72,8 @@ Request rate
 
 - Throttle read  operations when provisioned throughput exceeded. TODO
 - Throttle write operations when provisioned throughput exceeded. TODO
+- Maximum throughput is 10,000. DONE
+- Minimum throughput is 1. DONE
 - Report accurate throughput. WONT FIX
 
 ddbmock currently reports the consumed throughput based on item count. Their
@@ -71,9 +95,23 @@ Request size
 Table managment
 ---------------
 
+- No more than 255 tables. TODO
 - No more than 10 ``CREATING`` tables. TODO
 - No more than 10 ``DELETING`` tables. TODO
 - No more than 1  ``UPDATING`` table.  TODO
 
-- No more than 1 Throughput decrease/day. DONE
-- No more than *2 Throughput increase/day. DONE
+- No more than 1 Throughput decrease/calendar day. BUGGY (24h instead of calendar day)
+- No more than *2 Throughput increase/update. DONE
+- At least 10% change per update. TODO
+
+Types and items Limitations
+===========================
+
+- Table names can only be between 3 and 255 bytes long. DONE
+- Table names can only contains a-z, A-Z, 0-9, '_', '-', and '.'. DONE
+- No more than 64kB/Item including fieldname and indexing overhead. TODO
+- Primary key names can only be between 1 and 255 bytes long. DONE
+- Attribute value can *not* be Null. DONE
+- ``hash_key`` value smaller than 2048 bytes. TODO
+- ``range_key`` value smaller than 1024 bytes. TODO
+- Numbers can have up to 38 digits precision and can be between 10^-128 to 10^+126. PARTIAL
