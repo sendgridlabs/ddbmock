@@ -6,9 +6,9 @@ Presentation
 `DynamoDB <http://aws.amazon.com/dynamodb/>`_ is a minimalistic NoSQL engine
 provided by Amazon as a part of their AWS product.
 
-**DynamoDB** allows you to stores documents composed of unicode strings or numbers
-as well as sets of unicode strings and numbers. Each tables must define a hash
-key and may define a range key. All other fields are optional.
+**DynamoDB** allows you to store documents composed of unicode, number or binary
+data as well are sets. Each tables must define a ``hash_key`` and may define a
+``range_key``. All other fields are optional.
 
 **DynamoDB** is really awesome but is terribly slooooow with managment tasks.
 This makes it completly unusable in test environements
@@ -24,9 +24,17 @@ Current status
 ==============
 
 ddbmock is an experimental project and is currently under heavy development. It
-also may be discontinued at *any* time. Currently, only the table lifecycle is
-handled. It works pretty well but is of no real use since no data insertion is
-supported.
+also may be discontinued at *any* time.
+
+- support full table life-cycle
+- support full item life-cycle
+- preliminary support of ``Query``, ``Scan`` and ``BatchGetItem``
+- support (almost) all types restrictions
+- no limits on table number nor concurent table operations
+- no limits on item size
+- no limits for request/response size nor item count in those
+
+See CHANGELOG for up-to-date status.
 
 Example usage
 =============
@@ -35,7 +43,7 @@ Run as Regular client-server
 ----------------------------
 
 Ideal for test environment. For stage and production I highly recommend using
-DynamoDB servers. ddbmock comes with no warranty and *will* **loose your data**.
+DynamoDB servers. ddbmock comes with no warranty and *will* **loose your data(tm)**.
 
 ::
 
@@ -68,7 +76,7 @@ Run as a standalone library
 ---------------------------
 
 Ideal for unit testing or small scale automated functional tests. Nice to play
-around with boto DynamoDB too :)
+around with boto DynamoDB API too :)
 
 ::
 
@@ -87,11 +95,18 @@ Requirements
 
  - Python 2.7.x
  - Pyramid >= 1.3
- - Boto >= 2.5.2 (optional)
+ - Boto >= 2.5.0 (optional)
  - **NO** AWS account :)
 
-Related projects
-================
+Related Links
+=============
+
+ddbmock
+-------
+
+- **Full documentation**: TBD
+- **Report bugs**: https://bitbucket.org/jtlebigot/dynamodb-mock/issues
+- **Download**: http://pypi.python.org/pypi/ddbmock
 
 Dynamodb-mapper
 ---------------
