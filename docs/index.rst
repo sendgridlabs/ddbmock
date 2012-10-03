@@ -34,5 +34,6 @@ Contribute
 Want to contribute, report a but of request a feature ? The development goes on
 BitBucket:
 
-- **Report bugs**: https://bitbucket.org/jtlebigot/dynamodb-mock/issues
-- **Fork the code**: https://bitbucket.org/jtlebigot/dynamodb-mock/overview
+- **Download**: http://pypi.python.org/pypi/ddbmock
+- **Report bugs**: https://bitbucket.org/Ludia/dynamodb-mock/issues
+- **Fork the code**: https://bitbucket.org/Ludia/dynamodb-mock/overview

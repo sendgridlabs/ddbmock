@@ -105,7 +105,7 @@ ddbmock
 -------
 
 - **Full documentation**: TBD
-- **Report bugs**: https://bitbucket.org/jtlebigot/dynamodb-mock/issues
+- **Report bugs**: https://bitbucket.org/Ludia/dynamodb-mock/issues
 - **Download**: http://pypi.python.org/pypi/ddbmock
 
 Dynamodb-mapper
