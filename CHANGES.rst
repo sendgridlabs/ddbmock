@@ -14,6 +14,7 @@ Changes
 -------
 
 - accurate table statuses
+- fix pyramid entry-point
 
 =============
 ddbmock 0.3.0
