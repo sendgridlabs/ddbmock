@@ -1,39 +1,87 @@
 # -*- coding: utf-8 -*-
 
-import unittest, json
+import unittest, mock, json, time
 
-TABLE_NAME1 = 'Table-1'
+NOW = time.time()
+NOW2 = time.time() + 42*1000
 
+TABLE_NAME = 'Table-1'
 TABLE_RT = 45
 TABLE_WT = 123
-
-HASH_KEY = {"AttributeName":"hash_key","AttributeType":"N"}
-RANGE_KEY = {"AttributeName":"range_key","AttributeType":"S"}
+TABLE_RT2 = 10
+TABLE_WT2 = 10
+TABLE_HK_NAME = u'hash_key'
+TABLE_HK_TYPE = u'N'
+TABLE_RK_NAME = u'range_key'
+TABLE_RK_TYPE = u'S'
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.-----',
+    'x-amz-target': 'DynamoDB_20111205.UpdateTable',
     'content-type': 'application/x-amz-json-1.0',
 }
 
 # Goal here is not to test the full API, this is done by the Boto tests
-class TestTODO(unittest.TestCase):
-    def setUp(self):
+class TestUpdateTable(unittest.TestCase):
+    @mock.patch("ddbmock.database.table.time")  # Brrr
+    def setUp(self, m_time):
         from ddbmock.database.db import DynamoDB
+        from ddbmock.database.table import Table
+        from ddbmock.database.key import PrimaryKey
+
         from ddbmock import main
         app = main({})
         from webtest import TestApp
         self.app = TestApp(app)
-        DynamoDB().hard_reset()
+
+        m_time.time.return_value = NOW
+
+        db = DynamoDB()
+        db.hard_reset()
+
+        hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
+        range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
+        t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key, status="ACTIVE")
+        db.data[TABLE_NAME] = t1
+
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
         DynamoDB().hard_reset()
 
-    def test_TODO(self):
+    @mock.patch("ddbmock.database.table.time")
+    def test_update(self, m_time):
         from ddbmock.database.db import DynamoDB
+        from sys import getsizeof
+        self.maxDiff = None
 
-        request = {}
-        expected = {}
+        m_time.time.return_value = NOW2
+
+        request = {
+            "TableName": TABLE_NAME,
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": TABLE_RT2,
+                "WriteCapacityUnits": TABLE_WT2,
+            },
+        }
+
+        expected = {
+            u'TableDescription': {
+                u'CreationDateTime': NOW,
+                u'ItemCount': 0,
+                u'KeySchema': {
+                    u'HashKeyElement': {u'AttributeName': u'hash_key', u'AttributeType': u'N'},
+                    u'RangeKeyElement': {u'AttributeName': u'range_key', u'AttributeType': u'S'},
+                },
+                u'ProvisionedThroughput': {
+                    u'LastDecreaseDateTime': NOW2,
+                    u'ReadCapacityUnits': TABLE_RT2,
+                    u'WriteCapacityUnits': TABLE_WT2,
+                },
+                u'TableName': TABLE_NAME,
+                u'TableSizeBytes': getsizeof(DynamoDB().data[TABLE_NAME].data),
+                u'TableStatus': u'UPDATING'
+            }
+        }
 
         # Protocol check
         res = self.app.post_json('/', request, HEADERS, status=200)
@@ -42,7 +90,8 @@ class TestTODO(unittest.TestCase):
 
         # Live data check
         data = DynamoDB().data
-        assert TABLE_NAME1 in data
-        table = data[TABLE_NAME1]
+        assert TABLE_NAME in data
+        table = data[TABLE_NAME]
 
-        self.assertEqual(TABLE_NAME1, table.name)
+        self.assertEqual(TABLE_RT2, table.rt)
+        self.assertEqual(TABLE_WT2, table.wt)

@@ -17,7 +17,6 @@ def create_table(post):
     desc = table.to_dict(verbose=False)
     table.activate() # FIXME: This sould not be patr of the view
 
-    #FIXME: status should be "CREATING"
     return {
         "TableDescription": desc,
     }

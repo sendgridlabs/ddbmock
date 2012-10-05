@@ -18,9 +18,11 @@ def update_table(post):
                             post[u'ProvisionedThroughput'][u'WriteCapacityUnits'],
                             )
 
-    #FIXME: status should be "UPDATING"
+    desc = table.to_dict()
+    table.activate() # FIXME: This sould not be part of the view
+
     return {
-        "TableDescription": table.to_dict()
+        "TableDescription": desc,
     }
 
 # Pyramid route wrapper

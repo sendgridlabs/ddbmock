@@ -45,6 +45,9 @@ class Table(object):
                 return # Brrr, silent ignore. Should raise something but what ?
             self.last_increase_time = time.time()
 
+        #stub
+        self.status = "UPDATING"
+
         self.rt = rt
         self.wt = wt
 
