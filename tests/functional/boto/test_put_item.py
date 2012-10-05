@@ -63,8 +63,6 @@ class TestPutItem(unittest.TestCase):
         from ddbmock.database.db import DynamoDB
         DynamoDB().hard_reset()
 
-    # TODO test with expected
-
     def test_put_hr(self):
         from ddbmock import connect_boto
         from ddbmock.database.db import DynamoDB

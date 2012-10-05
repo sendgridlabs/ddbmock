@@ -2,16 +2,29 @@
 
 import unittest, json
 
-TABLE_NAME1 = 'Table-1'
-
+TABLE_NAME = 'Table-HR'
+TABLE_NAME_404 = 'Waldo'
 TABLE_RT = 45
 TABLE_WT = 123
+TABLE_HK_NAME = u'hash_key'
+TABLE_HK_TYPE = u'N'
+TABLE_RK_NAME = u'range_key'
+TABLE_RK_TYPE = u'S'
 
-HASH_KEY = {"AttributeName":"hash_key","AttributeType":"N"}
-RANGE_KEY = {"AttributeName":"range_key","AttributeType":"S"}
+HK_VALUE = u'123'
+RK_VALUE = u'Decode this data if you are a coder'
+
+HK = {TABLE_HK_TYPE: HK_VALUE}
+RK = {TABLE_RK_TYPE: RK_VALUE}
+
+ITEM = {
+    TABLE_HK_NAME: HK,
+    TABLE_RK_NAME: RK,
+    u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
+}
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.-----',
+    'x-amz-target': 'DynamoDB_20111205.PutItem',
     'content-type': 'application/x-amz-json-1.0',
 }
 
@@ -19,21 +32,35 @@ HEADERS = {
 class TestTODO(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
+        from ddbmock.database.table import Table
+        from ddbmock.database.key import PrimaryKey
+
         from ddbmock import main
         app = main({})
         from webtest import TestApp
         self.app = TestApp(app)
-        DynamoDB().hard_reset()
+
+        db = DynamoDB()
+        db.hard_reset()
+
+        hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
+        range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
+        self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
+        db.data[TABLE_NAME]  = self.t1
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
         DynamoDB().hard_reset()
 
-    def test_TODO(self):
+    def test_put_hr(self):
         from ddbmock.database.db import DynamoDB
 
-        request = {}
-        expected = {}
+        request = {
+            "TableName": TABLE_NAME,
+            "Item": ITEM,
+        }
+
+        expected = {u'ConsumedCapacityUnits': 1}
 
         # Protocol check
         res = self.app.post_json('/', request, HEADERS, status=200)
@@ -41,8 +68,5 @@ class TestTODO(unittest.TestCase):
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
         # Live data check
-        data = DynamoDB().data
-        assert TABLE_NAME1 in data
-        table = data[TABLE_NAME1]
+        self.assertEqual(ITEM, self.t1.data[HK_VALUE][RK_VALUE])
 
-        self.assertEqual(TABLE_NAME1, table.name)
