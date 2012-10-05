@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import unittest, mock, json, time
 
 NOW = time.time()
