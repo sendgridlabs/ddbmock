@@ -24,6 +24,7 @@ class TestDeleteTable(unittest.TestCase):
         from ddbmock.database.db import DynamoDB
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
+
         from ddbmock import main
         app = main({})
         from webtest import TestApp
@@ -45,7 +46,6 @@ class TestDeleteTable(unittest.TestCase):
 
     def test_delete_table(self):
         from ddbmock.database.db import DynamoDB
-        self.maxDiff = None
 
         request = {"TableName": TABLE_NAME}
 

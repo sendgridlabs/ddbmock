@@ -52,7 +52,6 @@ class TestUpdateTable(unittest.TestCase):
     def test_update(self, m_time):
         from ddbmock.database.db import DynamoDB
         from sys import getsizeof
-        self.maxDiff = None
 
         m_time.time.return_value = NOW2
 
