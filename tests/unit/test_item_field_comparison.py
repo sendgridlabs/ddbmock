@@ -138,10 +138,13 @@ class TestItemFieldComparison(unittest.TestCase):
         self.assertFalse(test_in({u'N': u'12'}, *pool))
 
     def test_type_mismatch(self):
+        import ddbmock.database.comparison as c
         from ddbmock.database.comparison import (
             between, begins_with, eq, lt, le, gt, ge, contains)
+        test_in = getattr(c, 'in')
 
         target = {u'S': u'waldo'}
+        target2 = {u'NS': [u'123']}
         rule = {u'N': u'123'}
 
         self.assertRaises(TypeError, eq, target, rule)
@@ -153,3 +156,4 @@ class TestItemFieldComparison(unittest.TestCase):
         self.assertRaises(TypeError, between, target, rule, rule)
         self.assertRaises(TypeError, contains, target, rule)
         self.assertRaises(TypeError, contains, rule, rule) # can not use contains on number
+        self.assertRaises(TypeError, test_in, target2, rule) # target can only be scalar
