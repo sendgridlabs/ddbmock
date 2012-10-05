@@ -23,7 +23,6 @@ ITEM = {
     u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
 }
 
-
 HEADERS = {
     'x-amz-target': 'DynamoDB_20111205.DeleteItem',
     'content-type': 'application/x-amz-json-1.0',
