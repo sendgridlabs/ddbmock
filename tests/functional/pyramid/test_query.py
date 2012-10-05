@@ -114,3 +114,24 @@ class TestQuery(unittest.TestCase):
         self.assertEqual(expected, json.loads(res.body))
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
+    def test_query_count_and_attrs_to_get_fails(self):
+        from ddbmock.database.db import DynamoDB
+
+        request = {
+            "TableName": TABLE_NAME,
+            "HashKeyValue": {TABLE_HK_TYPE: HK_VALUE},
+            "RangeKeyCondition": {"AttributeValueList":[{"S":"Waldo-2"}],"ComparisonOperator":"GT"},
+            "AttributesToGet": [u'relevant_data'],
+            "Count": True,
+        }
+
+        expected = {
+            u'__type': u'com.amazonaws.dynamodb.v20111205#ValidationException',
+            u'message': u'Can filter fields when only count is requested'
+        }
+
+        # Protocol check
+        res = self.app.post_json('/', request, HEADERS, status=400)
+        self.assertEqual(expected, json.loads(res.body))
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+
