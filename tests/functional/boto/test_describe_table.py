@@ -24,7 +24,7 @@ class TestDescribeTables(unittest.TestCase):
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
 
-        t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
+        t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key, status='ACTIVE')
 
         db.data[TABLE_NAME] = t1
 

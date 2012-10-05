@@ -12,8 +12,8 @@ def main(global_config, **settings):
 
     config.add_tween('ddbmock.router.dynamodb.dynamodb_router_factory')
     # Add routes
-    for src, dest in routes:
-        config.add_route(dest, '/'.src)
+    for src, dest in routes.iteritems():
+        config.add_route(dest, '/{}'.format(src))
 
     config.scan()
     return config.make_wsgi_app()

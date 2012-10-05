@@ -12,7 +12,6 @@ install_requires = [
 
     'pyramid',
     'waitress',
-    'webtest',
     'voluptuous',
 ]
 
@@ -27,6 +26,7 @@ tests_requires = [
     'nosexcover',
     'coverage',
     'mock',
+    'webtest',
 ]
 
 setup(name='ddbmock',

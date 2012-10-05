@@ -10,13 +10,13 @@ import time, copy
 # All validations are performed on *incomming* data => already done :)
 
 class Table(object):
-    def __init__(self, name, rt, wt, hash_key, range_key):
+    def __init__(self, name, rt, wt, hash_key, range_key, status='CREATING'):
         self.name = name
         self.rt = rt
         self.wt = wt
         self.hash_key = hash_key
         self.range_key = range_key
-        self.status = "ACTIVE"
+        self.status = status
         self.data = defaultdict(lambda: defaultdict(Item))
         self.creation_time = time.time()
         self.last_increase_time = 0
@@ -26,6 +26,10 @@ class Table(object):
     def delete(self):
         #stub
         self.status = "DELETING"
+
+    def activate(self):
+        #stub
+        self.status = "ACTIVE"
 
     def update_throughput(self, rt, wt):
         # is decrease ?
@@ -194,14 +198,13 @@ class Table(object):
                     range_key,
                   )
 
-    def to_dict(self):
+    def to_dict(self, verbose=True):
         """Serialize table metadata for the describe table method. ItemCount and
         TableSizeBytes are accurate but highly depends on CPython > 2.6. Do not
         rely on it to project the actual size on a real DynamoDB implementation.
         """
         ret = {
             "CreationDateTime": self.creation_time,
-            "ItemCount": self.count,
             "KeySchema": {
                 "HashKeyElement": self.hash_key.to_dict(),
             },
@@ -210,9 +213,12 @@ class Table(object):
                 "WriteCapacityUnits": self.wt,
             },
             "TableName": self.name,
-            "TableSizeBytes": getsizeof(self.data),
             "TableStatus": self.status
         }
+
+        if verbose:
+            ret[u'ItemCount'] = self.count
+            ret[u'TableSizeBytes'] = getsizeof(self.data)
 
         if self.last_increase_time:
             ret[u'ProvisionedThroughput'][u'LastIncreaseDateTime'] = self.last_increase_time

@@ -14,9 +14,12 @@ def create_table(post):
     if table is None:
         raise ResourceInUseException("Table {} already exists".format(post[u'TableName']))
 
+    desc = table.to_dict(verbose=False)
+    table.activate() # FIXME: This sould not be patr of the view
+
     #FIXME: status should be "CREATING"
     return {
-        "TableDescription": table.to_dict()
+        "TableDescription": desc,
     }
 
 # Pyramid route wrapper
