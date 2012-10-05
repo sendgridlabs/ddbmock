@@ -105,6 +105,30 @@ class TestCreateTable(unittest.TestCase):
         self.assertEqual(u'N', table.hash_key.typename)
         self.assertIsNone(table.range_key)
 
+    def test_create_table_twice_fails(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.exception import DynamoDBResponseError
+
+        db = connect_boto()
+
+        #1st
+        db.create_table(
+            name=TABLE_NAME2,
+            schema=db.create_schema(**TABLE_SCHEMA2),
+            read_units=TABLE_RT,
+            write_units=TABLE_WT,
+        )
+
+        #2nd
+        self.assertRaisesRegexp(DynamoDBResponseError, 'ResourceInUseException',
+        db.create_table,
+            name=TABLE_NAME2,
+            schema=db.create_schema(**TABLE_SCHEMA2),
+            read_units=TABLE_RT,
+            write_units=TABLE_WT,
+        )
+
 
     def test_create_table_invalid_name(self):
         from ddbmock import connect_boto
