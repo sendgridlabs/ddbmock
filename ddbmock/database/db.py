@@ -36,7 +36,7 @@ class DynamoDB(object):
         if name not in self.data:
             raise ResourceNotFoundException("Table {} does not exist".format(name))
         self.data[name].delete()
-        ret = self.data[name].to_dict()
+        ret = self.data[name].to_dict(verbose=False) # Not really the best place either...
         del self.data[name]
         return ret
 

@@ -36,16 +36,14 @@ class TestDescribeTable(unittest.TestCase):
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
-
         t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key, status='ACTIVE')
-
         db.data[TABLE_NAME] = t1
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
         DynamoDB().hard_reset()
 
-    def test_descrioe_table(self):
+    def test_describe_table(self):
         from ddbmock.database.db import DynamoDB
         from sys import getsizeof
 
