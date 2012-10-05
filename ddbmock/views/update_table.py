@@ -11,8 +11,6 @@ from ddbmock.errors import wrap_exceptions, ResourceNotFoundException
 def update_table(post):
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
-    if table is None:
-        raise ResourceNotFoundException("Table {} does not exist".format(name))
 
     table.update_throughput(post[u'ProvisionedThroughput'][u'ReadCapacityUnits'],
                             post[u'ProvisionedThroughput'][u'WriteCapacityUnits'],
