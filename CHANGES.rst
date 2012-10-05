@@ -1,6 +1,23 @@
-===========
-ddbmock 0.3
-===========
+=================
+ddbmock 0.3.1.dev
+=================
+
+This section documents all user visible changes included between ddbmock
+versions 0.3.0 and versions 0.3.1.dev
+
+Additions
+---------
+
+- add basic tests for pyramid entry-point (#1)
+
+Changes
+-------
+
+- accurate table statuses
+
+=============
+ddbmock 0.3.0
+=============
 
 Initial ddbmock release. This is *alpha quality* sofware. Some
 import features such as "Excusive Start Key", "Reverse" and
