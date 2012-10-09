@@ -8,7 +8,9 @@ TABLE_NAME_404 = 'Waldo'
 TABLE_RT = 45
 TABLE_WT = 123
 TABLE_RT2 = 10
-TABLE_WT2 = 10
+TABLE_WT2 = 200
+TABLE_RT3 = 10
+TABLE_WT3 = 2564756456
 TABLE_HK_NAME = u'hash_key'
 TABLE_HK_TYPE = u'N'
 TABLE_RK_NAME = u'range_key'
@@ -60,3 +62,16 @@ class TestUpdateTables(unittest.TestCase):
                           {'ReadCapacityUnits': TABLE_RT2,
                            'WriteCapacityUnits': TABLE_WT2},
                          )
+
+    def test_update_limite_exceeded_propagates(self):
+        from ddbmock import connect_boto
+        from boto.exception import BotoServerError
+
+        db = connect_boto()
+
+        self.assertRaises(BotoServerError, db.layer1.update_table,
+                          TABLE_NAME,
+                          {'ReadCapacityUnits': TABLE_RT3,
+                           'WriteCapacityUnits': TABLE_WT3},
+                         )
+

@@ -9,6 +9,7 @@ Additions
 ---------
 
 - add basic tests for pyramid entry-point (#1)
+- add plenty of unit and functional tests. Coverage is > 99%
 
 Changes
 -------
@@ -17,6 +18,7 @@ Changes
 - fix pyramid entry-point
 - fix list validations. Len limitation was not working
 - attempt to store empty field/set raise ValidationError (#4)
+- accurate exception detection and reporting in UpdateTable
 
 =============
 ddbmock 0.3.0

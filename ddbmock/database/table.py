@@ -4,8 +4,12 @@ from .key import Key, PrimaryKey
 from .item import Item
 from sys import getsizeof
 from collections import defaultdict
-from ddbmock.errors import ValidationException
-import time, copy
+from ddbmock.errors import ValidationException, LimitExceededException
+import time, copy, datetime
+
+def change_is_less_than_x_percent(current, candidate, threshold):
+    """Return True iff 0% < change < 10%"""
+    return current != candidate and (abs(current-candidate)/float(current))*100 < threshold
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -32,17 +36,28 @@ class Table(object):
         self.status = "ACTIVE"
 
     def update_throughput(self, rt, wt):
+        if change_is_less_than_x_percent(self.rt, rt, 10):
+            raise LimitExceededException('Requested provisioned throughput change is not allowed. The ReadCapacityUnits change must be at least 10 percent of current value. Current ReadCapacityUnits provisioned for the table: {}. Requested ReadCapacityUnits: {}.'.format(self.rt, rt))
+        if change_is_less_than_x_percent(self.wt, wt, 10):
+            raise LimitExceededException('Requested provisioned throughput change is not allowed. The WriteCapacityUnits change must be at least 10 percent of current value. Current WriteCapacityUnits provisioned for the table: {}. Requested WriteCapacityUnits: {}.'.format(self.wt, wt))
+
         # is decrease ?
         if self.rt > rt or self.wt > wt:
             current_time = time.time()
-            if current_time - self.last_decrease_time < 24*60*60:
-                return # Brrr, silent ignore. Should raise something but what ?
+            current_date = datetime.date.fromtimestamp(current_time)
+            last_decrease = datetime.date.fromtimestamp(self.last_decrease_time)
+            if (current_date - last_decrease).days == 0:
+                last = datetime.datetime.fromtimestamp(self.last_decrease_time)
+                current = datetime.datetime.fromtimestamp(current_time)
+                raise LimitExceededException("Subscriber limit exceeded: Provisioned throughput can be decreased only once within the same day. Last decrease time: Tuesday, {}. Request time: {}".format(last, current))
             self.last_decrease_time = current_time
 
         # is increase ?
         if self.rt < rt or self.wt < wt:
-            if self.rt * 2 < rt or self.wt * 2 < wt:
-                return # Brrr, silent ignore. Should raise something but what ?
+            if self.rt * 2 < rt:
+                raise LimitExceededException('Requested provisioned throughput change is not allowed. The ReadCapacityUnits change must be at most 100 percent of current value. Current ReadCapacityUnits provisioned for the table: {}. Requested ReadCapacityUnits: {}.'.format(self.rt, rt))
+            if self.wt * 2 < wt:
+                raise LimitExceededException('Requested provisioned throughput change is not allowed. The WriteCapacityUnits change must be at most 100 percent of current value. Current WriteCapacityUnits provisioned for the table: {}. Requested WriteCapacityUnits: {}.'.format(self.wt, wt))
             self.last_increase_time = time.time()
 
         #stub
