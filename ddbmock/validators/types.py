@@ -175,8 +175,13 @@ range_key_condition = any(
 
 # Conditions only implemented in scan
 scan_condition = any(
-    range_key_condition,
     {
+        u"ComparisonOperator": any(u"EQ", u"GT", u"GE", u"LT", u"LE", u"BETWEEN"),
+        u"AttributeValueList": single_str_num_bin_list,
+    },{
+        u"ComparisonOperator": u"BEGINS_WITH",
+        u"AttributeValueList": single_str_bin_list,
+    },{
         u"ComparisonOperator": any(u"NULL", u"NOT_NULL"),
     },{
         u"ComparisonOperator": any(u"CONTAINS", u"NOT_CONTAINS"),

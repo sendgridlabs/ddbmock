@@ -168,7 +168,31 @@ class TestScan(unittest.TestCase):
             "relevant_data": {
                 "AttributeValueList": [{"S":"to"}],
                 "ComparisonOperator": "CONTAINS",
-            }
+            },
+        }
+        fields = [u'relevant_data']
+
+        db = connect_boto()
+
+        ret = db.layer1.scan(TABLE_NAME, conditions, fields)
+        self.assertEqual(expected, ret)
+
+    def test_scan_filter_ghost_fields(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+
+        expected = {
+            u"Count": 0,
+            u"ScannedCount": 5,
+            u"Items": [],
+            u"ConsumedCapacityUnits": 2.5,
+        }
+
+        conditions = {
+            "ghost field": {
+                "AttributeValueList": [{"N":"123"}],
+                "ComparisonOperator": "LT",
+            },
         }
         fields = [u'relevant_data']
 

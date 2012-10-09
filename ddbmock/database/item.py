@@ -89,7 +89,8 @@ class Item(dict):
                 if fieldname in self:
                     raise ConditionalCheckFailedException(
                         "Field '{}' should not exist".format(fieldname))
-                continue
+                # *IS* executed but coverage bug
+                continue  # pragma: no cover
             if fieldname not in self:
                 raise ConditionalCheckFailedException(
                     "Field '{}' should exist".format(fieldname))
