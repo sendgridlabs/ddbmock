@@ -15,6 +15,8 @@ Changes
 
 - accurate table statuses
 - fix pyramid entry-point
+- fix list validations. Len limitation was not working
+- attempt to store empty field/set raise ValidationError (#4)
 
 =============
 ddbmock 0.3.0

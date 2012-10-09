@@ -141,3 +141,23 @@ class TestQuery(unittest.TestCase):
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, condition, fields)
         self.assertEqual(expected, ret)
 
+    def test_query_invalid_condition_multiple_data_in_field(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        condition = {
+            "AttributeValueList":[
+                {"S":"Waldo-2"},
+                {"S":"Waldo-3"},
+            ],
+            "ComparisonOperator":"GT"
+        }
+        fields = [u'relevant_data']
+
+        db = connect_boto()
+
+        self.assertRaises(DynamoDBValidationError,
+                          db.layer1.query,
+                          TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, condition, fields)
+

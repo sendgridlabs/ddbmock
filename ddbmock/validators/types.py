@@ -73,17 +73,18 @@ field_number_value = all(
     range(min=Decimal('1E-128'), max=Decimal('1E+126'), msg="Number values must be between 10^-128 to 10^+126"),
 )
 
-field_string_value = unicode
+field_string_value = all(unicode, length(min=1, msg="String fields can not be empty"))
 
 field_binary_value = all(
     unicode,
+    length(min=1, msg="Binary data fields can not be empty"),
     match(base_64, msg="Binary data must be base64 encoded"),
 
 )
 
-field_number_set_value = [field_number_value]
-field_string_set_value = [field_string_value]
-field_binary_set_value = [field_binary_value]
+field_number_set_value = all(length(min=1, msg="A set can not be empty"), [field_number_value])
+field_string_set_value = all(length(min=1, msg="A set can not be empty"), [field_string_value])
+field_binary_set_value = all(length(min=1, msg="A set can not be empty"), [field_binary_value])
 
 # complex types
 
@@ -119,11 +120,11 @@ key_field_value = simple_field_value
 field_value = simple_field_value.copy()
 field_value.update(set_field_value)
 
-single_str_num_bin_list = [all(length(min=1, max=1), simple_field_value)]
-single_str_bin_list = [all(length(min=1, max=1), {
+single_str_num_bin_list = all(length(min=1, max=1), [simple_field_value])
+single_str_bin_list = all(length(min=1, max=1), [{
     optional(u'S'): field_string_value,
     optional(u'B'): field_binary_value,
-})]
+}])
 
 item_schema = {
     required(field_name): field_value,

@@ -33,6 +33,15 @@ ITEM3 = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
     u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
 }
+ITEM3_EMPTY_FIELD = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
+    u'relevant_data': {u'B': u''},
+}
+ITEM3_EMPTY_SET = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
+    u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
+    u'empty_set': {u'NS': []},
+}
 ITEM4 = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
     u'irelevant_data': {u'B': u'WW91IHdpc2ggeW91IGNvdWxkIGNoYW5nZSB5b3VyIGpvYi4uLg=='},
@@ -102,6 +111,27 @@ class TestPutItem(unittest.TestCase):
             },
             db.layer1.put_item(TABLE_NAME2, ITEM4, return_values=u'ALL_OLD'),
         )
+
+    def test_put_h_empty_field_fail(self):
+        # From http://docs.amazonwebservices.com/amazondynamodb/latest/developerguide/API_PutItem.html
+        # Attribute values may not be null; string and binary type attributes must have lengths greater than zero; and set type attributes must not be empty. Requests with empty values will be rejected with a ValidationException.
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        db = connect_boto()
+
+        self.assertRaises(DynamoDBValidationError,
+                          db.layer1.put_item,
+                          TABLE_NAME2, ITEM3_EMPTY_SET)
+
+        self.assertFalse(self.t2.data[HK_VALUE][False])
+
+        self.assertRaises(DynamoDBValidationError,
+                          db.layer1.put_item,
+                          TABLE_NAME2, ITEM3_EMPTY_FIELD)
+
+        self.assertFalse(self.t2.data[HK_VALUE][False])
 
     def test_put_hr_404(self):
         from ddbmock import connect_boto
