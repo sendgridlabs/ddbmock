@@ -22,7 +22,7 @@ class Item(dict):
         return not len(self)
 
     def _apply_action(self, fieldname, action):
-        # Rewrite this function, it's disgutting code
+        # Rewrite this function, it's disgustting code
         #FIXME: temp hack
         if u"Action" not in action:
             action[u'Action'] = u"PUT"
@@ -52,7 +52,7 @@ class Item(dict):
             else:
                 self[fieldname] = {ftypename: list(data)}
 
-        if action[u'Action'] == u"ADD":  # Realy anoting to code :s
+        if action[u'Action'] == u"ADD":  # Realy anoying to code :s
             #FIXME: not perfect, action should be different if the item was new
             typename, value = action[u'Value'].items()[0]
             if fieldname in self:
@@ -67,7 +67,7 @@ class Item(dict):
                     data = set(fvalue).union(value)
                     self[fieldname][typename] = list(data)
                 else:
-                    TypeError("Only N, NS, SS and BS types supports ADD operation. Got {}".format(ftypename))
+                    raise TypeError("Only N, NS, SS and BS types supports ADD operation. Got {}".format(ftypename))
             else:
                 if typename not in [u"N", u"NS"]:
                     raise ValueError("When performing ADD operation on new field, only Numbers or Numbers set are allowed. Got {} of type {}".format(value, typename))

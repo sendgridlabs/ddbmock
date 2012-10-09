@@ -24,6 +24,7 @@ RELEVANT_FIELD = {'S': 'Illyse'}
 IRELEVANT_FIELD = {'B': 'WW91IHdpc2ggeW91IGNvdWxkIGNoYW5nZSB5b3VyIGpvYi4uLg=='}
 
 FIELD_NAME = u"relevant_data"
+FIELD_NAME_404 = u"ze dummy field name"
 FIELD_SET_NAME = u"data list"
 FIELD_NUM_NAME = u"counter"
 
@@ -171,6 +172,11 @@ class TestUpdateItem(unittest.TestCase):
             FIELD_NAME: {'Action': 'DELETE'},
         })
         self.assertNotIn(FIELD_NAME, self.t1.data[HK_VALUE][RK_VALUE])
+
+        # Attempt to delete non-existing field, do nothing
+        db.layer1.update_item(TABLE_NAME, key, {
+            FIELD_NAME_404: {'Action': 'DELETE'},
+        })
 
     def test_update_item_delete_field_set_ok(self):
         from ddbmock import connect_boto
