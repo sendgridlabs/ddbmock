@@ -3,7 +3,7 @@
 # This module is not imported unless connect_boto is called thus making 'boto'
 # an optional dependancy
 
-import json, time
+import json, time, itertools
 import boto
 
 from importlib import import_module
@@ -37,6 +37,8 @@ def _do_request(action, post):
 
     return _do_exception(err)
 
+counter = itertools.count()
+
 # Boto lib version entry point
 def boto_make_request(self, action, body='', object_hook=None):
     # from an external point of view, this function behaves exactly as the
@@ -52,13 +54,11 @@ def boto_make_request(self, action, body='', object_hook=None):
     # FIXME: dump followed by load... can be better...
     target = '%s_%s.%s' % (self.ServiceName, self.Version, action)
     start = time.time()
+    request_id = counter.next()
 
     try:
         ret = _do_request(action, json.loads(body))
-    except DDBError as e:
-        raise
     finally:
-        request_id = 'STUB'
         elapsed = (time.time() - start) * 1000
         boto.log.debug('RequestId: %s', request_id)
         boto.perflog.info('dynamodb %s: id=%s time=%sms',

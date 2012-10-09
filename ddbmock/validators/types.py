@@ -9,7 +9,9 @@ import re
 def default_to(default_value, msg=None):
     def f(v):
         if v is None:
-            v = default_value
+            # this is never executed because of conception error in voluptuous
+            # but i keep it as a reminder
+            v = default_value  # pragma: no coverage
         return v
     return f
 
