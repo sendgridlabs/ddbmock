@@ -8,6 +8,9 @@ class Key(object):
         self.typename = typename
 
     def read(self, key):
+        """Parse a key as specified by DynamoDB API and return its value as long as
+            its typename matches self.typename
+        """
         typename, value = key.items()[0]
         if self.typename != typename:
             raise TypeError('Expected key type = {} for field {}. Got {}'.format(
@@ -16,6 +19,8 @@ class Key(object):
         return value
 
     def to_dict(self):
+        """Return the a dict form of the key, suitable for DynamoDb API
+        """
         return {
             "AttributeName": self.name,
             "AttributeType": self.typename,
