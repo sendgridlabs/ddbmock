@@ -18,20 +18,26 @@ def update_item(post):
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
 
-    ret = {
-        "ConsumedCapacityUnits": 1, #FIXME: stub
-        "Attributes": table.update_item(
+    old, new = table.update_item(
             post[u'Key'],
             post[u'AttributeUpdates'],
             post[u'Expected'],
-        ),
+    )
+
+    ret = {
+        "ConsumedCapacityUnits": 1, #FIXME: stub
     }
 
     if post[u'ReturnValues'] == "ALL_OLD":
-        return ret
-    else:
-        del ret["Attributes"]
-        return ret
+        ret["Attributes"] = old
+    elif post[u'ReturnValues'] == "ALL_NEW":
+        ret["Attributes"] = new
+    elif post[u'ReturnValues'] == "UPDATED_OLD":
+        ret["Attributes"] = old - new
+    elif post[u'ReturnValues'] == "UPDATED_NEW":
+        ret["Attributes"] = new - old
+
+    return ret
 
 # Pyramid route wrapper
 @view_config(route_name='update_item', renderer='json')

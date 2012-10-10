@@ -101,6 +101,7 @@ class Table(object):
             raise ValidationException("UpdateItem can not alter the range_key.")
 
         self.data[hash_key][range_key].apply_actions(actions)
+        new = copy.deepcopy(self.data[hash_key][range_key])
 
         # If new item:
         if old.is_new():
@@ -111,7 +112,7 @@ class Table(object):
             if self.range_key is not None:
                 self.data[hash_key][range_key][self.range_key.name] = range_key
 
-        return old
+        return old, new
 
     def put(self, item, expected):
         item = Item(item)

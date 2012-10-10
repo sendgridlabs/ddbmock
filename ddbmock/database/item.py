@@ -151,3 +151,7 @@ class Item(dict):
             raise ValueError('Field {} not found'.format(name))
 
         return key.read(field)
+
+    def __sub__(self, other):
+        # Thanks mnoel :)
+        return {k:v for k,v in self.iteritems() if k not in other or v != other[k]}

@@ -50,6 +50,11 @@ return_values = all(
     any(u'NONE', u'ALL_OLD', msg="If specified, return value may only be one of 'NONE' or 'ALL_OLD'"),
 )
 
+return_values_all = all(
+    default_to(u'NONE'),
+    any(u'NONE', u'ALL_OLD', u'UPDATED_OLD', u'ALL_NEW', u'UPDATED_NEW', msg="If specified, return value may only be one of 'ALL_OLD', 'UPDATED_OLD', 'ALL_NEW' or 'UPDATED_NEW'"),
+)
+
 consistent_read = all(
     default_to(False),
     boolean(msg="Consistent_read parameter must be a boolean"),

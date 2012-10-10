@@ -3,6 +3,7 @@
 import unittest
 import boto
 from decimal import Decimal
+from copy import deepcopy as cp
 
 TABLE_NAME = 'Table-HR'
 TABLE_NAME2 = 'Table-H'
@@ -33,8 +34,8 @@ ITEM = {
     TABLE_RK_NAME: {TABLE_RK_TYPE: RK_VALUE},
     FIELD_NAME: {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
     FIELD_SET_NAME: {u'SS': [u'item1', u'item2', u'item3', u'item4']}
-
 }
+
 ITEM2 = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
     u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
@@ -60,8 +61,8 @@ class TestUpdateItem(unittest.TestCase):
         db.data[TABLE_NAME]  = self.t1
         db.data[TABLE_NAME2] = self.t2
 
-        self.t1.put(ITEM, {})
-        self.t2.put(ITEM2, {})
+        self.t1.put(cp(ITEM), {})
+        self.t2.put(cp(ITEM2), {})
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
@@ -311,3 +312,77 @@ class TestUpdateItem(unittest.TestCase):
             }
         )
         self.assertEqual(expected1, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
+
+    def test_update_return_all_old(self):
+        from ddbmock import connect_boto
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        key = {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE}}
+        ADD_VALUE = 1
+
+        db = connect_boto()
+        expected = cp(ITEM2)
+
+        # regular increment
+        ret = db.layer1.update_item(TABLE_NAME2, key, {
+                FIELD_NUM_NAME: {'Action': 'ADD', u'Value': {u'N': unicode(ADD_VALUE)}},
+            },
+            return_values=u'ALL_OLD',
+         )
+        self.assertEqual(expected, ret[u'Attributes'])
+
+    def test_update_return_all_new(self):
+        from ddbmock import connect_boto
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        key = {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE}}
+        ADD_VALUE = 1
+
+        db = connect_boto()
+        expected = cp(ITEM2)
+        expected[FIELD_NUM_NAME][u'N'] = unicode(int(expected[FIELD_NUM_NAME][u'N']) + ADD_VALUE)
+
+        # regular increment
+        ret = db.layer1.update_item(TABLE_NAME2, key, {
+                FIELD_NUM_NAME: {'Action': 'ADD', u'Value': {u'N': unicode(ADD_VALUE)}},
+            },
+            return_values=u'ALL_NEW',
+        )
+        self.assertEqual(expected, ret[u'Attributes'])
+
+    def test_update_return_updated_old(self):
+        from ddbmock import connect_boto
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        key = {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE}}
+        ADD_VALUE = 1
+
+        db = connect_boto()
+        expected = {FIELD_NUM_NAME: cp(ITEM2[FIELD_NUM_NAME])}
+
+        # regular increment
+        ret = db.layer1.update_item(TABLE_NAME2, key, {
+                FIELD_NUM_NAME: {'Action': 'ADD', u'Value': {u'N': unicode(ADD_VALUE)}},
+            },
+            return_values=u'UPDATED_OLD',
+         )
+        self.assertEqual(expected, ret[u'Attributes'])
+
+    def test_update_return_updated_new(self):
+        from ddbmock import connect_boto
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        key = {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE}}
+        ADD_VALUE = 1
+
+        db = connect_boto()
+        expected = {FIELD_NUM_NAME: cp(ITEM2[FIELD_NUM_NAME])}
+        expected[FIELD_NUM_NAME][u'N'] = unicode(int(expected[FIELD_NUM_NAME][u'N']) + ADD_VALUE)
+
+        # regular increment
+        ret = db.layer1.update_item(TABLE_NAME2, key, {
+                FIELD_NUM_NAME: {'Action': 'ADD', u'Value': {u'N': unicode(ADD_VALUE)}},
+            },
+            return_values=u'UPDATED_NEW',
+         )
+        self.assertEqual(expected, ret[u'Attributes'])
