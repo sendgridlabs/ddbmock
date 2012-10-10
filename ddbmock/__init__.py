@@ -19,7 +19,8 @@ def main(global_config, **settings):
     return config.make_wsgi_app()
 
 # Regular "over the network" connection wrapper.
-def connect_ddbmock(host='localhost', port=6543):
+def connect_boto_network(host='localhost', port=6543):
+    """Connect to ddbmock launched in *server* mode via boto"""
     import boto
     from boto.regioninfo import RegionInfo
     endpoint = '{}:{}'.format(host,port)
@@ -28,9 +29,14 @@ def connect_ddbmock(host='localhost', port=6543):
 
 # Monkey patch magic, required for the Boto entry point
 # Request hijacking Yeah !
-def connect_boto():
+def connect_boto_patch():
+    """Connect to ddbmock as a library via boto"""
     import boto
     from boto.dynamodb.layer1 import Layer1
     from router.botopatch import boto_make_request
     Layer1.make_request = boto_make_request
     return boto.connect_dynamodb()
+
+# Legacy / compatibility. Scheduled to removed in 0.4.0
+connect_boto = connect_boto_patch
+connect_ddbmock = connect_boto_network

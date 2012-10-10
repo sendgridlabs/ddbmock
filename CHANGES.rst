@@ -19,6 +19,16 @@ Changes
 - fix list validations. Len limitation was not working
 - attempt to store empty field/set raise ValidationError (#4)
 - accurate exception detection and reporting in UpdateTable
+- rename ``connect_boto`` to ``connect_boto_patch`` + compat layer
+- rename ``connect_ddbmock`` to ``connect_boto_network`` + compat layer
+
+Upgrade
+-------
+
+Nothing mandatory as this is a minor release but, I recommend that you:
+
+- rename ``connect_boto`` to ``connect_boto_patch``
+- rename ``connect_ddbmock`` to ``connect_boto_network``
 
 =============
 ddbmock 0.3.0
