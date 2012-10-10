@@ -62,6 +62,18 @@ Specific to ``Scan``
 builtin ``in`` keyword. If you need it, either import it with ``getattr`` on the
 module or as ``in_test`` which, anyway, is its internal name.
 
+Return value specifications
+---------------------------
+
+- ``NONE`` DONE
+- ``ALL_OLD`` DONE
+- ``ALL_NEW`` DONE
+- ``UPDATED_OLD`` DONE
+- ``UPDATED_NEW`` DONE
+
+Please note that only ``UpdateItem`` supports the 5. Other compatible nethods
+understands only the 2 first.
+
 Rates and size limitations
 ==========================
 
@@ -100,9 +112,9 @@ Table managment
 - No more than 10 ``DELETING`` tables. TODO
 - No more than 1  ``UPDATING`` table.  TODO
 
-- No more than 1 Throughput decrease/calendar day. BUGGY (24h instead of calendar day)
+- No more than 1 Throughput decrease/calendar day. DONE
 - No more than *2 Throughput increase/update. DONE
-- At least 10% change per update. TODO
+- At least 10% change per update. DONE
 
 Types and items Limitations
 ===========================

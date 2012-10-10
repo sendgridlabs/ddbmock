@@ -8,8 +8,10 @@ versions 0.3.0 and versions 0.3.1.dev
 Additions
 ---------
 
+- 100% tests coverage
 - add basic tests for pyramid entry-point (#1)
 - add plenty of unit and functional tests. Coverage is > 99%
+- add support for all ALL_OLD ALL_NEW UPDATED_OLD UPDATED_NEW in ``UpdateItem``
 
 Changes
 -------
