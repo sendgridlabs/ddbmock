@@ -12,6 +12,7 @@ Additions
 - add basic tests for pyramid entry-point (#1)
 - add plenty of unit and functional tests. Coverage is > 99%
 - add support for all ALL_OLD ALL_NEW UPDATED_OLD UPDATED_NEW in ``UpdateItem``
+- add accurate field size calculation
 
 Changes
 -------
@@ -21,6 +22,7 @@ Changes
 - fix list validations. Len limitation was not working
 - attempt to store empty field/set raise ValidationError (#4)
 - accurate exception detection and reporting in UpdateTable
+- accurate ``hash_key`` and ``range_key`` size validation
 - rename ``connect_boto`` to ``connect_boto_patch`` + compat layer
 - rename ``connect_ddbmock`` to ``connect_boto_network`` + compat layer
 

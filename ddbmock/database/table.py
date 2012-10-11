@@ -7,6 +7,10 @@ from collections import defaultdict
 from ddbmock.errors import ValidationException, LimitExceededException
 import time, copy, datetime
 
+# constants
+MAX_HK_SIZE = 2048
+MAX_RK_SIZE = 1024
+
 def change_is_less_than_x_percent(current, candidate, threshold):
     """Return True iff 0% < change < 10%"""
     return current != candidate and (abs(current-candidate)/float(current))*100 < threshold
@@ -87,8 +91,8 @@ class Table(object):
 
     def update_item(self, key, actions, expected):
         key = Item(key)
-        hash_key = key.read_key(self.hash_key, u'HashKeyElement')
-        range_key = key.read_key(self.range_key, u'RangeKeyElement')
+        hash_key = key.read_key(self.hash_key, u'HashKeyElement', max_size=MAX_HK_SIZE)
+        range_key = key.read_key(self.range_key, u'RangeKeyElement', max_size=MAX_RK_SIZE)
 
         # Need a deep copy as we will *modify* it
         old = copy.deepcopy(self.data[hash_key][range_key])
@@ -116,8 +120,8 @@ class Table(object):
 
     def put(self, item, expected):
         item = Item(item)
-        hash_key = item.read_key(self.hash_key)
-        range_key = item.read_key(self.range_key)
+        hash_key = item.read_key(self.hash_key, max_size=MAX_HK_SIZE)
+        range_key = item.read_key(self.range_key, max_size=MAX_RK_SIZE)
 
         old = self.data[hash_key][range_key]
         old.assert_match_expected(expected)

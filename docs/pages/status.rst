@@ -124,8 +124,8 @@ Types and items Limitations
 - No more than 64kB/Item including fieldname and indexing overhead. TODO
 - Primary key names can only be between 1 and 255 bytes long. DONE
 - Attribute value can *not* be Null. DONE
-- ``hash_key`` value smaller than 2048 bytes. TODO
-- ``range_key`` value smaller than 1024 bytes. TODO
+- ``hash_key``  value maximu 2048 bytes. DONE
+- ``range_key`` value maximu 1024 bytes. DONE
 - Numbers can have up to 38 digits precision and can be between 10^-128 to 10^+126. PARTIAL
 
 Table description

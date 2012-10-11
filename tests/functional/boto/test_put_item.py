@@ -5,6 +5,7 @@ import boto
 
 TABLE_NAME = 'Table-HR'
 TABLE_NAME2 = 'Table-H'
+TABLE_NAME3 = 'Table-HR-size'
 TABLE_NAME_404 = 'Waldo'
 TABLE_RT = 45
 TABLE_WT = 123
@@ -50,6 +51,23 @@ ITEM5 = {
     u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
 }
 
+ITEM_OVER_H = {
+    TABLE_HK_NAME: {u'S': 'a'*2049},
+    TABLE_RK_NAME: {u'S': 'a'},
+}
+ITEM_MAX_H = {
+    TABLE_HK_NAME: {u'S': 'a'*2048},
+    TABLE_RK_NAME: {u'S': 'a'},
+}
+ITEM_OVER_R = {
+    TABLE_HK_NAME: {u'S': 'a'},
+    TABLE_RK_NAME: {u'S': 'a'*1025},
+}
+ITEM_MAX_R = {
+    TABLE_HK_NAME: {u'S': 'a'},
+    TABLE_RK_NAME: {u'S': 'a'*1024},
+}
+
 class TestPutItem(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
@@ -60,13 +78,16 @@ class TestPutItem(unittest.TestCase):
         db.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
+        hash_key2 = PrimaryKey(TABLE_HK_NAME, TABLE_RK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
 
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
         self.t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, None)
+        self.t3 = Table(TABLE_NAME3, TABLE_RT, TABLE_WT, hash_key2, range_key)
 
         db.data[TABLE_NAME]  = self.t1
         db.data[TABLE_NAME2] = self.t2
+        db.data[TABLE_NAME3] = self.t3
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
@@ -218,3 +239,27 @@ class TestPutItem(unittest.TestCase):
             db.layer1.put_item,
             TABLE_NAME2, ITEM4, expected=ddb_expected
         )
+
+    def test_put_oversized_h(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        db = connect_boto()
+
+        db.layer1.put_item(TABLE_NAME3, ITEM_MAX_H)
+        self.assertRaisesRegexp(DynamoDBValidationError, 'bytes',
+            db.layer1.put_item,
+            TABLE_NAME3, ITEM_OVER_H)
+
+    def test_put_oversized_r(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        db = connect_boto()
+
+        db.layer1.put_item(TABLE_NAME3, ITEM_MAX_R)
+        self.assertRaisesRegexp(DynamoDBValidationError, 'bytes',
+            db.layer1.put_item,
+            TABLE_NAME3, ITEM_OVER_R)

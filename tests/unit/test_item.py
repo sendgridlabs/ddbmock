@@ -180,10 +180,10 @@ class TestItem(unittest.TestCase):
 
         item = Item(ITEM_TYPE)
 
-        self.assertEqual((0,0), item.get_field_size(u"toto"))
-        self.assertEqual((1,8), item.get_field_size(u"N"))
-        self.assertEqual((1,15), item.get_field_size(u"S"))
-        self.assertEqual((1,12), item.get_field_size(u"B"))
-        self.assertEqual((2,16), item.get_field_size(u"NS"))
-        self.assertEqual((2,30), item.get_field_size(u"SS"))
-        self.assertEqual((2,24), item.get_field_size(u"BS"))
+        self.assertEqual(0, item.get_field_size(u"toto"))
+        self.assertEqual(8, item.get_field_size(u"N"))
+        self.assertEqual(15, item.get_field_size(u"S"))
+        self.assertEqual(12, item.get_field_size(u"B"))
+        self.assertEqual(16, item.get_field_size(u"NS"))
+        self.assertEqual(30, item.get_field_size(u"SS"))
+        self.assertEqual(24, item.get_field_size(u"BS"))

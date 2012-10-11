@@ -133,7 +133,7 @@ class Item(dict):
         operator = getattr(comparison, condition_operator)
         return operator(value, *condition[u'AttributeValueList'])
 
-    def read_key(self, key, name=None):
+    def read_key(self, key, name=None, max_size=0):
         """Provided ``key``, read field value at ``name`` or ``key.name`` if not
         specified. If the field does not exist, this is a "ValueError". In case
         it exists, also check the type compatibility. If it does not match, raise
@@ -141,6 +141,7 @@ class Item(dict):
 
         :ivar key: ``Key`` or ``PrimaryKey`` to read
         :ivar name: override name field of key
+        :ivar max_size: if specified, check that the item is bellow a treshold
         :return: field value
         """
         if key is None:
@@ -153,6 +154,11 @@ class Item(dict):
         except KeyError:
             raise ValueError('Field {} not found'.format(name))
 
+        if max_size:
+            size = self.get_field_size(name)
+            if size > max_size:
+                raise ValueError('Field {} is over {} bytes limit. Got {}'.format(name, max_size, size))
+
         return key.read(field)
 
     def _internal_item_size(self, base_type, value):
@@ -163,9 +169,9 @@ class Item(dict):
         raise TypeError("Unknown base_type '{}'".format(base_type))
 
     def get_field_size(self, key):
-        """Return (key size, value size) in bytes or (0, 0) if not found"""
+        """Return value size in bytes or 0 if not found"""
         if not key in self:
-            return (0, 0)
+            return 0
 
         typename, value = _decode_field(self[key])
         base_type = typename[0]
@@ -177,9 +183,7 @@ class Item(dict):
             for v in value:
                 value_size += self._internal_item_size(base_type, v)
 
-        key_size = self._internal_item_size('S', key)
-
-        return(key_size, value_size)
+        return value_size
 
     def __sub__(self, other):
         # Thanks mnoel :)
