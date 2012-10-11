@@ -51,9 +51,10 @@ class TestUpdateTable(unittest.TestCase):
     @mock.patch("ddbmock.database.table.time")
     def test_update(self, m_time):
         from ddbmock.database.db import DynamoDB
-        from sys import getsizeof
 
         m_time.time.return_value = NOW2
+
+        self.maxDiff = None
 
         request = {
             "TableName": TABLE_NAME,
@@ -77,7 +78,7 @@ class TestUpdateTable(unittest.TestCase):
                     u'WriteCapacityUnits': TABLE_WT2,
                 },
                 u'TableName': TABLE_NAME,
-                u'TableSizeBytes': getsizeof(DynamoDB().data[TABLE_NAME].data),
+                u'TableSizeBytes': 0,
                 u'TableStatus': u'UPDATING'
             }
         }

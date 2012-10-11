@@ -20,6 +20,16 @@ entry point:
  - regular network based entry-point with 1:1 correspondance with stock DynamoDB
  - **embeded entry-point** with seamless boto intergration 1, ideal to avoid spinning yet another server.
 
+What is/will ddbmock be useful for ?
+====================================
+
+- running unit test FAST. DONE
+- running functional test FAST. DONE
+- experiment with DynamoDB API. DONE
+- plan Throughput usage. WIP (low level foundation done)
+- plan actual storage space requirements. DONE (describe table returns accurate size !)
+- perform simulations with accurate limitations. Even some undocumented "features" are accurate :)
+
 Current status
 ==============
 
@@ -46,9 +56,13 @@ Run as Regular client-server
 Ideal for test environment. For stage and production I highly recommend using
 DynamoDB servers. ddbmock comes with no warranty and *will* **loose your data(tm)**.
 
+Launch the server
+
 ::
 
     $ pserve development.ini # launch the server on 0.0.0.0:6543
+
+Start the client
 
 ::
 

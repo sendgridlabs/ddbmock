@@ -13,6 +13,7 @@ Additions
 - add plenty of unit and functional tests. Coverage is > 99%
 - add support for all ALL_OLD ALL_NEW UPDATED_OLD UPDATED_NEW in ``UpdateItem``
 - add accurate field size calculation
+- add accurate table size calculation
 - add MAX_TABLES check at table creation
 
 Changes

@@ -132,14 +132,10 @@ Table description
 =================
 
 - item count. DONE
-- data size. WONT FIX
+- data size. DONE
 - date: creation. DONE
 - date: last throughput increase. DONE
 - date: last throughput decrease. DONE
-
-The data size reported by ``ddbmock.database.table`` is computed with
-``sys.getsizeof``. While it reflects the actual data size (which is good), it does
-not follow the real DynamoDB algorithm nor the 6 hour delay between value updates.
 
 Dates are represented as float timestamps using scientific notation by DynamoDB
 but we only send them as plain number, not caring about the representation. Most

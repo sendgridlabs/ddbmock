@@ -12,6 +12,22 @@ TABLE_HK_TYPE = u'N'
 TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
+HK_VALUE = u'123'
+RK_VALUE = u'Decode this data if you are a coder'
+RK_VALUE2 = u'Decode this data if you are a coder (or not)'
+
+
+ITEM1 = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
+    TABLE_RK_NAME: {TABLE_RK_TYPE: RK_VALUE},
+    u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
+}
+ITEM2 = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
+    TABLE_RK_NAME: {TABLE_RK_TYPE: RK_VALUE2},
+    u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
+}
+
 class TestDescribeTables(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
@@ -26,6 +42,9 @@ class TestDescribeTables(unittest.TestCase):
 
         t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key, status='ACTIVE')
 
+        t1.put(ITEM1, {})
+        t1.put(ITEM2, {})
+
         db.data[TABLE_NAME] = t1
 
     def tearDown(self):
@@ -39,6 +58,7 @@ class TestDescribeTables(unittest.TestCase):
         table = db.get_table(TABLE_NAME)
 
         self.assertEqual(TABLE_NAME, table.name)
+        self.assertEqual(421, table.size_bytes)
         self.assertEqual(TABLE_RT, table.read_units)
         self.assertEqual(TABLE_WT, table.write_units)
         self.assertEqual(u'ACTIVE', table.status)

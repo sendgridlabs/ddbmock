@@ -2,7 +2,6 @@
 
 from .key import Key, PrimaryKey
 from .item import Item
-from sys import getsizeof
 from collections import defaultdict
 from ddbmock.errors import ValidationException, LimitExceededException
 import time, copy, datetime
@@ -221,11 +220,22 @@ class Table(object):
                     range_key,
                   )
 
+    def get_size(self):
+        # TODO: update size only every 6 hours
+        size = 0
+
+        for outer in self.data.values():
+            for item in outer.values():
+                size += item.get_size(include_index_overhead=True)
+
+        return size
+
     def to_dict(self, verbose=True):
         """Serialize table metadata for the describe table method. ItemCount and
         TableSizeBytes are accurate but highly depends on CPython > 2.6. Do not
         rely on it to project the actual size on a real DynamoDB implementation.
         """
+
         ret = {
             "CreationDateTime": self.creation_time,
             "KeySchema": {
@@ -241,7 +251,7 @@ class Table(object):
 
         if verbose:
             ret[u'ItemCount'] = self.count
-            ret[u'TableSizeBytes'] = getsizeof(self.data)
+            ret[u'TableSizeBytes'] = self.get_size()
 
         if self.last_increase_time:
             ret[u'ProvisionedThroughput'][u'LastIncreaseDateTime'] = self.last_increase_time

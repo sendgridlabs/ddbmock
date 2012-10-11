@@ -68,7 +68,7 @@ class TestDescribeTable(unittest.TestCase):
                     u'WriteCapacityUnits': TABLE_WT,
                 },
                 u'TableName': TABLE_NAME,
-                u'TableSizeBytes': getsizeof(DynamoDB().data[TABLE_NAME].data),
+                u'TableSizeBytes': 0,
                 u'TableStatus': u'ACTIVE',
             }
         }
