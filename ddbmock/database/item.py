@@ -2,12 +2,19 @@
 
 from ddbmock.errors import ConditionalCheckFailedException
 from decimal import Decimal
+from math import ceil
 from . import comparison
+
+INDEX_OVERHEAD = 100
 
 def _decode_field(field):
     return field.items()[0]
 
 class Item(dict):
+    def __init__(self, dico={}):
+        self.update(dico)
+        self.size = None
+
     def filter(self, fields):
         """
         Return a dict containing only the keys specified in ``fields``. If
@@ -18,8 +25,8 @@ class Item(dict):
         :return: filtered ``item``
         """
         if fields:
-            return dict((k, v) for k, v in self.items() if k in fields)
-        return dict(self)
+            return Item((k, v) for k, v in self.items() if k in fields)
+        return self
 
     def is_new(self):
         return not len(self)
@@ -78,6 +85,7 @@ class Item(dict):
 
     def apply_actions(self, actions):
         map(self._apply_action, actions.keys(), actions.values())
+        self.size = None  # reset cache
 
     def assert_match_expected(self, expected):
         """
@@ -182,6 +190,38 @@ class Item(dict):
                 value_size += self._internal_item_size(base_type, v)
 
         return value_size
+
+    def get_units(self):
+        """Get item size in terms of capacity units. This does *not* include the
+        index overhead"""
+        return int(ceil((self.get_size()) / 1024.0))
+
+    def get_size(self, include_index_overhead=False):
+        """Compute Item size as DynamoDB would. This is especially useful for
+        enforcing the 64kb per item limit as well as the capacityUnit cost.
+
+        note: the result is cached for efficiency. If you ever happend to directly
+        edit values for any reason, do not forget to invalidate it: ``self.size=None``
+
+        :ivar include_index_overhead: instruct ``get_size()`` to take indexing overhead into account in the computation. This value is never cached
+        :return: the computed size
+        """
+
+        # Check cache and compute
+        if self.size is None:
+            size = 0
+
+            for key in self.keys():
+                size += self._internal_item_size('S', key)
+                size += self.get_field_size(key)
+
+            self.size = size
+
+        # Return
+        if include_index_overhead:
+            return self.size + INDEX_OVERHEAD
+        else:
+            return self.size
 
     def __sub__(self, other):
         # Thanks mnoel :)

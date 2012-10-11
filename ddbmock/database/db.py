@@ -7,7 +7,7 @@ from ddbmock.errors import (ResourceNotFoundException,
                             LimitExceededException,
                            )
 
-MAX_TABLES = 255
+MAX_TABLES = 256
 
 # All validations are performed on *incomming* data => already done :)
 

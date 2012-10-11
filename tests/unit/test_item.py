@@ -5,6 +5,8 @@ import unittest
 # tests
 # - actions
 # - expected values
+# - size computation (fields)
+# - size computation (item)
 
 FIELDNAME = "fieldname"
 VALUE_S = {u"S": u"String value ê"}
@@ -19,6 +21,8 @@ VALUE_SS_SUR = {u"SS": [u"String value", u"Waldo ç"]}
 VALUE_SS_RES = {u"SS": [u'Ludia', u'Waldo ç', u'String value', u'zinga']}
 VALUE_N_X2 = {u"N": u"246"}
 
+VALUE_S_BIG = {u"S": u"abcd"*31415}  # if you don't see the geek ref here, your not a geek
+
 ITEM_TYPE = {
     u'S': VALUE_S,
     u'B': VALUE_B,
@@ -26,6 +30,10 @@ ITEM_TYPE = {
     u'SS': VALUE_SS,
     u'BS': VALUE_BS,
     u'NS': VALUE_NS,
+}
+
+ITEM_BIG = {
+    u'big field': VALUE_S_BIG,
 }
 
 class TestItem(unittest.TestCase):
@@ -187,3 +195,49 @@ class TestItem(unittest.TestCase):
         self.assertEqual(16, item.get_field_size(u"NS"))
         self.assertEqual(30, item.get_field_size(u"SS"))
         self.assertEqual(24, item.get_field_size(u"BS"))
+
+    def test_item_size_computation(self):
+        from ddbmock.database.item import Item, INDEX_OVERHEAD
+
+        item1 = Item()
+        item2 = Item(ITEM_TYPE)
+
+        # cache init
+        self.assertIsNone(item1.size)
+        self.assertIsNone(item2.size)
+
+        # compute size
+        s1 = item1.get_size()
+        s2 = item2.get_size()
+
+        self.assertEqual(0, s1)
+        self.assertEqual(114, s2)
+
+        # check cache
+        self.assertEqual(s1, item1.size)
+        self.assertEqual(s2, item2.size)
+
+        # check overhead inclusion
+        self.assertEqual(s1+INDEX_OVERHEAD, item1.get_size(True))
+        self.assertEqual(s2+INDEX_OVERHEAD, item2.get_size(True))
+
+        # check cache did not change: overhead must not be cached
+        self.assertEqual(s1, item1.size)
+        self.assertEqual(s2, item2.size)
+
+        # any call to "update item" invalidates the cache
+        item1.apply_actions({})
+        item2.apply_actions({})
+
+        self.assertIsNone(item1.size)
+        self.assertIsNone(item2.size)
+
+    def test_item_unit_computation(self):
+        from ddbmock.database.item import Item
+
+        item1 = Item(ITEM_BIG)
+        item2 = Item(ITEM_TYPE)
+
+        self.assertEqual(123, item1.get_units())  # If I tell you the '123' is not on purpose, you won't believe me, will you ? Especially when Pi is involved
+        self.assertEqual(1, item2.get_units())
+
