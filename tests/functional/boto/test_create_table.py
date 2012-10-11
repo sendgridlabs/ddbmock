@@ -5,6 +5,8 @@ import boto
 
 TABLE_NAME1 = 'Table-1'
 TABLE_NAME2 = 'Table-2'
+TABLE_NAME3 = 'Table-3'
+TABLE_NAME4 = 'Table-4'
 TABLE_NAME_INVALID1 = 'Table-invalid 1'
 
 TABLE_RT = 45
@@ -145,3 +147,49 @@ class TestCreateTable(unittest.TestCase):
             read_units=TABLE_RT,
             write_units=TABLE_WT,
         )
+
+    def test_create_table_reach_max(self):
+        from ddbmock import connect_boto
+        from ddbmock.database import db as database
+        from boto.exception import DynamoDBResponseError
+
+        BK = database.MAX_TABLES
+        database.MAX_TABLES = 3
+
+        db = connect_boto()
+
+        #1
+        db.create_table(
+            name=TABLE_NAME1,
+            schema=db.create_schema(**TABLE_SCHEMA2),
+            read_units=TABLE_RT,
+            write_units=TABLE_WT,
+        )
+
+        #2
+        db.create_table(
+            name=TABLE_NAME2,
+            schema=db.create_schema(**TABLE_SCHEMA2),
+            read_units=TABLE_RT,
+            write_units=TABLE_WT,
+        )
+
+        #3
+        db.create_table(
+            name=TABLE_NAME3,
+            schema=db.create_schema(**TABLE_SCHEMA2),
+            read_units=TABLE_RT,
+            write_units=TABLE_WT,
+        )
+
+        #4
+        self.assertRaisesRegexp(DynamoDBResponseError, 'LimitExceededException',
+        db.create_table,
+            name=TABLE_NAME4,
+            schema=db.create_schema(**TABLE_SCHEMA2),
+            read_units=TABLE_RT,
+            write_units=TABLE_WT,
+        )
+
+        #restore max
+        database.MAX_TABLES = BK

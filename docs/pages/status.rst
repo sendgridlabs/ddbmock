@@ -107,7 +107,7 @@ Request size
 Table managment
 ---------------
 
-- No more than 255 tables. TODO
+- No more than 255 tables. DONE
 - No more than 10 ``CREATING`` tables. TODO
 - No more than 10 ``DELETING`` tables. TODO
 - No more than 1  ``UPDATING`` table.  TODO
