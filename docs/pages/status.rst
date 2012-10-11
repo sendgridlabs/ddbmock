@@ -126,7 +126,7 @@ Types and items Limitations
 - Attribute value can *not* be Null. DONE
 - ``hash_key``  value maximu 2048 bytes. DONE
 - ``range_key`` value maximu 1024 bytes. DONE
-- Numbers can have up to 38 digits precision and can be between 10^-128 to 10^+126. PARTIAL
+- Numbers max 38 digits precision; between 10^-128 and 10^+126. DONE
 
 Table description
 =================

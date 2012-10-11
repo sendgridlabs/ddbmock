@@ -2,7 +2,7 @@
 
 # Very bad import statement
 from voluptuous import *
-from decimal import *
+from decimal import Decimal
 import re
 
 # backport, will be in following releases
@@ -12,6 +12,19 @@ def default_to(default_value, msg=None):
             # this is never executed because of conception error in voluptuous
             # but i keep it as a reminder
             v = default_value  # pragma: no coverage
+        return v
+    return f
+
+# custom validator for integers
+def precision(min=None, max=None, precision=None, msg=None):
+    def f(v):
+        d = Decimal(v)
+        if precision is not None and len(d.as_tuple().digits) > precision:
+            raise Invalid(msg or ('{} has {} digits but maximum is {}'.format(d, len(d.as_tuple().digits), precision)))
+        if min is not None and min > d:
+            raise Invalid(msg or ('{} is smaller than minimum {}'.format(d, min)))
+        if max is not None and max < d:
+            raise Invalid(msg or ('{} is bigger than maximum {}'.format(d, max)))
         return v
     return f
 
@@ -75,9 +88,8 @@ scan_index_forward = all(
 field_name = unicode
 
 field_number_value = all(
-    length(max=38, msg="Maximum number precision is 38 digits"), # Fixme hackish
     coerce(Decimal, msg="Number values shall be... numbers :)"),
-    range(min=Decimal('1E-128'), max=Decimal('1E+126'), msg="Number values must be between 10^-128 to 10^+126"),
+    precision(min=Decimal('1E-128'), max=Decimal('1E+126'), precision=38),
 )
 
 field_string_value = all(unicode, length(min=1, msg="String fields can not be empty"))

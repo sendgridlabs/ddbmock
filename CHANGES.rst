@@ -23,6 +23,7 @@ Changes
 - attempt to store empty field/set raise ValidationError (#4)
 - accurate exception detection and reporting in UpdateTable
 - accurate ``hash_key`` and ``range_key`` size validation
+- accurate number limitations (max 38 digits precision; between 10^-128 and 10^+126)
 - rename ``connect_boto`` to ``connect_boto_patch`` + compat layer
 - rename ``connect_ddbmock`` to ``connect_boto_network`` + compat layer
 

@@ -166,8 +166,6 @@ class Item(dict):
         if base_type == 'S': return len(value.encode('utf-8'))
         if base_type == 'B': return len(value.encode('utf-8'))*3/4 # base64 overead
 
-        raise TypeError("Unknown base_type '{}'".format(base_type))
-
     def get_field_size(self, key):
         """Return value size in bytes or 0 if not found"""
         if not key in self:
