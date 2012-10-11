@@ -7,17 +7,26 @@ import unittest
 # - expected values
 
 FIELDNAME = "fieldname"
-VALUE_S = {"S": "String value"}
-VALUE_N = {"N": "123"}
-VALUE_B = {"B": "QmluYXJ5IGRhdGE="}
-VALUE_SS = {"SS": ["String value", "Ludia", "Waldo"]}
-VALUE_NS = {"NS": ["456", "789"]}
-VALUE_BS = {"BS": ["QmluYXJ5IGRhdGE="]}
+VALUE_S = {u"S": u"String value ê"}
+VALUE_N = {u"N": u"123"}
+VALUE_B = {u"B": u"QmluYXJ5IGRhdGE=="}
+VALUE_SS = {u"SS": [u"String value", u"Ludia", u"Waldo ç"]}
+VALUE_NS = {u"NS": [u"456", u"789"]}
+VALUE_BS = {u"BS": [u"QmluYXJ5IGRhdGE==", u"enV0IGRlIHp1dA=="]}
 
-VALUE_SS_DEL = {"SS": ["Ludia", "zinga"]}
-VALUE_SS_SUR = {"SS": ["String value", "Waldo"]}
-VALUE_SS_RES = {"SS": ['Ludia', 'String value', 'zinga', 'Waldo']}
-VALUE_N_X2 = {"N": "246"}
+VALUE_SS_DEL = {u"SS": [u"Ludia", u"zinga"]}
+VALUE_SS_SUR = {u"SS": [u"String value", u"Waldo ç"]}
+VALUE_SS_RES = {u"SS": [u'Ludia', u'Waldo ç', u'String value', u'zinga']}
+VALUE_N_X2 = {u"N": u"246"}
+
+ITEM_TYPE = {
+    u'S': VALUE_S,
+    u'B': VALUE_B,
+    u'N': VALUE_N,
+    u'SS': VALUE_SS,
+    u'BS': VALUE_BS,
+    u'NS': VALUE_NS,
+}
 
 class TestItem(unittest.TestCase):
     # actions
@@ -165,3 +174,16 @@ class TestItem(unittest.TestCase):
         self.assertRaises(ConditionalCheckFailedException,
                           item.assert_match_expected,
                           {FIELDNAME: {'Exists': True, 'Value': VALUE_N}})
+
+    def test_size_computation(self):
+        from ddbmock.database.item import Item
+
+        item = Item(ITEM_TYPE)
+
+        self.assertEqual((0,0), item.get_field_size(u"toto"))
+        self.assertEqual((1,8), item.get_field_size(u"N"))
+        self.assertEqual((1,15), item.get_field_size(u"S"))
+        self.assertEqual((1,12), item.get_field_size(u"B"))
+        self.assertEqual((2,16), item.get_field_size(u"NS"))
+        self.assertEqual((2,30), item.get_field_size(u"SS"))
+        self.assertEqual((2,24), item.get_field_size(u"BS"))

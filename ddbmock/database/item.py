@@ -4,6 +4,9 @@ from ddbmock.errors import ConditionalCheckFailedException
 from decimal import Decimal
 from . import comparison
 
+def _decode_field(field):
+    return field.items()[0]
+
 class Item(dict):
     def filter(self, fields):
         """
@@ -36,8 +39,8 @@ class Item(dict):
                 del self[fieldname] # Nice and easy part
                 return
 
-            typename, value = action[u'Value'].items()[0]
-            ftypename, fvalue = self[fieldname].items()[0]
+            typename, value = _decode_field(action[u'Value'])
+            ftypename, fvalue = _decode_field(self[fieldname])
 
             if len(ftypename) != 2:
                 raise TypeError("Can not DELETE elements from a non set type. Got {}".format(ftypename))
@@ -54,9 +57,9 @@ class Item(dict):
 
         if action[u'Action'] == u"ADD":  # Realy anoying to code :s
             #FIXME: not perfect, action should be different if the item was new
-            typename, value = action[u'Value'].items()[0]
+            typename, value = _decode_field(action[u'Value'])
             if fieldname in self:
-                ftypename, fvalue = self[fieldname].items()[0]
+                ftypename, fvalue = _decode_field(self[fieldname])
 
                 if ftypename == u"N":
                     data = Decimal(value) + Decimal(fvalue)
@@ -151,6 +154,32 @@ class Item(dict):
             raise ValueError('Field {} not found'.format(name))
 
         return key.read(field)
+
+    def _internal_item_size(self, base_type, value):
+        if base_type == 'N': return 8 # assumes "double" internal type on ddb side
+        if base_type == 'S': return len(value.encode('utf-8'))
+        if base_type == 'B': return len(value.encode('utf-8'))*3/4 # base64 overead
+
+        raise TypeError("Unknown base_type '{}'".format(base_type))
+
+    def get_field_size(self, key):
+        """Return (key size, value size) in bytes or (0, 0) if not found"""
+        if not key in self:
+            return (0, 0)
+
+        typename, value = _decode_field(self[key])
+        base_type = typename[0]
+
+        if len(typename) == 1:
+            value_size = self._internal_item_size(base_type, value)
+        else:
+            value_size = 0
+            for v in value:
+                value_size += self._internal_item_size(base_type, v)
+
+        key_size = self._internal_item_size('S', key)
+
+        return(key_size, value_size)
 
     def __sub__(self, other):
         # Thanks mnoel :)
