@@ -29,6 +29,8 @@ FIELD_NAME_404 = u"ze dummy field name"
 FIELD_SET_NAME = u"data list"
 FIELD_NUM_NAME = u"counter"
 
+RELEVANT_HUGE_FIELD = {'S': 'a'*64*1024}
+
 ITEM = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
     TABLE_RK_NAME: {TABLE_RK_TYPE: RK_VALUE},
@@ -386,3 +388,19 @@ class TestUpdateItem(unittest.TestCase):
             return_values=u'UPDATED_NEW',
          )
         self.assertEqual(expected, ret[u'Attributes'])
+
+    def test_update_item_put_h_oversized(self):
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+        from ddbmock import connect_boto
+        db = connect_boto()
+
+        key = {
+            u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
+        }
+
+        # PUT explicite, existing field
+        self.assertRaisesRegexp(DynamoDBValidationError, 'Items.*smaller.*update',
+        db.layer1.update_item, TABLE_NAME2, key, {
+            'relevant_data': {'Value': RELEVANT_HUGE_FIELD},
+        })
+        self.assertEqual(ITEM[FIELD_NAME], self.t2.data[HK_VALUE][False]['relevant_data'])

@@ -38,10 +38,10 @@ also may be discontinued at *any* time.
 
 - support full table life-cycle
 - support full item life-cycle
+- support for all item limitations
+- accurate size and date reporting
 - preliminary support of ``Query``, ``Scan`` and ``BatchGetItem``
-- support (almost) all types restrictions
-- no limits on table number nor concurent table operations
-- no limits on item size
+- no limits on concurent table operations
 - no limits for request/response size nor item count in those
 
 See http://ddbmock.readthedocs.org/en/latest/pages/status.html for detailed

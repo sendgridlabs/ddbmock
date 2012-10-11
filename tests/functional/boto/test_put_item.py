@@ -51,6 +51,11 @@ ITEM5 = {
     u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
 }
 
+ITEM_BIG = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
+    u'relevant_data': {u'S': u'a'*64*1024},  # thsi field itself is.... too big
+}
+
 ITEM_OVER_H = {
     TABLE_HK_NAME: {u'S': 'a'*2049},
     TABLE_RK_NAME: {u'S': 'a'},
@@ -263,3 +268,16 @@ class TestPutItem(unittest.TestCase):
         self.assertRaisesRegexp(DynamoDBValidationError, 'bytes',
             db.layer1.put_item,
             TABLE_NAME3, ITEM_OVER_R)
+
+    def test_put_oversized_item(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        db = connect_boto()
+
+        self.assertRaisesRegexp(DynamoDBValidationError, 'Items.*smaller',
+            db.layer1.put_item,
+            TABLE_NAME2, ITEM_BIG)
+
+        self.assertEqual({}, self.t2.data[HK_VALUE][False])

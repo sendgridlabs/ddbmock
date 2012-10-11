@@ -9,6 +9,7 @@ import time, copy, datetime
 # constants
 MAX_HK_SIZE = 2048
 MAX_RK_SIZE = 1024
+MAX_ITEM_SIZE = 64*1024
 
 def change_is_less_than_x_percent(current, candidate, threshold):
     """Return True iff 0% < change < 10%"""
@@ -106,6 +107,12 @@ class Table(object):
         self.data[hash_key][range_key].apply_actions(actions)
         new = copy.deepcopy(self.data[hash_key][range_key])
 
+        size = self.data[hash_key][range_key].get_size()
+        if size > MAX_ITEM_SIZE:
+            self.data[hash_key][range_key] = old  # roll back
+            raise ValueError("Items must be smaller than {} bytes. Got {} after applying update".format(MAX_ITEM_SIZE, size))
+
+
         # If new item:
         if old.is_new():
             # increment counter
@@ -119,6 +126,10 @@ class Table(object):
 
     def put(self, item, expected):
         item = Item(item)
+
+        if item.get_size() > MAX_ITEM_SIZE:
+            raise ValueError("Items must be smaller than {} bytes. Got {}".format(MAX_ITEM_SIZE, item.get_size()))
+
         hash_key = item.read_key(self.hash_key, max_size=MAX_HK_SIZE)
         range_key = item.read_key(self.range_key, max_size=MAX_RK_SIZE)
 

@@ -10,9 +10,10 @@ Additions
 
 - 100% tests coverage
 - add basic tests for pyramid entry-point (#1)
-- add plenty of unit and functional tests. Coverage is > 99%
-- add support for all ALL_OLD ALL_NEW UPDATED_OLD UPDATED_NEW in ``UpdateItem``
+- add plenty of unit and functional tests. Coverage is 100%
+- add support for all ``ALL_OLD`` ``ALL_NEW`` ``UPDATED_OLD`` ``UPDATED_NEW`` in ``UpdateItem``
 - add accurate field size calculation
+- add accurate item size calculation
 - add accurate table size calculation
 - add MAX_TABLES check at table creation
 
@@ -28,6 +29,7 @@ Changes
 - accurate number limitations (max 38 digits precision; between 10^-128 and 10^+126)
 - rename ``connect_boto`` to ``connect_boto_patch`` + compat layer
 - rename ``connect_ddbmock`` to ``connect_boto_network`` + compat layer
+- block PutItem/UpdateItem when bigger than ``MAX_ITEM_SIZE``
 
 Upgrade
 -------

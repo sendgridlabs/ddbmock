@@ -86,12 +86,10 @@ Request rate
 - Throttle write operations when provisioned throughput exceeded. TODO
 - Maximum throughput is 10,000. DONE
 - Minimum throughput is 1. DONE
-- Report accurate throughput. WONT FIX
+- Report accurate throughput. WIP (low level foundations are in place)
 
 ddbmock currently reports the consumed throughput based on item count. Their
-size is ignored from the computation. While it is theoretically possible, it
-would no be accurate anyway because we can not reproduce exactly Amazon's storage
-efficiency.
+size is ignored from the computation.
 
 Actually, this is even trickier as the throughput is normally spreaded among
 partitions which ddbmock does not handle.
@@ -121,7 +119,7 @@ Types and items Limitations
 
 - Table names can only be between 3 and 255 bytes long. DONE
 - Table names can only contains a-z, A-Z, 0-9, '_', '-', and '.'. DONE
-- No more than 64kB/Item including fieldname and indexing overhead. TODO
+- No more than 64kB/Item including fieldname but not indexing overhead. DONE
 - Primary key names can only be between 1 and 255 bytes long. DONE
 - Attribute value can *not* be Null. DONE
 - ``hash_key``  value maximu 2048 bytes. DONE
