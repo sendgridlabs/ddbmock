@@ -104,7 +104,7 @@ Related Links
 ddbmock
 -------
 
-- **Full documentation**: TBD
+- **Full documentation**: https://ddbmock.readthedocs.org/en/latest
 - **Report bugs**: https://bitbucket.org/Ludia/dynamodb-mock/issues
 - **Download**: http://pypi.python.org/pypi/ddbmock
 
