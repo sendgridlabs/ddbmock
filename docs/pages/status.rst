@@ -127,3 +127,20 @@ Types and items Limitations
 - ``hash_key`` value smaller than 2048 bytes. TODO
 - ``range_key`` value smaller than 1024 bytes. TODO
 - Numbers can have up to 38 digits precision and can be between 10^-128 to 10^+126. PARTIAL
+
+Table description
+=================
+
+- item count. DONE
+- data size. WONT FIX
+- date: creation. DONE
+- date: last throughput increase. DONE
+- date: last throughput decrease. DONE
+
+The data size reported by ``ddbmock.database.table`` is computed with
+``sys.getsizeof``. While it reflects the actual data size (which is good), it does
+not follow the real DynamoDB algorithm nor the 6 hour delay between value updates.
+
+Dates are represented as float timestamps using scientific notation by DynamoDB
+but we only send them as plain number, not caring about the representation. Most
+parsers won't do any difference anyway.
