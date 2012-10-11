@@ -3,16 +3,13 @@
 from pyramid.view import view_config
 from ddbmock.database import DynamoDB
 from ddbmock.validators import dynamodb_api_validate
-from ddbmock.errors import wrap_exceptions, ResourceInUseException
+from ddbmock.errors import wrap_exceptions
 
 # Real work
 @wrap_exceptions
 @dynamodb_api_validate
 def create_table(post):
     table = DynamoDB().create_table(post[u'TableName'], post)
-
-    if table is None:
-        raise ResourceInUseException("Table {} already exists".format(post[u'TableName']))
 
     desc = table.to_dict(verbose=False)
     table.activate() # FIXME: This sould not be patr of the view

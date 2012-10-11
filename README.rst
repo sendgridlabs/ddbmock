@@ -34,7 +34,8 @@ also may be discontinued at *any* time.
 - no limits on item size
 - no limits for request/response size nor item count in those
 
-See CHANGELOG for up-to-date status.
+See http://ddbmock.readthedocs.org/en/latest/pages/status.html for detailed
+up-to-date status.
 
 Example usage
 =============
