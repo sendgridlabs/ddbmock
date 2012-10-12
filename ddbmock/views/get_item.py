@@ -22,10 +22,13 @@ def get_item(post):
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
 
-    return {
-        "ConsumedCapacityUnits": capacity, #FIXME: stub
-        "Item": table.get(post[u'Key'], post[u'AttributesToGet']),
-    }
+    item = table.get(post[u'Key'], post[u'AttributesToGet'])
+    ret = {"ConsumedCapacityUnits": capacity}
+
+    if item:
+        ret[u'Item'] = item
+
+    return ret
 
 # Pyramid route wrapper
 @view_config(route_name='get_item', renderer='json')

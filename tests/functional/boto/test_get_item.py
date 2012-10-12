@@ -16,6 +16,7 @@ TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
 HK_VALUE = u'123'
+HK_VALUE_404 = u'404'
 RK_VALUE = u'Decode this data if you are a coder'
 
 
@@ -114,6 +115,21 @@ class TestGetItem(unittest.TestCase):
         }
 
         self.assertEquals(expected, db.layer1.get_item(TABLE_NAME2, key))
+
+    def test_get_h_404(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.dynamodb.exceptions import DynamoDBKeyNotFoundError
+
+        db = connect_boto()
+
+        key = {
+            u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE_404},
+        }
+
+        self.assertRaises(DynamoDBKeyNotFoundError,
+                          db.layer1.get_item,
+                          TABLE_NAME2, key)
 
     def test_get_hr_attr_to_get(self):
         from ddbmock import connect_boto
