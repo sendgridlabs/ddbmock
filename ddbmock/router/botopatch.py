@@ -56,6 +56,8 @@ def boto_make_request(self, action, body='', object_hook=None):
     start = time.time()
     request_id = counter.next()
 
+    boto.log.info("ddbmock: '%s' request (%s) => %s", action, request_id, body)
+
     try:
         ret = _do_request(action, json.loads(body))
     finally:
@@ -64,5 +66,6 @@ def boto_make_request(self, action, body='', object_hook=None):
         boto.perflog.info('dynamodb %s: id=%s time=%sms',
                           target, request_id, int(elapsed))
 
-    boto.log.debug(ret)
+    # Not in the finally block because, in case of error, they are already translated
+    boto.log.info("ddbmock: '%s' answer (%s) => %s", action, request_id, ret)
     return json.loads(ret, object_hook=object_hook)

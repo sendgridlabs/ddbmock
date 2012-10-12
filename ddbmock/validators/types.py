@@ -16,15 +16,15 @@ def default_to(default_value, msg=None):
     return f
 
 # custom validator for integers
-def precision(min=None, max=None, precision=None, msg=None):
+def precision(min_exp=None, max_exp=None, max_digits=None, msg=None):
     def f(v):
-        d = Decimal(v)
-        if precision is not None and len(d.as_tuple().digits) > precision:
-            raise Invalid(msg or ('{} has {} digits but maximum is {}'.format(d, len(d.as_tuple().digits), precision)))
-        if min is not None and min > d:
-            raise Invalid(msg or ('{} is smaller than minimum {}'.format(d, min)))
-        if max is not None and max < d:
-            raise Invalid(msg or ('{} is bigger than maximum {}'.format(d, max)))
+        d = Decimal(v).as_tuple()
+        if max_digits is not None and len(d.digits) > max_digits:
+            raise Invalid(msg or ('{} has {} digits but maximum is {}'.format(v, len(d.digits), max_digits)))
+        if min_exp is not None and min_exp > d.exponent:
+            raise Invalid(msg or ('{} exponent is smaller than minimum {}'.format(v, min_exp)))
+        if max_exp is not None and max_exp < d.exponent:
+            raise Invalid(msg or ('{} exponent is bigger than maximum {}'.format(v, max_exp)))
         return v
     return f
 
@@ -89,7 +89,7 @@ field_name = unicode
 
 field_number_value = all(
     coerce(Decimal, msg="Number values shall be... numbers :)"),
-    precision(min=Decimal('1E-128'), max=Decimal('1E+126'), precision=38),
+    precision(min_exp=-128, max_exp=126, max_digits=38),
 )
 
 field_string_value = all(unicode, length(min=1, msg="String fields can not be empty"))

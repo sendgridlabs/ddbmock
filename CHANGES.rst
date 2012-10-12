@@ -1,9 +1,21 @@
+=================
+ddbmock 0.3.2.dev
+=================
+
+This section documents all user visible changes included between ddbmock
+versions 0.3.1 and versions 0.3.2
+
+Additions
+---------
+
 =============
 ddbmock 0.3.1
 =============
 
 This section documents all user visible changes included between ddbmock
-versions 0.3.0 and versions 0.3.1.dev
+versions 0.3.0 and versions 0.3.1
+
+This iteration was focused on accuracy
 
 Additions
 ---------

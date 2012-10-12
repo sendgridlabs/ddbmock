@@ -73,6 +73,20 @@ ITEM_MAX_R = {
     TABLE_RK_NAME: {u'S': 'a'*1024},
 }
 
+ITEM_REGRESION = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
+    "Views": {"N": "0"},  # the one failing, sighs
+    "forum_name": {"S": "Amazon DynamoDB"},
+    "Tags": {"SS": ["index", "primarykey", "table"]},
+    "LastPostDateTime": {"S": "12/9/2011 11:36:03 PM"},
+    "LastPostedBy": {"S": "User A"},
+    "Answered": {"N": "0"},
+    "Replies": {"N": "0"},
+    "Message": {"S": "DynamoDB thread 1 message text"},
+    "Public": {"N": "1"},
+    "subject": {"S": "DynamoDB Thread 1"}
+}
+
 class TestPutItem(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
@@ -281,3 +295,13 @@ class TestPutItem(unittest.TestCase):
             TABLE_NAME2, ITEM_BIG)
 
         self.assertEqual({}, self.t2.data[HK_VALUE][False])
+
+    def test_put_boto_intergration(self):
+        # This item comes directly from boto intergration test suite
+        # we do no assertion. It should "just work"
+
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+
+        db = connect_boto()
+        db.layer1.put_item(TABLE_NAME2, ITEM_REGRESION)

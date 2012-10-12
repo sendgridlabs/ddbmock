@@ -7,29 +7,29 @@ from decimal import Decimal
 # - number validator
 
 class TestValidators(unittest.TestCase):
-    def test_number_max(self):
+    def test_number_max_exp(self):
         from ddbmock.validators.types import precision
         from voluptuous import Invalid
 
-        self.assertEqual(3, precision(max=Decimal("3"))(3))
+        self.assertEqual(Decimal("382.1E4"), precision(max_exp=3)(Decimal("382.1E4")))
         self.assertRaisesRegexp(Invalid, "bigger",
-                                precision(max=Decimal("3")),
-                                3.1)
+                                precision(max_exp=3),
+                                Decimal("395.1E5"))
 
-    def test_number_min(self):
+    def test_number_min_exp(self):
         from ddbmock.validators.types import precision
         from voluptuous import Invalid
 
-        self.assertEqual(Decimal("-1.21E50"), precision(min=Decimal("-1.21E50"))(Decimal("-1.21E50")))
+        self.assertEqual(Decimal("-50.52"), precision(min_exp=-2)(Decimal("-50.52")))
         self.assertRaisesRegexp(Invalid, "smaller",
-                                precision(min=Decimal("-1.21E50")),
-                                Decimal("-1.21001E50"))
+                                precision(min_exp=-2),
+                                Decimal("-50.521"))
 
-    def test_number_precision(self):
+    def test_number_max_digits(self):
         from ddbmock.validators.types import precision
         from voluptuous import Invalid
 
-        self.assertEqual(Decimal("-1.21E50"), precision(precision=3)(Decimal("-1.21E50")))
+        self.assertEqual(Decimal("-1.21E50"), precision(max_digits=3)(Decimal("-1.21E50")))
         self.assertRaisesRegexp(Invalid, "digits",
-                                precision(precision=3),
+                                precision(max_digits=3),
                                 Decimal("-1.211E50"))
