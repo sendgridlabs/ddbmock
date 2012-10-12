@@ -5,13 +5,14 @@ ddbmock 0.3.2.dev
 This section documents all user visible changes included between ddbmock
 versions 0.3.1 and versions 0.3.2
 
+This iteration was focused on passing boto integration tests.
+
 Changes
 -------
 
 - fix number validation
-- return no Item field when not found
+- return no Item field when not found, but empty when filtered
 - [botopatch] handle DynamoDBConditionalCheckFailedError error
-
 
 =============
 ddbmock 0.3.1

@@ -25,7 +25,7 @@ def get_item(post):
     item = table.get(post[u'Key'], post[u'AttributesToGet'])
     ret = {"ConsumedCapacityUnits": capacity}
 
-    if item:
+    if item is not None:
         ret[u'Item'] = item
 
     return ret

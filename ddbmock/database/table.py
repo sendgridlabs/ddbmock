@@ -154,6 +154,9 @@ class Table(object):
 
         item = self.data[hash_key][range_key]
 
+        if item.is_new():  # not found
+            return None
+
         return item.filter(fields)
 
     def query(self, hash_key, rk_condition, fields, start, reverse, limit):
@@ -215,7 +218,6 @@ class Table(object):
                     results.append(item.filter(fields))
 
         return results, None, scanned_count
-
 
     @classmethod
     def from_dict(cls, data):
