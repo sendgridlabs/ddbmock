@@ -10,6 +10,7 @@ Changes
 
 - fix number validation
 - return no Item field when not found
+- [botopatch] handle DynamoDBConditionalCheckFailedError error
 
 
 =============

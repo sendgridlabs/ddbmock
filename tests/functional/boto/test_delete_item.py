@@ -185,7 +185,7 @@ class TestDeleteItem(unittest.TestCase):
     def test_delete_item_h_expect_field_value_fail(self):
         from ddbmock import connect_boto
         from ddbmock.database.db import DynamoDB
-        from boto.exception import DynamoDBResponseError
+        from boto.dynamodb.exceptions import DynamoDBConditionalCheckFailedError
 
         db = connect_boto()
 
@@ -201,7 +201,7 @@ class TestDeleteItem(unittest.TestCase):
             u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE},
         }
 
-        self.assertRaisesRegexp(DynamoDBResponseError, 'ConditionalCheckFailedException',
+        self.assertRaisesRegexp(DynamoDBConditionalCheckFailedError, 'ConditionalCheckFailedException',
             db.layer1.delete_item,
             TABLE_NAME, key, expected=ddb_expected
         )

@@ -8,7 +8,8 @@ import boto
 
 from importlib import import_module
 from boto.exception import DynamoDBResponseError
-from boto.dynamodb.exceptions import DynamoDBValidationError as DDBValidationErr
+from boto.dynamodb.exceptions import (DynamoDBValidationError as DDBValidationErr,
+                                      DynamoDBConditionalCheckFailedError)
 from ddbmock.router import routes
 from ddbmock.errors import *
 
@@ -16,6 +17,8 @@ from ddbmock.errors import *
 def _do_exception(err):
     if isinstance(err, ValidationException):
         raise DDBValidationErr(err.status, err.status_str, err.to_dict())
+    if isinstance(err, ConditionalCheckFailedException):
+        raise DynamoDBConditionalCheckFailedError(err.status, err.status_str, err.to_dict())
     else:
         raise DynamoDBResponseError(err.status, err.status_str, err.to_dict())
 
