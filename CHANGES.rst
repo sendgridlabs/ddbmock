@@ -11,6 +11,7 @@ Changes
 -------
 
 - fix number validation
+- fix: item where created by defaultdict magic when looking for bogus item.
 - return no Item field when not found, but empty when filtered
 - [botopatch] handle DynamoDBConditionalCheckFailedError error
 
