@@ -58,9 +58,26 @@ class DynamoDB(object):
             items = []
             for key in keys[u'Keys']:
                 item = table.get(key, fields)
-                units += 0.5  # STUB
-                if item: items.append(item)
+                if item:
+                    units += 0.5  # STUB
+                    items.append(item)
             ret[tablename][u'Items'] = items
-            ret[tablename][u'ConsumedCapacityUnits'] = len(items)*0.5
+            ret[tablename][u'ConsumedCapacityUnits'] = units
+
+        return ret
+
+    def write_batch(self, batch):
+        ret = defaultdict(dict)
+
+        for tablename, operations in batch.iteritems():
+            table = self.get_table(tablename)
+            units = 0
+            for operation in operations:
+                if u'PutRequest' in operation:
+                    table.put(operation[u'PutRequest'][u'Item'], {})
+                if u'DeleteRequest' in operation:
+                    table.delete_item(operation[u'DeleteRequest'][u'Key'], {})
+                units += 1  # STUB
+            ret[tablename][u'ConsumedCapacityUnits'] = units
 
         return ret

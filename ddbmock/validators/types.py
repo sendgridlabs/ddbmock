@@ -215,3 +215,15 @@ scan_condition = any(
 scan_filter = {
     field_name: scan_condition,
 }
+
+batch_write_request = [any(
+    {
+        u"PutRequest": {
+            u"Item": item_schema,
+        }
+    },{
+        u"DeleteRequest": {
+            u"Key": get_key_schema,
+        }
+    },
+)]

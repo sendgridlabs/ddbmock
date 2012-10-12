@@ -40,7 +40,7 @@ also may be discontinued at *any* time.
 - support full item life-cycle
 - support for all item limitations
 - accurate size and date reporting
-- preliminary support of ``Query``, ``Scan`` and ``BatchGetItem``
+- ``Query``, ``Scan``, ``BatchGetItem`` and ``BatchWriteItem`` support is preliminary
 - no limits on concurent table operations
 - no limits for request/response size nor item count in those
 

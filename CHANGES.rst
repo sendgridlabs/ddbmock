@@ -7,6 +7,11 @@ versions 0.3.1 and versions 0.3.2
 
 This iteration was focused on passing boto integration tests.
 
+Additions
+---------
+
+- preliminary batchWriteItem support
+
 Changes
 -------
 

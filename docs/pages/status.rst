@@ -16,7 +16,7 @@ Methods support
 - ``DeleteItem`` DONE
 - ``UpdateItem`` ALMOST
 - ``BatchGetItem`` WIP
-- ``BatchWriteItem`` TODO
+- ``BatchWriteItem`` WIP
 - ``Query`` WIP
 - ``Scan`` WIP
 
