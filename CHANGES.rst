@@ -13,7 +13,9 @@ Additions
 Changes
 -------
 
-- accurate throughput for ``GetItem``, ``Query``
+- accurate throughput for all Read operations
+- accurate throughput for ``Delete`` operations
+
 
 =============
 ddbmock 0.3.2

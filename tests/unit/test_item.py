@@ -228,7 +228,7 @@ class TestItemSize(unittest.TestCase):
     def test_unit_from_size(self):
         from ddbmock.database.item import ItemSize
 
-        self.assertEqual(0, ItemSize(0).as_units())
+        self.assertEqual(1, ItemSize(0).as_units())  # not less than 1 unit
         self.assertEqual(1, ItemSize(1).as_units())
         self.assertEqual(1, ItemSize(1024).as_units())
         self.assertEqual(2, ItemSize(1025).as_units())

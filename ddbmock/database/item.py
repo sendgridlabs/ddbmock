@@ -16,8 +16,10 @@ class ItemSize(int):
 
     def as_units(self):
         """Get item size in terms of capacity units. This does *not* include the
-        index overhead"""
-        return int(ceil((self) / 1024.0))
+        index overhead. Units can *not* be bellow 1 ie: a "delete" on a non
+        existing item is *not* free
+        """
+        return max(1, int(ceil((self) / 1024.0)))
 
     def with_indexing_overhead(self):
         """Take the indexing overhead into account. this is especially usefull

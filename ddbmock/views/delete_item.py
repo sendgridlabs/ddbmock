@@ -17,10 +17,11 @@ def delete_item(post):
 
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
+    item = table.delete_item(post[u'Key'], post[u'Expected'])
 
     ret = {
-        "ConsumedCapacityUnits": 1, #FIXME: stub
-        "Attributes": table.delete_item(post[u'Key'], post[u'Expected']),
+        "ConsumedCapacityUnits": item.get_size().as_units(),
+        "Attributes": item,
     }
 
     if post[u'ReturnValues'] == "ALL_OLD":
