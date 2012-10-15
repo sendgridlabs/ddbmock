@@ -51,7 +51,13 @@ ITEM5 = {
     u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
 }
 
+
 ITEM_BIG = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
+    u'relevant_data': {u'S': u'a'*1024},
+}
+
+ITEM_HUGE = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
     u'relevant_data': {u'S': u'a'*64*1024},  # thsi field itself is.... too big
 }
@@ -150,6 +156,25 @@ class TestPutItem(unittest.TestCase):
                 u'Attributes': ITEM3,
             },
             db.layer1.put_item(TABLE_NAME2, ITEM4, return_values=u'ALL_OLD'),
+        )
+
+    def test_put_check_throughput_max_old_new(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+
+        db = connect_boto()
+
+        self.assertEqual(
+            {u'ConsumedCapacityUnits': 1},
+            db.layer1.put_item(TABLE_NAME2, ITEM3),
+        )
+        self.assertEqual(
+            {u'ConsumedCapacityUnits': 2},
+            db.layer1.put_item(TABLE_NAME2, ITEM_BIG),
+        )
+        self.assertEqual(
+            {u'ConsumedCapacityUnits': 2},
+            db.layer1.put_item(TABLE_NAME2, ITEM3),
         )
 
     def test_put_h_empty_field_fail(self):
@@ -292,7 +317,7 @@ class TestPutItem(unittest.TestCase):
 
         self.assertRaisesRegexp(DynamoDBValidationError, 'Items.*smaller',
             db.layer1.put_item,
-            TABLE_NAME2, ITEM_BIG)
+            TABLE_NAME2, ITEM_HUGE)
 
         self.assertEqual({}, self.t2.data[HK_VALUE][False])
 

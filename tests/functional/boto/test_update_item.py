@@ -45,6 +45,11 @@ ITEM2 = {
 
 }
 
+FIELD_SMALL = {u'S': u'a'}
+FIELD_BIG   = {u'S': u'a'*1024}
+
+
+
 class TestUpdateItem(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
@@ -136,6 +141,30 @@ class TestUpdateItem(unittest.TestCase):
         })
         self.assertEqual(HK_VALUE2, self.t2.data[HK_VALUE2][False][TABLE_HK_NAME])
         self.assertEqual(RELEVANT_FIELD, self.t2.data[HK_VALUE2][False]['relevant_data'])
+
+    def test_put_check_throughput_max_old_new(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+
+        db = connect_boto()
+
+        key = {u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE}}
+
+        self.assertEqual(
+            {u'ConsumedCapacityUnits': 1},
+            db.layer1.update_item(TABLE_NAME2, key,
+                                  {FIELD_NAME: {'Action': 'PUT', 'Value': FIELD_SMALL}}),
+        )
+        self.assertEqual(
+            {u'ConsumedCapacityUnits': 2},
+            db.layer1.update_item(TABLE_NAME2, key,
+                                  {FIELD_NAME: {'Action': 'PUT', 'Value': FIELD_BIG}}),
+        )
+        self.assertEqual(
+            {u'ConsumedCapacityUnits': 2},
+            db.layer1.update_item(TABLE_NAME2, key,
+                                  {FIELD_NAME: {'Action': 'PUT', 'Value': FIELD_SMALL}}),
+        )
 
     def test_update_item_delete_primary_key_fails(self):
         from ddbmock import connect_boto

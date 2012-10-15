@@ -13,8 +13,8 @@ Additions
 Changes
 -------
 
-- accurate throughput for all Read operations
-- accurate throughput for ``Delete`` operations
+- accurate throughput for all Read  operations
+- accurate throughput for all Write operations
 
 
 =============

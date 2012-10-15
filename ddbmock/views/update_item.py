@@ -24,9 +24,8 @@ def update_item(post):
             post[u'Expected'],
     )
 
-    ret = {
-        "ConsumedCapacityUnits": 1, #FIXME: stub
-    }
+    units = max(old.get_size().as_units(), new.get_size().as_units())
+    ret = {"ConsumedCapacityUnits": units}
 
     if post[u'ReturnValues'] == "ALL_OLD":
         ret["Attributes"] = old

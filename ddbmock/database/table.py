@@ -141,12 +141,13 @@ class Table(object):
         old.assert_match_expected(expected)
 
         self.data[hash_key][range_key] = item
+        new = copy.deepcopy(self.data[hash_key][range_key])
 
         # If this a new item, increment counter
         if not old:
             self.count += 1
 
-        return old
+        return old, new
 
     def get(self, key, fields):
         key = Item(key)

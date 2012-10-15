@@ -17,17 +17,17 @@ def put_item(post):
 
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
+    old, new = table.put(post[u'Item'], post[u'Expected'])
+    units = max(old.get_size().as_units(), new.get_size().as_units())
 
     ret = {
-        "ConsumedCapacityUnits": 1, #FIXME: stub
-        "Attributes": table.put(post[u'Item'], post[u'Expected']),
+        "ConsumedCapacityUnits": units,
     }
 
     if post[u'ReturnValues'] == "ALL_OLD":
-        return ret
-    else:
-        del ret["Attributes"]
-        return ret
+        ret["Attributes"] = old
+
+    return ret
 
 # Pyramid route wrapper
 @view_config(route_name='put_item', renderer='json')
