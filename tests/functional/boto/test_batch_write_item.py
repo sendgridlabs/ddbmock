@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import unittest, json
+import unittest
+import boto
 
 TABLE_NAME1 = 'Table-HR'
 TABLE_NAME2 = 'Table-H'
@@ -50,22 +51,12 @@ ITEM5 = {
     u'relevant_data': {u'S': u'tutu'},
 }
 
-HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.BatchWriteItem',
-    'content-type': 'application/x-amz-json-1.0',
-}
-
-# Goal here is not to test the full API, this is done by the Boto tests
+# Please note that most query features are not yet implemented hence not tested
 class TestBatchWriteItem(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.db import DynamoDB
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
-
-        from ddbmock import main
-        app = main({})
-        from webtest import TestApp
-        self.app = TestApp(app)
 
         db = DynamoDB()
         db.hard_reset()
@@ -86,35 +77,11 @@ class TestBatchWriteItem(unittest.TestCase):
         from ddbmock.database.db import DynamoDB
         DynamoDB().hard_reset()
 
-    def test_batch_write_item(self):
+    def test_batch_write_item_nominal(self):
+        from ddbmock import connect_boto
         from ddbmock.database.db import DynamoDB
 
-        request = {
-            u"RequestItems": {
-                TABLE_NAME1: [
-                    {
-                        u"DeleteRequest": {
-                            u"Key": {
-                                u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1},
-                                u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1},
-                            },
-                        },
-                    },
-                    {u"PutRequest": {u"Item": ITEM2}},
-                    {u"PutRequest": {u"Item": ITEM3}},
-                ],
-                TABLE_NAME2: [
-                    {
-                        u"DeleteRequest": {
-                            u"Key": {
-                                u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE2},
-                            },
-                        },
-                    },
-                    {u"PutRequest": {u"Item":ITEM5}},
-                ],
-            }
-        }
+        db = connect_boto()
 
         expected = {
             "Responses": {
@@ -127,7 +94,61 @@ class TestBatchWriteItem(unittest.TestCase):
             }
         }
 
-        # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=200)
-        self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        ret = db.layer1.batch_write_item({
+            TABLE_NAME1: [
+                {
+                    u"DeleteRequest": {
+                        u"Key": {
+                            u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1},
+                            u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1},
+                        },
+                    },
+                },
+                {u"PutRequest": {u"Item": ITEM2}},
+                {u"PutRequest": {u"Item": ITEM3}},
+            ],
+            TABLE_NAME2: [
+                {
+                    u"DeleteRequest": {
+                        u"Key": {
+                            u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE2},
+                        },
+                    },
+                },
+                {u"PutRequest": {u"Item":ITEM5}},
+            ],
+        })
+
+        self.assertEqual(expected, ret)
+
+    def test_batch_write_item_table_404(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+        from boto.exception import BotoServerError
+
+        db = connect_boto()
+
+        self.assertRaises(BotoServerError, db.layer1.batch_get_item, {
+            TABLE_NAME_404: [
+                {
+                    u"DeleteRequest": {
+                        u"Key": {
+                            u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1},
+                            u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1},
+                        },
+                    },
+                },
+                {u"PutRequest": {u"Item": ITEM2}},
+                {u"PutRequest": {u"Item": ITEM3}},
+            ],
+            TABLE_NAME2: [
+                {
+                    u"DeleteRequest": {
+                        u"Key": {
+                            u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE2},
+                        },
+                    },
+                },
+                {u"PutRequest": {u"Item":ITEM5}},
+            ],
+        })
