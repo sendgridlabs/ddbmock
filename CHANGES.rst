@@ -5,6 +5,16 @@ ddbmock 0.4.0.dev
 This section documents all user visible changes included between ddbmock
 versions 0.3.2 and versions 0.4.0
 
+Additions
+---------
+
+- consistent_read parameter to ``Query``
+
+Changes
+-------
+
+- accurate throughput for ``GetItem``, ``Query``
+
 =============
 ddbmock 0.3.2
 =============

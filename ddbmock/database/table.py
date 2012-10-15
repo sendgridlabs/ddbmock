@@ -17,7 +17,7 @@ def change_is_less_than_x_percent(current, candidate, threshold):
 
 # items: array
 # size: ItemSize
-Results = namedtuple('Results', ['items', 'size', 'last_key'])
+Results = namedtuple('Results', ['items', 'size', 'last_key', 'scanned'])
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -194,7 +194,7 @@ class Table(object):
                 size += item.get_size()
                 results.append(item.filter(fields))
 
-        return Results(results, size, None)
+        return Results(results, size, None, 0)
 
     def scan(self, scan_conditions, fields, start, limit):
         """Scans a whole table, no matter the structure, and return matches as
@@ -205,7 +205,7 @@ class Table(object):
         :ivar fields: return only these fields is applicable
         :ivar start: key structure. where to start iteration
         :ivar limit: max number of items to parse in this batch
-        :return: results, last_key, scanned_count
+        :return: results, cumulated_scanned_size, last_key
         """
         #FIXME: naive implementation (too)
         #TODO:
@@ -215,16 +215,18 @@ class Table(object):
         # - size limit
         # - last evaluated key
 
-        scanned_count = 0
+        size = ItemSize(0)
+        scanned = 0
         results = []
 
         for outer in self.data.values():
             for item in outer.values():
-                scanned_count += 1
+                size += item.get_size()
+                scanned += 1
                 if item.match(scan_conditions):
                     results.append(item.filter(fields))
 
-        return results, None, scanned_count
+        return Results(results, size, None, scanned)
 
     @classmethod
     def from_dict(cls, data):

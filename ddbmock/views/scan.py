@@ -27,24 +27,22 @@ def scan(post):
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
 
-    results, last_key, scanned_count = table.scan(
+    results = table.scan(
         post[u'ScanFilter'],
         post[u'AttributesToGet'],
         post[u'ExclusiveStartKey'],
         post[u'Limit'],
     )
 
-    count = len(results)
-
     ret = {
-        "Count": count,
-        "ScannedCount": scanned_count,
-        "ConsumedCapacityUnits": 0.5*scanned_count, #FIXME: stub
+        "Count": len(results.items),
+        "ScannedCount": results.scanned,
+        "ConsumedCapacityUnits": 0.5*results.size.as_units(),
         #TODO: last evaluated key where applicable
     }
 
     if not post[u'Count']:
-        ret[u'Items'] = results
+        ret[u'Items'] = results.items
 
     return ret
 

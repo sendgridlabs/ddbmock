@@ -22,6 +22,7 @@ RK_VALUE2 = u'Waldo-2'
 RK_VALUE3 = u'Waldo-3'
 RK_VALUE4 = u'Waldo-4'
 RK_VALUE5 = u'Waldo-5'
+RK_VALUE6 = u'Waldo-6'
 
 
 ITEM1 = {
@@ -49,6 +50,12 @@ ITEM5 = {
     TABLE_RK_NAME: {TABLE_RK_TYPE: RK_VALUE5},
     u'relevant_data': {u'S': u'tutu'},
 }
+ITEM6 = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE3},
+    TABLE_RK_NAME: {TABLE_RK_TYPE: RK_VALUE6},
+    u'relevant_data': {u'S': u'tyty'},
+    u'irelevant_data': {u'S': u'a'*(2048)},
+}
 
 # Please note that most query features are not yet implemented hence not tested
 class TestScan(unittest.TestCase):
@@ -72,6 +79,7 @@ class TestScan(unittest.TestCase):
         self.t1.put(ITEM3, {})
         self.t1.put(ITEM4, {})
         self.t1.put(ITEM5, {})
+        self.t1.put(ITEM6, {})
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
@@ -82,16 +90,10 @@ class TestScan(unittest.TestCase):
         from ddbmock.database.db import DynamoDB
 
         expected = {
-            u"Count": 5,
-            u"ScannedCount": 5,
-            u"Items": [
-                {u"relevant_data": {u"S": u"tete"}, u"hash_key": {u"N": u"123"}, u"range_key": {u"S": u"Waldo-2"}},
-                {u"relevant_data": {u"S": u"tata"}, u"hash_key": {u"N": u"123"}, u"range_key": {u"S": u"Waldo-1"}},
-                {u"relevant_data": {u"S": u"tutu"}, u"hash_key": {u"N": u"789"}, u"range_key": {u"S": u"Waldo-5"}},
-                {u"relevant_data": {u"S": u"toto"}, u"hash_key": {u"N": u"789"}, u"range_key": {u"S": u"Waldo-4"}},
-                {u"relevant_data": {u"S": u"titi"}, u"hash_key": {u"N": u"456"}, u"range_key": {u"S": u"Waldo-3"}},
-            ],
-            u"ConsumedCapacityUnits": 2.5,
+            u"Count": 6,
+            u"ScannedCount": 6,
+            u"Items": [ITEM2, ITEM1, ITEM6, ITEM5, ITEM4, ITEM3],
+            u"ConsumedCapacityUnits": 1.5,
         }
 
         db = connect_boto()
@@ -103,17 +105,20 @@ class TestScan(unittest.TestCase):
         from ddbmock import connect_boto
         from ddbmock.database.db import DynamoDB
 
+        self.maxDiff = None
+
         expected = {
-            u"Count": 5,
-            u"ScannedCount": 5,
+            u"Count": 6,
+            u"ScannedCount": 6,
             u"Items": [
-                {u"relevant_data": {u"S": "tete"}},
-                {u"relevant_data": {u"S": "tata"}},
-                {u"relevant_data": {u"S": "tutu"}},
-                {u"relevant_data": {u"S": "toto"}},
-                {u"relevant_data": {u"S": "titi"}},
+                {u"relevant_data": {u"S": u"tete"}},
+                {u"relevant_data": {u"S": u"tata"}},
+                {u"relevant_data": {u"S": u"tyty"}},
+                {u"relevant_data": {u"S": u"tutu"}},
+                {u"relevant_data": {u"S": u"toto"}},
+                {u"relevant_data": {u"S": u"titi"}},
             ],
-            u"ConsumedCapacityUnits": 2.5,
+            u"ConsumedCapacityUnits": 1.5,
         }
         fields = [u'relevant_data']
 
@@ -129,13 +134,13 @@ class TestScan(unittest.TestCase):
 
         expected = {
             u"Count": 3,
-            u"ScannedCount": 5,
+            u"ScannedCount": 6,
             u"Items": [
                 {u"relevant_data": {u"S": u"tata"}},
                 {u"relevant_data": {u"S": u"toto"}},
                 {u"relevant_data": {u"S": u"titi"}},
             ],
-            u"ConsumedCapacityUnits": 2.5,
+            u"ConsumedCapacityUnits": 1.5,
         }
 
         conditions = {
@@ -157,11 +162,11 @@ class TestScan(unittest.TestCase):
 
         expected = {
             u"Count": 1,
-            u"ScannedCount": 5,
+            u"ScannedCount": 6,
             u"Items": [
                 {u"relevant_data": {u"S": u"toto"}},
             ],
-            u"ConsumedCapacityUnits": 2.5,
+            u"ConsumedCapacityUnits": 1.5,
         }
 
         conditions = {
@@ -183,9 +188,9 @@ class TestScan(unittest.TestCase):
 
         expected = {
             u"Count": 0,
-            u"ScannedCount": 5,
+            u"ScannedCount": 6,
             u"Items": [],
-            u"ConsumedCapacityUnits": 2.5,
+            u"ConsumedCapacityUnits": 1.5,
         }
 
         conditions = {
@@ -208,11 +213,11 @@ class TestScan(unittest.TestCase):
 
         expected = {
             u"Count": 1,
-            u"ScannedCount": 5,
+            u"ScannedCount": 6,
             u"Items": [
                 {u"relevant_data": {u"S": u"toto"}},
             ],
-            u"ConsumedCapacityUnits": 2.5,
+            u"ConsumedCapacityUnits": 1.5,
         }
 
         conditions = {

@@ -113,7 +113,7 @@ class TestScan(unittest.TestCase):
                 {u"relevant_data": {u"S": u"toto"}},
                 {u"relevant_data": {u"S": u"titi"}},
             ],
-            u"ConsumedCapacityUnits": 2.5,
+            u"ConsumedCapacityUnits": 0.5,
         }
 
         # Protocol check
