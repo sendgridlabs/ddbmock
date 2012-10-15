@@ -59,10 +59,10 @@ class DynamoDB(object):
             for key in keys[u'Keys']:
                 item = table.get(key, fields)
                 if item:
-                    units += 0.5  # STUB
+                    units += item.get_units()
                     items.append(item)
             ret[tablename][u'Items'] = items
-            ret[tablename][u'ConsumedCapacityUnits'] = units
+            ret[tablename][u'ConsumedCapacityUnits'] = 0.5*units  # eventually consistent read
 
         return ret
 

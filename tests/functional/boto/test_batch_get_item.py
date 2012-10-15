@@ -50,6 +50,10 @@ ITEM5 = {
     TABLE_RK_NAME: {TABLE_RK_TYPE: RK_VALUE5},
     u'relevant_data': {u'S': u'tutu'},
 }
+ITEM_BIG = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE1},
+    u'relevant_data': {u'S': u'a'*1024},
+}
 
 # Please note that most query features are not yet implemented hence not tested
 class TestBatchGetItem(unittest.TestCase):
@@ -75,6 +79,7 @@ class TestBatchGetItem(unittest.TestCase):
         self.t1.put(ITEM3, {})
         self.t2.put(ITEM4, {})
         self.t2.put(ITEM5, {})
+        self.t2.put(ITEM_BIG, {})
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
@@ -89,17 +94,12 @@ class TestBatchGetItem(unittest.TestCase):
         expected = {
             "Responses": {
                 "Table-HR": {
-                    "Items": [
-                        {"relevant_data": {"S": "tata"}, "hash_key": {"N": "123"}, "range_key": {"S": "Waldo-1"}},
-                        {"relevant_data": {"S": "tata"}, "hash_key": {"N": "123"}, "range_key": {"S": "Waldo-1"}},
-                    ],
+                    "Items": [ITEM1, ITEM2],
                     "ConsumedCapacityUnits": 1.0
                 },
                 "Table-H": {
-                    "Items": [
-                        {"relevant_data": {"S": "tutu"}, "hash_key": {"N": "789"}, "range_key": {"S": "Waldo-5"}},
-                    ],
-                    "ConsumedCapacityUnits": 0.5
+                    "Items": [ITEM5, ITEM_BIG],
+                    "ConsumedCapacityUnits": 1.5
                 }
             }
         }
@@ -108,12 +108,13 @@ class TestBatchGetItem(unittest.TestCase):
             TABLE_NAME1: {
                 u"Keys": [
                     {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}},
-                    {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}},
+                    {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE2}},
                 ],
             },
             TABLE_NAME2: {
                 u"Keys": [
                     {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE3}},
+                    {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}},
                     {u"HashKeyElement": {TABLE_HK_TYPE: u"404"}},
                 ],
             },
