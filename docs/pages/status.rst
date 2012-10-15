@@ -82,17 +82,11 @@ basically, none are supported yet
 Request rate
 ------------
 
-- Throttle read  operations when provisioned throughput exceeded. TODO
-- Throttle write operations when provisioned throughput exceeded. TODO
+- Throttle read  operations when provisioned throughput exceeded. TODO (?)
+- Throttle write operations when provisioned throughput exceeded. TODO (?)
 - Maximum throughput is 10,000. DONE
 - Minimum throughput is 1. DONE
-- Report accurate throughput. WIP (low level foundations are in place)
-
-ddbmock currently reports the consumed throughput based on item count. Their
-size is ignored from the computation.
-
-Actually, this is even trickier as the throughput is normally spreaded among
-partitions which ddbmock does not handle.
+- Report accurate throughput. DONE
 
 Request size
 ------------
