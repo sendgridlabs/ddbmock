@@ -10,6 +10,20 @@ INDEX_OVERHEAD = 100
 def _decode_field(field):
     return field.items()[0]
 
+class ItemSize(int):
+    def as_units(self):
+        """Get item size in terms of capacity units. This does *not* include the
+        index overhead"""
+        return int(ceil((self) / 1024.0))
+
+    def with_indexing_overhead(self):
+        """Take the indexing overhead into account. this is especially usefull
+        to compute the table disk size as DynamoDB would but it's not included
+        in the capacity unit calculation.
+        """
+        return self + INDEX_OVERHEAD
+
+
 class Item(dict):
     def __init__(self, dico={}):
         self.update(dico)
@@ -193,19 +207,13 @@ class Item(dict):
 
         return value_size
 
-    def get_units(self):
-        """Get item size in terms of capacity units. This does *not* include the
-        index overhead"""
-        return int(ceil((self.get_size()) / 1024.0))
-
-    def get_size(self, include_index_overhead=False):
+    def get_size(self):
         """Compute Item size as DynamoDB would. This is especially useful for
         enforcing the 64kb per item limit as well as the capacityUnit cost.
 
         note: the result is cached for efficiency. If you ever happend to directly
         edit values for any reason, do not forget to invalidate it: ``self.size=None``
 
-        :ivar include_index_overhead: instruct ``get_size()`` to take indexing overhead into account in the computation. This value is never cached
         :return: the computed size
         """
 
@@ -219,11 +227,7 @@ class Item(dict):
 
             self.size = size
 
-        # Return
-        if include_index_overhead:
-            return self.size + INDEX_OVERHEAD
-        else:
-            return self.size
+        return ItemSize(self.size)
 
     def __sub__(self, other):
         # Thanks mnoel :)

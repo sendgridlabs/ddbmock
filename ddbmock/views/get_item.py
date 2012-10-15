@@ -21,7 +21,7 @@ def get_item(post):
 
     if item is not None:
         return {
-            "ConsumedCapacityUnits": base_capacity*item.get_units(),
+            "ConsumedCapacityUnits": base_capacity*item.get_size().as_units(),
             "Item": item,
         }
     else:

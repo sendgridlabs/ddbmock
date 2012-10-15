@@ -240,7 +240,7 @@ class Table(object):
 
         for outer in self.data.values():
             for item in outer.values():
-                size += item.get_size(include_index_overhead=True)
+                size += item.get_size().with_indexing_overhead()
 
         return size
 

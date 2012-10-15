@@ -217,14 +217,6 @@ class TestItem(unittest.TestCase):
         self.assertEqual(s1, item1.size)
         self.assertEqual(s2, item2.size)
 
-        # check overhead inclusion
-        self.assertEqual(s1+INDEX_OVERHEAD, item1.get_size(True))
-        self.assertEqual(s2+INDEX_OVERHEAD, item2.get_size(True))
-
-        # check cache did not change: overhead must not be cached
-        self.assertEqual(s1, item1.size)
-        self.assertEqual(s2, item2.size)
-
         # any call to "update item" invalidates the cache
         item1.apply_actions({})
         item2.apply_actions({})
@@ -232,12 +224,31 @@ class TestItem(unittest.TestCase):
         self.assertIsNone(item1.size)
         self.assertIsNone(item2.size)
 
+class TestItemSize(unittest.TestCase):
+    def test_unit_from_size(self):
+        from ddbmock.database.item import ItemSize
+
+        self.assertEqual(0, ItemSize(0).as_units())
+        self.assertEqual(1, ItemSize(1).as_units())
+        self.assertEqual(1, ItemSize(1024).as_units())
+        self.assertEqual(2, ItemSize(1025).as_units())
+        self.assertEqual(3, ItemSize(2049).as_units())
+
+    def test_size_with_index(self):
+        from ddbmock.database.item import ItemSize
+
+        self.assertEqual(0+100, ItemSize(0).with_indexing_overhead())
+        self.assertEqual(1+100, ItemSize(1).with_indexing_overhead())
+        self.assertEqual(1024+100, ItemSize(1024).with_indexing_overhead())
+        self.assertEqual(2049+100, ItemSize(2049).with_indexing_overhead())
+
     def test_item_unit_computation(self):
+        # full chain test (~functional)
         from ddbmock.database.item import Item
 
         item1 = Item(ITEM_BIG)
         item2 = Item(ITEM_TYPE)
 
-        self.assertEqual(123, item1.get_units())  # If I tell you the '123' is not on purpose, you won't believe me, will you ? Especially when Pi is involved
-        self.assertEqual(1, item2.get_units())
+        self.assertEqual(123, item1.get_size().as_units())  # If I tell you the '123' is not on purpose, you won't believe me, will you ? Especially when Pi is involved
+        self.assertEqual(1, item2.get_size().as_units())
 
