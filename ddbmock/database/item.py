@@ -25,7 +25,9 @@ class Item(dict):
         :return: filtered ``item``
         """
         if fields:
-            return Item((k, v) for k, v in self.items() if k in fields)
+            filtered = Item((k, v) for k, v in self.items() if k in fields)
+            filtered.size = self.get_size()  # Filtered or not, you pay for actual size
+            return filtered
         return self
 
     def is_new(self):

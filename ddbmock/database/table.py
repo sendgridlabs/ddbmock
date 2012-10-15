@@ -155,7 +155,7 @@ class Table(object):
         item = self.data[hash_key][range_key]
 
         if item.is_new():  # not found
-            del self.data[hash_key][range_key]  # workaround defaultdict "faeture" :)
+            del self.data[hash_key][range_key]  # workaround defaultdict "feature" :)
             return None
 
         return item.filter(fields)

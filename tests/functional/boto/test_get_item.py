@@ -114,7 +114,7 @@ class TestGetItem(unittest.TestCase):
 
         self.assertEquals(expected, db.layer1.get_item(TABLE_NAME2, key))
 
-    def test_get_consistent_big(self):
+    def test_get_consistent_big_attributes_to_get(self):
         from ddbmock import connect_boto
         from ddbmock.database.db import DynamoDB
 
@@ -122,14 +122,14 @@ class TestGetItem(unittest.TestCase):
 
         expected = {
             u'ConsumedCapacityUnits': 2,
-            u'Item': ITEM_BIG,
+            u'Item': {TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE2}},
         }
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE2},
         }
 
-        self.assertEquals(expected, db.layer1.get_item(TABLE_NAME2, key, consistent_read=True))
+        self.assertEquals(expected, db.layer1.get_item(TABLE_NAME2, key, consistent_read=True, attributes_to_get=[TABLE_HK_NAME]))
 
     def test_get_h_404(self):
         from ddbmock import connect_boto
