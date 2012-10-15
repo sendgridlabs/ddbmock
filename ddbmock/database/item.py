@@ -11,6 +11,9 @@ def _decode_field(field):
     return field.items()[0]
 
 class ItemSize(int):
+    def __add__(self, value):
+        return ItemSize(int.__add__(self, value))
+
     def as_units(self):
         """Get item size in terms of capacity units. This does *not* include the
         index overhead"""

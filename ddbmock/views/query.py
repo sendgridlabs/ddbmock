@@ -22,14 +22,17 @@ def query(post):
         post[u'ScanIndexForward'] = True
     if u'ExclusiveStartKey' not in post:
         post[u'ExclusiveStartKey'] = None
+    if u'ConsistentRead' not in post:
+        post[u'ConsistentRead'] = False
 
     if post[u'AttributesToGet'] and post[u'Count']:
         raise ValidationException("Can filter fields when only count is requested")
 
+    base_capacity = 1 if post[u'ConsistentRead'] else 0.5
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
 
-    results, last_key = table.query(
+    results = table.query(
         post[u'HashKeyValue'],
         post[u'RangeKeyCondition'],
         post[u'AttributesToGet'],
@@ -38,16 +41,14 @@ def query(post):
         post[u'Limit'],
     )
 
-    count = len(results)
-
     ret = {
-        "Count": count,
-        "ConsumedCapacityUnits": 0.5*count, #FIXME: stub
+        "Count": len(results.items),
+        "ConsumedCapacityUnits": base_capacity*results.size.as_units(),
         #TODO: last evaluated key where applicable
     }
 
     if not post[u'Count']:
-        ret[u'Items'] = results
+        ret[u'Items'] = results.items
 
     return ret
 

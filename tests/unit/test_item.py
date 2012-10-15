@@ -234,6 +234,12 @@ class TestItemSize(unittest.TestCase):
         self.assertEqual(2, ItemSize(1025).as_units())
         self.assertEqual(3, ItemSize(2049).as_units())
 
+    def test_unit_add(self):
+        from ddbmock.database.item import ItemSize
+
+        self.assertEqual(ItemSize(4), ItemSize(1)+ItemSize(3))
+        self.assertEqual(ItemSize, type(ItemSize(1)+ItemSize(3)))
+
     def test_size_with_index(self):
         from ddbmock.database.item import ItemSize
 

@@ -81,14 +81,8 @@ class TestQuery(unittest.TestCase):
 
         expected = {
             u"Count": 5,
-            u"Items": [
-                {u"relevant_data": {u"S": u"titi"}, u"hash_key": {u"N": u"123"}, u"range_key": {u"S": u"Waldo-3"}},
-                {u"relevant_data": {u"S": u"tete"}, u"hash_key": {u"N": u"123"}, u"range_key": {u"S": u"Waldo-2"}},
-                {u"relevant_data": {u"S": u"tata"}, u"hash_key": {u"N": u"123"}, u"range_key": {u"S": u"Waldo-1"}},
-                {u"relevant_data": {u"S": u"tutu"}, u"hash_key": {u"N": u"123"}, u"range_key": {u"S": u"Waldo-5"}},
-                {u"relevant_data": {u"S": u"toto"}, u"hash_key": {u"N": u"123"}, u"range_key": {u"S": u"Waldo-4"}},
-            ],
-            u"ConsumedCapacityUnits": 2.5,
+            u"Items": [ITEM3, ITEM2, ITEM1, ITEM5, ITEM4],
+            u"ConsumedCapacityUnits": 0.5,
         }
 
         db = connect_boto()
@@ -109,7 +103,7 @@ class TestQuery(unittest.TestCase):
                 {u"relevant_data": {u"S": "tutu"}},
                 {u"relevant_data": {u"S": "toto"}},
             ],
-            u"ConsumedCapacityUnits": 2.5,
+            u"ConsumedCapacityUnits": 0.5,
         }
         fields = [u'relevant_data']
 
@@ -130,7 +124,7 @@ class TestQuery(unittest.TestCase):
                 {u"relevant_data": {u"S": u"tutu"}},
                 {u"relevant_data": {u"S": u"toto"}},
             ],
-            u"ConsumedCapacityUnits": 1.5,
+            u"ConsumedCapacityUnits": 0.5,
         }
 
         condition = {"AttributeValueList":[{"S":"Waldo-2"}],"ComparisonOperator":"GT"}
@@ -139,6 +133,21 @@ class TestQuery(unittest.TestCase):
         db = connect_boto()
 
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, condition, fields)
+        self.assertEqual(expected, ret)
+
+    def test_query_all_consistent(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+
+        expected = {
+            u"Count": 5,
+            u"Items": [ITEM3, ITEM2, ITEM1, ITEM5, ITEM4],
+            u"ConsumedCapacityUnits": 1,
+        }
+
+        db = connect_boto()
+
+        ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, consistent_read=True)
         self.assertEqual(expected, ret)
 
     def test_query_invalid_condition_multiple_data_in_field(self):

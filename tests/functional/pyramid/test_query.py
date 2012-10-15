@@ -106,7 +106,7 @@ class TestQuery(unittest.TestCase):
                 {u"relevant_data": {u"S": u"tutu"}},
                 {u"relevant_data": {u"S": u"toto"}},
             ],
-            u"ConsumedCapacityUnits": 1.5,
+            u"ConsumedCapacityUnits": 0.5,
         }
 
         # Protocol check

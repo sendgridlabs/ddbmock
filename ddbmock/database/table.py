@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from .key import Key, PrimaryKey
-from .item import Item
-from collections import defaultdict
+from .item import Item, ItemSize
+from collections import defaultdict, namedtuple
 from ddbmock.errors import ValidationException, LimitExceededException
 import time, copy, datetime
 
@@ -14,6 +14,10 @@ MAX_ITEM_SIZE = 64*1024
 def change_is_less_than_x_percent(current, candidate, threshold):
     """Return True iff 0% < change < 10%"""
     return current != candidate and (abs(current-candidate)/float(current))*100 < threshold
+
+# items: array
+# size: ItemSize
+Results = namedtuple('Results', ['items', 'size', 'last_key'])
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -170,7 +174,7 @@ class Table(object):
         :ivar start: key structure. where to start iteration
         :ivar reverse: wether to scan the collection backward
         :ivar limit: max number of items to parse in this batch
-        :return: results, last_key
+        :return: Results(results, cumulated_size, last_key)
         """
         #FIXME: naive implementation
         #TODO:
@@ -182,13 +186,15 @@ class Table(object):
 
         hk_name = self.hash_key.read(hash_key)
         rk_name = self.range_key.name
+        size = ItemSize(0)
         results = []
 
         for item in self.data[hk_name].values():
             if item.field_match(rk_name, rk_condition):
+                size += item.get_size()
                 results.append(item.filter(fields))
 
-        return results, None
+        return Results(results, size, None)
 
     def scan(self, scan_conditions, fields, start, limit):
         """Scans a whole table, no matter the structure, and return matches as
