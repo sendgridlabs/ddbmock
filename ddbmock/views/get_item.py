@@ -15,20 +15,19 @@ def get_item(post):
     if u'ConsistentRead' not in post:
         post[u'ConsistentRead'] = False
 
-    # hackish consistency
-    capacity = 1 if post[u'ConsistentRead'] else 0.5
-
-    #TODO: ConsistentRead
-    name = post[u'TableName']
-    table = DynamoDB().get_table(name)
-
+    base_capacity = 1 if post[u'ConsistentRead'] else 0.5
+    table = DynamoDB().get_table(post[u'TableName'])
     item = table.get(post[u'Key'], post[u'AttributesToGet'])
-    ret = {"ConsumedCapacityUnits": capacity}
 
     if item is not None:
-        ret[u'Item'] = item
-
-    return ret
+        return {
+            "ConsumedCapacityUnits": base_capacity*item.get_units(),
+            "Item": item,
+        }
+    else:
+        return {
+            "ConsumedCapacityUnits": base_capacity,
+        }
 
 # Pyramid route wrapper
 @view_config(route_name='get_item', renderer='json')

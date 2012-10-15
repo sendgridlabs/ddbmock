@@ -16,6 +16,7 @@ TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
 HK_VALUE = u'123'
+HK_VALUE2 = u'456'
 HK_VALUE_404 = u'404'
 RK_VALUE = u'Decode this data if you are a coder'
 
@@ -28,6 +29,10 @@ ITEM = {
 ITEM2 = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
     u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
+}
+ITEM_BIG = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE2},
+    u'relevant_data': {u'S': u'a'*1024},
 }
 
 class TestGetItem(unittest.TestCase):
@@ -50,6 +55,7 @@ class TestGetItem(unittest.TestCase):
 
         self.t1.put(ITEM, {})
         self.t2.put(ITEM2, {})
+        self.t2.put(ITEM_BIG, {})
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
@@ -63,10 +69,7 @@ class TestGetItem(unittest.TestCase):
 
         expected = {
             u'ConsumedCapacityUnits': 0.5,
-            u'Item': {
-                u'hash_key': {u'N': u'123'},
-                u'range_key': {u'S': u'Decode this data if you are a coder'},
-                u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='}}
+            u'Item': ITEM,
         }
 
         key = {
@@ -84,10 +87,7 @@ class TestGetItem(unittest.TestCase):
 
         expected = {
             u'ConsumedCapacityUnits': 1,
-            u'Item': {
-                u'hash_key': {u'N': u'123'},
-                u'range_key': {u'S': u'Decode this data if you are a coder'},
-                u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='}}
+            u'Item': ITEM,
         }
 
         key = {
@@ -105,9 +105,7 @@ class TestGetItem(unittest.TestCase):
 
         expected = {
             u'ConsumedCapacityUnits': 0.5,
-            u'Item': {
-                u'hash_key': {u'N': u'123'},
-                u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='}}
+            u'Item': ITEM2,
         }
 
         key = {
@@ -115,6 +113,23 @@ class TestGetItem(unittest.TestCase):
         }
 
         self.assertEquals(expected, db.layer1.get_item(TABLE_NAME2, key))
+
+    def test_get_consistent_big(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+
+        db = connect_boto()
+
+        expected = {
+            u'ConsumedCapacityUnits': 2,
+            u'Item': ITEM_BIG,
+        }
+
+        key = {
+            u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE2},
+        }
+
+        self.assertEquals(expected, db.layer1.get_item(TABLE_NAME2, key, consistent_read=True))
 
     def test_get_h_404(self):
         from ddbmock import connect_boto
