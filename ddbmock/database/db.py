@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .table import Table
+from .item import ItemSize
 from collections import defaultdict
 from ddbmock.errors import (ResourceNotFoundException,
                             ResourceInUseException,
@@ -54,7 +55,7 @@ class DynamoDB(object):
         for tablename, keys in batch.iteritems():
             fields = keys[u'AttributesToGet'] if u'AttributesToGet' in keys else []
             table = self.get_table(tablename)
-            units = 0
+            units = ItemSize(0)
             items = []
             for key in keys[u'Keys']:
                 item = table.get(key, fields)
@@ -71,13 +72,14 @@ class DynamoDB(object):
 
         for tablename, operations in batch.iteritems():
             table = self.get_table(tablename)
-            units = 0
+            units = ItemSize(0)
             for operation in operations:
                 if u'PutRequest' in operation:
-                    table.put(operation[u'PutRequest'][u'Item'], {})
+                    old, new = table.put(operation[u'PutRequest'][u'Item'], {})
+                    units += max(old.get_size().as_units(), new.get_size().as_units())
                 if u'DeleteRequest' in operation:
-                    table.delete_item(operation[u'DeleteRequest'][u'Key'], {})
-                units += 1  # STUB
+                    old = table.delete_item(operation[u'DeleteRequest'][u'Key'], {})
+                    units += old.get_size().as_units()
             ret[tablename][u'ConsumedCapacityUnits'] = units
 
         return ret
