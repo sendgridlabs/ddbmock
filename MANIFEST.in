@@ -1,4 +1,4 @@
 include *.txt *.ini *.cfg *.rst
-recursive-include ddbmock *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml
+recursive-include ddbmock *.py
 recursive-include docs *.py *.rst Makefile make.bat
 recursive-include tests *.py
