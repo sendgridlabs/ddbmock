@@ -16,6 +16,7 @@ TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
 HK_VALUE = u'123'
+HK_VALUE2 = u'456'
 RK_VALUE = u'Decode this data if you are a coder'
 
 
@@ -27,6 +28,10 @@ ITEM = {
 ITEM2 = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
     u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
+}
+ITEM_BIG = {
+    TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE2},
+    u'relevant_data': {u'S': u'a'*1024},
 }
 
 class TestDeleteItem(unittest.TestCase):
@@ -49,6 +54,7 @@ class TestDeleteItem(unittest.TestCase):
 
         self.t1.put(ITEM, {})
         self.t2.put(ITEM2, {})
+        self.t2.put(ITEM_BIG, {})
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
@@ -110,6 +116,23 @@ class TestDeleteItem(unittest.TestCase):
             db.layer1.delete_item(TABLE_NAME2, key),
         )
         self.assertEqual({}, self.t2.data[HK_VALUE][False])
+
+    def test_delete_item_h_big(self):
+        from ddbmock import connect_boto
+        from ddbmock.database.db import DynamoDB
+
+        db = connect_boto()
+
+        key = {
+            u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE2},
+        }
+
+        self.assertEqual({
+                u'ConsumedCapacityUnits': 2,
+            },
+            db.layer1.delete_item(TABLE_NAME2, key),
+        )
+        self.assertEqual({}, self.t2.data[HK_VALUE2][False])
 
     def test_delete_item_h_old(self):
         from ddbmock import connect_boto
