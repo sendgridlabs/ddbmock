@@ -21,17 +21,21 @@ Run as Regular client-server
 Ideal for test environment. For stage and production I highly recommend using
 DynamoDB servers. ddbmock comes with no warranty and *will* **loose your data(tm)**.
 
+Launch the server
+
 ::
 
     $ pserve development.ini # launch the server on 0.0.0.0:6543
 
+Start the client
+
 ::
 
     import boto
-    from ddbmock import connect_ddbmock
+    from ddbmock import connect_boto_network
 
     # Use the provided helper to connect your *own* endpoint
-    db = connect_ddbmock()
+    db = connect_boto_network()
 
     # Done ! just use it wherever in your project as usual.
     db.list_tables() # get list of tables (empty at this stage)
@@ -41,7 +45,7 @@ reference implementation:
 
 ::
 
-    def connect_ddbmock(host='localhost', port=6543):
+    def connect_boto_network(host='localhost', port=6543):
         import boto
         from boto.regioninfo import RegionInfo
         endpoint = '{}:{}'.format(host, port)
@@ -57,10 +61,10 @@ around with boto DynamoDB API too :)
 ::
 
     import boto
-    from ddbmock import connect_boto
+    from ddbmock import connect_boto_patch
 
     # Wire-up boto and ddbmock together
-    db = connect_boto()
+    db = connect_boto_patch()
 
     # Done ! just use it wherever in your project as usual.
     db.list_tables() # get list of tables (empty at this stage)

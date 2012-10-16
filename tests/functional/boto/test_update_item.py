@@ -76,8 +76,8 @@ class TestUpdateItem(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_update_item_put_hr(self):
-        from ddbmock import connect_boto
-        db = connect_boto()
+        from ddbmock import connect_boto_patch
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
@@ -111,8 +111,8 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(RELEVANT_FIELD, self.t1.data[HK_VALUE2][RK_VALUE]['relevant_data'])
 
     def test_update_item_put_h(self):
-        from ddbmock import connect_boto
-        db = connect_boto()
+        from ddbmock import connect_boto_patch
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
@@ -143,10 +143,10 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(RELEVANT_FIELD, self.t2.data[HK_VALUE2][False]['relevant_data'])
 
     def test_put_check_throughput_max_old_new(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE}}
 
@@ -167,10 +167,10 @@ class TestUpdateItem(unittest.TestCase):
         )
 
     def test_update_item_delete_primary_key_fails(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
@@ -190,10 +190,10 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual({TABLE_HK_TYPE: HK_VALUE}, self.t1.data[HK_VALUE][RK_VALUE][TABLE_HK_NAME])
 
     def test_update_item_delete_field_ok(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
@@ -211,10 +211,10 @@ class TestUpdateItem(unittest.TestCase):
         })
 
     def test_update_item_delete_field_set_ok(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected1 = {u'SS': [u'item1', u'item2', u'item3', u'item4']}
         expected2 = {u'SS': [u'item3', u'item1']}
@@ -246,10 +246,10 @@ class TestUpdateItem(unittest.TestCase):
         self.assertNotIn(FIELD_SET_NAME, self.t1.data[HK_VALUE][RK_VALUE])
 
     def test_update_item_delete_field_set_bad_type(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected = {u'SS': [u'item1', u'item2', u'item3', u'item4']}
 
@@ -275,10 +275,10 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(expected, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
 
     def test_update_item_increment(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
@@ -295,10 +295,10 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(expected, self.t2.data[HK_VALUE][False][FIELD_NUM_NAME])
 
     def test_update_item_push_to_set_ok(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected1 = {u'SS': [u'item1', u'item2', u'item3', u'item4']}
         expected2 = {u'SS': [u'item2', u'item3', u'item1', u'item4', u'item5']}
@@ -324,10 +324,10 @@ class TestUpdateItem(unittest.TestCase):
     def test_update_item_push_to_non_set_fail(self):
         # sometimes weird black magic types occures in test. these are related
         # to internal "DB" logic. it does not affect real API output at all
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected1 = {u'SS': [u'item1', u'item2', u'item3', u'item4']}
 
@@ -345,13 +345,13 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(expected1, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
 
     def test_update_return_all_old(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         key = {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE}}
         ADD_VALUE = 1
 
-        db = connect_boto()
+        db = connect_boto_patch()
         expected = cp(ITEM2)
 
         # regular increment
@@ -363,13 +363,13 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(expected, ret[u'Attributes'])
 
     def test_update_return_all_new(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         key = {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE}}
         ADD_VALUE = 1
 
-        db = connect_boto()
+        db = connect_boto_patch()
         expected = cp(ITEM2)
         expected[FIELD_NUM_NAME][u'N'] = unicode(int(expected[FIELD_NUM_NAME][u'N']) + ADD_VALUE)
 
@@ -382,13 +382,13 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(expected, ret[u'Attributes'])
 
     def test_update_return_updated_old(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         key = {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE}}
         ADD_VALUE = 1
 
-        db = connect_boto()
+        db = connect_boto_patch()
         expected = {FIELD_NUM_NAME: cp(ITEM2[FIELD_NUM_NAME])}
 
         # regular increment
@@ -400,13 +400,13 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(expected, ret[u'Attributes'])
 
     def test_update_return_updated_new(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         key = {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE}}
         ADD_VALUE = 1
 
-        db = connect_boto()
+        db = connect_boto_patch()
         expected = {FIELD_NUM_NAME: cp(ITEM2[FIELD_NUM_NAME])}
         expected[FIELD_NUM_NAME][u'N'] = unicode(int(expected[FIELD_NUM_NAME][u'N']) + ADD_VALUE)
 
@@ -420,8 +420,8 @@ class TestUpdateItem(unittest.TestCase):
 
     def test_update_item_put_h_oversized(self):
         from boto.dynamodb.exceptions import DynamoDBValidationError
-        from ddbmock import connect_boto
-        db = connect_boto()
+        from ddbmock import connect_boto_patch
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},

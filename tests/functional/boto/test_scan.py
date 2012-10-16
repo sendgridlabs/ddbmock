@@ -86,7 +86,7 @@ class TestScan(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_scan_all(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         expected = {
@@ -96,13 +96,13 @@ class TestScan(unittest.TestCase):
             u"ConsumedCapacityUnits": 1.5,
         }
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.scan(TABLE_NAME, None)
         self.assertEqual(expected, ret)
 
     def test_scan_all_filter_fields(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         self.maxDiff = None
@@ -122,14 +122,14 @@ class TestScan(unittest.TestCase):
         }
         fields = [u'relevant_data']
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.scan(TABLE_NAME, None, fields)
         self.assertEqual(expected, ret)
 
     # No need to test all conditions/type mismatch as they are unit tested
     def test_scan_condition_filter_fields_in(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         expected = {
@@ -151,13 +151,13 @@ class TestScan(unittest.TestCase):
         }
         fields = [u'relevant_data']
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.scan(TABLE_NAME, conditions, fields)
         self.assertEqual(expected, ret)
 
     def test_scan_condition_filter_fields_contains(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         expected = {
@@ -177,13 +177,13 @@ class TestScan(unittest.TestCase):
         }
         fields = [u'relevant_data']
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.scan(TABLE_NAME, conditions, fields)
         self.assertEqual(expected, ret)
 
     def test_scan_filter_ghost_fields(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         expected = {
@@ -201,13 +201,13 @@ class TestScan(unittest.TestCase):
         }
         fields = [u'relevant_data']
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.scan(TABLE_NAME, conditions, fields)
         self.assertEqual(expected, ret)
 
     def test_scan_validation_error(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
@@ -228,7 +228,7 @@ class TestScan(unittest.TestCase):
         }
         fields = [u'relevant_data']
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         self.assertRaises(DynamoDBValidationError, db.layer1.scan,
             TABLE_NAME, conditions, fields

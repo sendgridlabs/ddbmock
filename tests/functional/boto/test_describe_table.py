@@ -52,8 +52,8 @@ class TestDescribeTables(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_describe_table(self):
-        from ddbmock import connect_boto
-        db = connect_boto()
+        from ddbmock import connect_boto_patch
+        db = connect_boto_patch()
 
         table = db.get_table(TABLE_NAME)
 
@@ -68,8 +68,8 @@ class TestDescribeTables(unittest.TestCase):
         self.assertEqual(TABLE_RK_TYPE, table.schema.range_key_type)
 
     def describe_table_404(self):
-        from ddbmock import connect_boto
-        db = connect_boto()
+        from ddbmock import connect_boto_patch
+        db = connect_boto_patch()
 
         self.assertRaises(DDBValidationErr, db.get_table,
             TABLE_NAME_404,

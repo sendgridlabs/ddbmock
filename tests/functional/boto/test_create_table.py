@@ -41,10 +41,10 @@ class TestCreateTable(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_create_table_hash_range(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         table = db.create_table(
             name=TABLE_NAME1,
@@ -75,10 +75,10 @@ class TestCreateTable(unittest.TestCase):
         self.assertEqual(u'S', table.range_key.typename)
 
     def test_create_table_hash(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         table = db.create_table(
             name=TABLE_NAME2,
@@ -108,11 +108,11 @@ class TestCreateTable(unittest.TestCase):
         self.assertIsNone(table.range_key)
 
     def test_create_table_twice_fails(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.exception import DynamoDBResponseError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         #1st
         db.create_table(
@@ -133,11 +133,11 @@ class TestCreateTable(unittest.TestCase):
 
 
     def test_create_table_invalid_name(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.dynamodb.exceptions import DynamoDBValidationError as DDBValidationErr
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         assert TABLE_NAME_INVALID1 not in DynamoDB().data
 
@@ -149,14 +149,14 @@ class TestCreateTable(unittest.TestCase):
         )
 
     def test_create_table_reach_max(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database import db as database
         from boto.exception import DynamoDBResponseError
 
         BK = database.MAX_TABLES
         database.MAX_TABLES = 3
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         #1
         db.create_table(

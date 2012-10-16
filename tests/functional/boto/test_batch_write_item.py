@@ -78,10 +78,10 @@ class TestBatchWriteItem(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_batch_write_item_nominal(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected = {
             "Responses": {
@@ -122,11 +122,11 @@ class TestBatchWriteItem(unittest.TestCase):
         self.assertEqual(expected, ret)
 
     def test_batch_write_item_table_404(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.exception import BotoServerError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         self.assertRaises(BotoServerError, db.layer1.batch_get_item, {
             TABLE_NAME_404: [

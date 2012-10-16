@@ -33,10 +33,10 @@ class TestDeleteTables(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_delete(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         db.layer1.delete_table(TABLE_NAME)
 
@@ -44,10 +44,10 @@ class TestDeleteTables(unittest.TestCase):
         assert TABLE_NAME not in DynamoDB().data
 
     def test_delete_404(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.exception import BotoServerError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         self.assertRaises(BotoServerError, db.layer1.delete_table,
                           TABLE_NAME_404,

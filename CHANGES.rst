@@ -10,6 +10,11 @@ Additions
 
 - consistent_read parameter to ``Query``
 
+Removal
+-------
+
+- legacy ``connect_boto`` and ``connect_ddbmock``
+
 Changes
 -------
 
@@ -18,6 +23,12 @@ Changes
 - move 'views' to 'routes'
 - remove all pyramid code from 'views'/'routes'
 - pyramid and boto entry points now shares most of the router
+
+Upgrade
+-------
+
+- rename ``connect_boto`` to ``connect_boto_patch``
+- rename ``connect_ddbmock`` to ``connect_boto_network``
 
 
 =============

@@ -86,10 +86,10 @@ class TestBatchGetItem(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_batch_get_item_nominal(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected = {
             "Responses": {
@@ -122,10 +122,10 @@ class TestBatchGetItem(unittest.TestCase):
         self.assertEqual(expected, ret)
 
     def test_batch_get_item_filter_one(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected = {
             "Responses": {
@@ -162,11 +162,11 @@ class TestBatchGetItem(unittest.TestCase):
         self.assertEqual(expected, ret)
 
     def test_batch_get_item_table_404(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.exception import BotoServerError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         self.assertRaises(BotoServerError, db.layer1.batch_get_item, {
             TABLE_NAME_404: {
@@ -183,11 +183,11 @@ class TestBatchGetItem(unittest.TestCase):
         })
 
     def test_batch_get_item_bad_key(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         self.assertRaises(DynamoDBValidationError, db.layer1.batch_get_item,
         {

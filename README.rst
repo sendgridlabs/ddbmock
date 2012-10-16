@@ -26,7 +26,7 @@ What is/will ddbmock be useful for ?
 - running unit test FAST. DONE
 - running functional test FAST. DONE
 - experiment with DynamoDB API. DONE
-- plan Throughput usage. WIP (low level foundation done)
+- plan Throughput usage. WIP (low/mid level foundation done)
 - plan actual storage space requirements. DONE (describe table returns accurate size !)
 - perform simulations with accurate limitations. Even some undocumented "features" are accurate :)
 
@@ -67,10 +67,10 @@ Start the client
 ::
 
     import boto
-    from ddbmock import connect_ddbmock
+    from ddbmock import connect_boto_network
 
     # Use the provided helper to connect your *own* endpoint
-    db = connect_ddbmock()
+    db = connect_boto_network()
 
     # Done ! just use it wherever in your project as usual.
     db.list_tables() # get list of tables (empty at this stage)
@@ -80,7 +80,7 @@ reference implementation:
 
 ::
 
-    def connect_ddbmock(host='localhost', port=6543):
+    def connect_boto_network(host='localhost', port=6543):
         import boto
         from boto.regioninfo import RegionInfo
         endpoint = '{}:{}'.format(host, port)
@@ -96,10 +96,10 @@ around with boto DynamoDB API too :)
 ::
 
     import boto
-    from ddbmock import connect_boto
+    from ddbmock import connect_boto_patch
 
     # Wire-up boto and ddbmock together
-    db = connect_boto()
+    db = connect_boto_patch()
 
     # Done ! just use it wherever in your project as usual.
     db.list_tables() # get list of tables (empty at this stage)

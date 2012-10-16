@@ -33,7 +33,3 @@ def connect_boto_patch():
     from router.boto import boto_router
     Layer1.make_request = boto_router
     return boto.connect_dynamodb()
-
-# Legacy / compatibility. Scheduled to removed in 0.4.0
-connect_boto = connect_boto_patch
-connect_ddbmock = connect_boto_network

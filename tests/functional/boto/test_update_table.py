@@ -35,10 +35,10 @@ class TestUpdateTables(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_update(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         db.layer1.update_table(TABLE_NAME, {'ReadCapacityUnits': TABLE_RT2,
                                             'WriteCapacityUnits': TABLE_WT2})
@@ -52,10 +52,10 @@ class TestUpdateTables(unittest.TestCase):
         self.assertEqual(TABLE_WT2, table.wt)
 
     def test_update_404(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.exception import BotoServerError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         self.assertRaises(BotoServerError, db.layer1.update_table,
                           TABLE_NAME_404,
@@ -64,10 +64,10 @@ class TestUpdateTables(unittest.TestCase):
                          )
 
     def test_update_limite_exceeded_propagates(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from boto.exception import BotoServerError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         self.assertRaises(BotoServerError, db.layer1.update_table,
                           TABLE_NAME,

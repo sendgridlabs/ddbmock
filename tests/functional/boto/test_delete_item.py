@@ -61,10 +61,10 @@ class TestDeleteItem(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_delete_item_hr(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
@@ -79,10 +79,10 @@ class TestDeleteItem(unittest.TestCase):
         self.assertEqual({}, self.t1.data[HK_VALUE][RK_VALUE])
 
     def test_delete_item_hr_old(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected = {
             u'ConsumedCapacityUnits': 1,
@@ -101,10 +101,10 @@ class TestDeleteItem(unittest.TestCase):
         self.assertEqual({}, self.t1.data[HK_VALUE][RK_VALUE])
 
     def test_delete_item_h(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
@@ -118,10 +118,10 @@ class TestDeleteItem(unittest.TestCase):
         self.assertEqual({}, self.t2.data[HK_VALUE][False])
 
     def test_delete_item_h_big(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE2},
@@ -135,10 +135,10 @@ class TestDeleteItem(unittest.TestCase):
         self.assertEqual({}, self.t2.data[HK_VALUE2][False])
 
     def test_delete_item_h_old(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         expected = {
             u'ConsumedCapacityUnits': 1,
@@ -156,11 +156,11 @@ class TestDeleteItem(unittest.TestCase):
         self.assertEqual({}, self.t1.data[HK_VALUE][False])
 
     def test_delete_item_hr_missing_r(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {
             u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
@@ -171,11 +171,11 @@ class TestDeleteItem(unittest.TestCase):
                           TABLE_NAME, key)
 
     def test_delete_item_h_missing_h(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         key = {}
 
@@ -184,11 +184,11 @@ class TestDeleteItem(unittest.TestCase):
                           TABLE_NAME2, key)
 
     def test_delete_item_h_expect_field_value_ok(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.exception import DynamoDBResponseError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ddb_expected = {
             u'relevant_data': {
@@ -206,11 +206,11 @@ class TestDeleteItem(unittest.TestCase):
         self.assertEqual({}, self.t1.data[HK_VALUE][RK_VALUE])
 
     def test_delete_item_h_expect_field_value_fail(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.dynamodb.exceptions import DynamoDBConditionalCheckFailedError
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ddb_expected = {
             u'relevant_data_et_bah_non': {

@@ -38,8 +38,8 @@ class TestListTables(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_list_tables(self):
-        from ddbmock import connect_boto
-        db = connect_boto()
+        from ddbmock import connect_boto_patch
+        db = connect_boto_patch()
 
         request = {}
 

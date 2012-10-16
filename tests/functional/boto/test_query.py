@@ -76,7 +76,7 @@ class TestQuery(unittest.TestCase):
         DynamoDB().hard_reset()
 
     def test_query_all(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         expected = {
@@ -85,13 +85,13 @@ class TestQuery(unittest.TestCase):
             u"ConsumedCapacityUnits": 0.5,
         }
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE})
         self.assertEqual(expected, ret)
 
     def test_query_all_filter_fields(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         expected = {
@@ -107,14 +107,14 @@ class TestQuery(unittest.TestCase):
         }
         fields = [u'relevant_data']
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, None, fields)
         self.assertEqual(expected, ret)
 
     # No need to test all conditions/type mismatch as they are unit tested
     def test_query_condition_filter_fields(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         expected = {
@@ -130,13 +130,13 @@ class TestQuery(unittest.TestCase):
         condition = {"AttributeValueList":[{"S":"Waldo-2"}],"ComparisonOperator":"GT"}
         fields = [u'relevant_data']
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, condition, fields)
         self.assertEqual(expected, ret)
 
     def test_query_all_consistent(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
 
         expected = {
@@ -145,13 +145,13 @@ class TestQuery(unittest.TestCase):
             u"ConsumedCapacityUnits": 1,
         }
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, consistent_read=True)
         self.assertEqual(expected, ret)
 
     def test_query_invalid_condition_multiple_data_in_field(self):
-        from ddbmock import connect_boto
+        from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
@@ -164,7 +164,7 @@ class TestQuery(unittest.TestCase):
         }
         fields = [u'relevant_data']
 
-        db = connect_boto()
+        db = connect_boto_patch()
 
         self.assertRaises(DynamoDBValidationError,
                           db.layer1.query,
