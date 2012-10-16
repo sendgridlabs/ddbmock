@@ -14,7 +14,7 @@ from ddbmock.router import routes
 from ddbmock.errors import *
 
 # DDB to Boto exception
-def _do_exception(err):
+def _ddbmock_exception_to_boto_exception(err):
     if isinstance(err, ValidationException):
         raise DDBValidationErr(err.status, err.status_str, err.to_dict())
     if isinstance(err, ConditionalCheckFailedException):
@@ -32,15 +32,11 @@ def _do_request(action, post):
         func = getattr(mod, target)
         return json.dumps(func(post))
     except KeyError:
-        err = InternalFailure("Method: {} does not exist".format(action))
+        raise InternalFailure("Method: {} does not exist".format(action))
     except ImportError:
-        err = InternalFailure("Method: {} not yet implemented".format(action))
-    except DDBError as e:
-        err = e
+        raise InternalFailure("Method: {} not yet implemented".format(action))
 
-    return _do_exception(err)
-
-counter = itertools.count()
+request_counter = itertools.count()
 
 # Boto lib version entry point
 def boto_make_request(self, action, body='', object_hook=None):
@@ -57,12 +53,14 @@ def boto_make_request(self, action, body='', object_hook=None):
     # FIXME: dump followed by load... can be better...
     target = '%s_%s.%s' % (self.ServiceName, self.Version, action)
     start = time.time()
-    request_id = counter.next()
+    request_id = request_counter.next()
 
     boto.log.info("ddbmock: '%s' request (%s) => %s", action, request_id, body)
 
     try:
         ret = _do_request(action, json.loads(body))
+    except Exception as e:
+        _ddbmock_exception_to_boto_exception(e)
     finally:
         elapsed = (time.time() - start) * 1000
         boto.log.debug('RequestId: %s', request_id)
