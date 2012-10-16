@@ -15,6 +15,9 @@ Changes
 
 - accurate throughput for all Read  operations
 - accurate throughput for all Write operations
+- move 'views' to 'routes'
+- remove all pyramid code from 'views'/'routes'
+- pyramid and boto entry points now shares most of the router
 
 
 =============

@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.router import routes
 from pyramid.config import Configurator
+from ddbmock.router.pyramid import pyramid_router
 
 # Pyramid entry point
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     config = Configurator(settings=settings)
-    # Decipher DynamoDB routes
 
-    config.add_tween('ddbmock.router.dynamodb.dynamodb_router_factory')
-    # Add routes
-    for src, dest in routes.iteritems():
-        config.add_route(dest, '/{}'.format(src))
+    # Insert router as '/' route. This is because all DDB URL are '/' (!)
+    config.add_route('pyramid_router', '')
+    config.add_view(pyramid_router, route_name='pyramid_router')
 
-    config.scan()
     return config.make_wsgi_app()
 
 # Regular "over the network" connection wrapper.
@@ -33,8 +30,8 @@ def connect_boto_patch():
     """Connect to ddbmock as a library via boto"""
     import boto
     from boto.dynamodb.layer1 import Layer1
-    from router.botopatch import boto_make_request
-    Layer1.make_request = boto_make_request
+    from router.boto import boto_router
+    Layer1.make_request = boto_router
     return boto.connect_dynamodb()
 
 # Legacy / compatibility. Scheduled to removed in 0.4.0

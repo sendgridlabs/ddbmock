@@ -3,43 +3,30 @@
 # This module is not imported unless connect_boto is called thus making 'boto'
 # an optional dependancy
 
-import json, time, itertools
-import boto
+# boto entry point: semantic name
+from __future__ import absolute_import
 
-from importlib import import_module
+import json, time, itertools, boto
+
 from boto.exception import DynamoDBResponseError
 from boto.dynamodb.exceptions import (DynamoDBValidationError as DDBValidationErr,
                                       DynamoDBConditionalCheckFailedError)
-from ddbmock.router import routes
-from ddbmock.errors import *
+from ddbmock.router import router
+from ddbmock.errors import ValidationException, ConditionalCheckFailedException, DDBError
 
 # DDB to Boto exception
 def _ddbmock_exception_to_boto_exception(err):
     if isinstance(err, ValidationException):
-        raise DDBValidationErr(err.status, err.status_str, err.to_dict())
-    if isinstance(err, ConditionalCheckFailedException):
-        raise DynamoDBConditionalCheckFailedError(err.status, err.status_str, err.to_dict())
+        return DDBValidationErr(err.status, err.status_str, err.to_dict())
+    elif isinstance(err, ConditionalCheckFailedException):
+        return DynamoDBConditionalCheckFailedError(err.status, err.status_str, err.to_dict())
     else:
-        raise DynamoDBResponseError(err.status, err.status_str, err.to_dict())
-
-# Wrap the request logic
-def _do_request(action, post):
-    # handles the request and wrap exceptions
-    # Fixme: theses wrappers makes it very hard to find the actual issue...
-    try:
-        target = routes[action]
-        mod = import_module('ddbmock.views.{}'.format(target))
-        func = getattr(mod, target)
-        return json.dumps(func(post))
-    except KeyError:
-        raise InternalFailure("Method: {} does not exist".format(action))
-    except ImportError:
-        raise InternalFailure("Method: {} not yet implemented".format(action))
+        return DynamoDBResponseError(err.status, err.status_str, err.to_dict())
 
 request_counter = itertools.count()
 
 # Boto lib version entry point
-def boto_make_request(self, action, body='', object_hook=None):
+def boto_router(self, action, body='', object_hook=None):
     # from an external point of view, this function behaves exactly as the
     # original version. It only avoids all the HTTP and network overhead.
     # Even logs are preserved !
@@ -47,10 +34,7 @@ def boto_make_request(self, action, body='', object_hook=None):
     # TODO:
     # - handle auth
     # - handle route errors (404)
-    # - handle all exceptions
-    # - request ID
     # - simulate retry/throughput errors ?
-    # FIXME: dump followed by load... can be better...
     target = '%s_%s.%s' % (self.ServiceName, self.Version, action)
     start = time.time()
     request_id = request_counter.next()
@@ -58,9 +42,9 @@ def boto_make_request(self, action, body='', object_hook=None):
     boto.log.info("ddbmock: '%s' request (%s) => %s", action, request_id, body)
 
     try:
-        ret = _do_request(action, json.loads(body))
-    except Exception as e:
-        _ddbmock_exception_to_boto_exception(e)
+        ret = router(action, json.loads(body))
+    except DDBError as e:
+        raise _ddbmock_exception_to_boto_exception(e)
     finally:
         elapsed = (time.time() - start) * 1000
         boto.log.debug('RequestId: %s', request_id)
@@ -69,4 +53,6 @@ def boto_make_request(self, action, body='', object_hook=None):
 
     # Not in the finally block because, in case of error, they are already translated
     boto.log.info("ddbmock: '%s' answer (%s) => %s", action, request_id, ret)
+    # FIXME: dump followed by load... can be better...
+    ret = json.dumps(ret)
     return json.loads(ret, object_hook=object_hook)

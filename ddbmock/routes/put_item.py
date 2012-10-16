@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from pyramid.view import view_config
 from ddbmock.database import DynamoDB
 from ddbmock.validators import dynamodb_api_validate
 from ddbmock.errors import wrap_exceptions, ResourceNotFoundException
 
-# Real work
 @wrap_exceptions
 @dynamodb_api_validate
-def delete_item(post):
+def put_item(post):
     #FIXME: this line is a temp workaround
     if u'ReturnValues' not in post:
         post[u'ReturnValues'] = u"NONE"
@@ -17,20 +15,14 @@ def delete_item(post):
 
     name = post[u'TableName']
     table = DynamoDB().get_table(name)
-    item = table.delete_item(post[u'Key'], post[u'Expected'])
+    old, new = table.put(post[u'Item'], post[u'Expected'])
+    units = max(old.get_size().as_units(), new.get_size().as_units())
 
     ret = {
-        "ConsumedCapacityUnits": item.get_size().as_units(),
-        "Attributes": item,
+        "ConsumedCapacityUnits": units,
     }
 
     if post[u'ReturnValues'] == "ALL_OLD":
-        return ret
-    else:
-        del ret["Attributes"]
-        return ret
+        ret["Attributes"] = old
 
-# Pyramid route wrapper
-@view_config(route_name='delete_item', renderer='json')
-def pyramid_delete_item(request):
-    return delete_item(request.json)
+    return ret

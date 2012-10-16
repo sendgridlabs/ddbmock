@@ -9,11 +9,11 @@ ENDPOINT = '{}:{}'.format(HOST, PORT)
 class TestDdbmockConnect(unittest.TestCase):
     def test_connect_boto_patch(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.router.botopatch import boto_make_request
+        from ddbmock.router.boto import boto_router
 
         db = connect_boto_patch()
 
-        self.assertEqual(boto_make_request, db.layer1.make_request.im_func)
+        self.assertEqual(boto_router, db.layer1.make_request.im_func)
 
     def test_connect_boto_network(self):
         from ddbmock import connect_boto_network

@@ -138,7 +138,7 @@ class TestScan(unittest.TestCase):
 
         expected = {
             u'__type': u'com.amazonaws.dynamodb.v20111205#ValidationException',
-            u'message': u'Can filter fields when only count is requested'
+            u'message': u'Can not filter fields when only count is requested'
         }
 
         # Protocol check

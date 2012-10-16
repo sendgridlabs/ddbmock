@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from pyramid.view import view_config
 from ddbmock.database import DynamoDB
 from ddbmock.validators import dynamodb_api_validate
 from ddbmock.errors import wrap_exceptions, ResourceNotFoundException
 
-# Real work
 @wrap_exceptions
 @dynamodb_api_validate
 def update_item(post):
@@ -37,8 +35,3 @@ def update_item(post):
         ret["Attributes"] = new - old
 
     return ret
-
-# Pyramid route wrapper
-@view_config(route_name='update_item', renderer='json')
-def pyramid_update_item(request):
-    return update_item(request.json)

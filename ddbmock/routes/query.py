@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from pyramid.view import view_config
 from ddbmock.database import DynamoDB
 from ddbmock.validators import dynamodb_api_validate
 from ddbmock.errors import wrap_exceptions, ResourceNotFoundException, ValidationException
 
-# Real work
 @wrap_exceptions
 @dynamodb_api_validate
 def query(post):
@@ -51,8 +49,3 @@ def query(post):
         ret[u'Items'] = results.items
 
     return ret
-
-# Pyramid route wrapper
-@view_config(route_name='query', renderer='json')
-def pyramid_query(request):
-    return query(request.json)
