@@ -2,33 +2,22 @@
 
 from importlib import import_module
 from ddbmock.errors import InternalFailure
+import re
 
-# src: dest
-routes = {
-    'BatchGetItem':   'batch_get_item',
-    'BatchWriteItem': 'batch_write_item',
-    'CreateTable':    'create_table',
-    'DeleteItem':     'delete_item',
-    'DeleteTable':    'delete_table',
-    'DescribeTable':  'describe_table',
-    'GetItem':        'get_item',
-    'ListTables':     'list_tables',
-    'PutItem':        'put_item',
-    'Query':          'query',
-    'Scan':           'scan',
-    'UpdateItem':     'update_item',
-    'UpdateTable':    'update_table',
-}
+first_cap_re = re.compile('(.)([A-Z][a-z]+)')
+all_cap_re = re.compile('([a-z0-9])([A-Z])')
+
+def action_to_route(name):
+    s1 = first_cap_re.sub(r'\1_\2', name)
+    return all_cap_re.sub(r'\1_\2', s1).lower()
 
 def router(action, post):
     # handles the request and wrap exceptions
     # Fixme: theses wrappers makes it very hard to find the actual issue...
     try:
-        target = routes[action]
+        target = action_to_route(action)
         mod = import_module('ddbmock.routes.{}'.format(target))
         func = getattr(mod, target)
         return func(post)
-    except KeyError:
-        raise InternalFailure("Method: {} does not exist".format(action))
     except ImportError:
-        raise InternalFailure("Method: {} not yet implemented".format(action))
+        raise InternalFailure("Method: {} does not exist".format(action))
