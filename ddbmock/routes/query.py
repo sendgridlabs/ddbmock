@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from ddbmock.database import DynamoDB
-from ddbmock.errors import wrap_exceptions, ResourceNotFoundException, ValidationException
+from ddbmock.errors import ValidationException
 
-@wrap_exceptions
 def query(post):
     #FIXME: this line is a temp workaround
     if u'RangeKeyCondition' not in post:

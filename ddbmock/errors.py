@@ -26,11 +26,3 @@ class ValidationException(BadRequest): pass
 class InternalFailure(ServerError): pass
 class InternalServerError(ServerError): pass
 class ServiceUnavailableException(ServerError): pass
-
-def wrap_exceptions(func):
-    def wrapped(*args):
-        try:
-            return func(*args)
-        except (TypeError, ValueError) as e:
-            raise ValidationException(*e.args)
-    return wrapped

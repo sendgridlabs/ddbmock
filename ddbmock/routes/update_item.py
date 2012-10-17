@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ddbmock.database import DynamoDB
-from ddbmock.errors import wrap_exceptions, ResourceNotFoundException
 
-@wrap_exceptions
 def update_item(post):
     #FIXME: this line is a temp workaround
     if u'ReturnValues' not in post:

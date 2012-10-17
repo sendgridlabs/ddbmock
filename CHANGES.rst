@@ -5,6 +5,8 @@ ddbmock 0.4.0.dev
 This section documents all user visible changes included between ddbmock
 versions 0.3.2 and versions 0.4.0
 
+This iteration is focused on making code leaner with better documentation.
+
 Additions
 ---------
 
@@ -15,6 +17,7 @@ Removal
 
 - legacy ``connect_boto`` and ``connect_ddbmock``
 - ``dynamodb_api_validate`` decorator. It is now called automatically
+- ``wrap_exceptions`` decorator. It is now integrated to the router
 
 Changes
 -------

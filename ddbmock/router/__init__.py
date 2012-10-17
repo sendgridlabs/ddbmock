@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from importlib import import_module
-from ddbmock.errors import InternalFailure
+from ddbmock.errors import InternalFailure, ValidationException
 from ddbmock.validators import dynamodb_api_validate
 import re
 
@@ -13,15 +13,19 @@ def action_to_route(name):
     return all_cap_re.sub(r'\1_\2', s1).lower()
 
 def router(action, post):
-    # handles the request and wrap exceptions
-    # Fixme: theses wrappers makes it very hard to find the actual issue...
-    target = action_to_route(action)
-
+    # Find route
     try:
+        target = action_to_route(action)
         mod = import_module('ddbmock.routes.{}'.format(target))
         func = getattr(mod, target)
     except ImportError:
         raise InternalFailure("Method: {} does not exist".format(action))
 
+    # Validate the input
     dynamodb_api_validate(target, post)
-    return func(post)
+
+    # Run request and translate engine errors to DynamoDB errors
+    try:
+        return func(post)
+    except (TypeError, ValueError) as e:
+        raise ValidationException(*e.args)
