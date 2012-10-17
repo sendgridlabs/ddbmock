@@ -25,9 +25,6 @@ Folder structure
 Adding a custom method
 ======================
 
-Minimum version
----------------
-
 As long as the method follows DynamoDB request structure, it is mostly a matter of
 adding a file to ``ddbmock/routes`` with the following conventions:
 
@@ -47,3 +44,46 @@ Example: adding a ``HelloWorld`` method:
         return {
             'Hello': 'World'
         }
+
+Adding a custom validator
+=========================
+
+Let's say you want to let your new ``HelloWorld`` greet someone in particular,
+you will want to add an argument to the request.
+
+Example: simplest way to add support for an argument:
+
+::
+
+    # -*- coding: utf-8 -*-
+    # module: ddbmock.routes.hello_world.py
+
+    def hello_world(post):
+        return {
+            'Hello': 'World (and "{you}" too!)'.format(you=post['Name']
+        }
+
+Wanna test it?
+
+>>> curl -d '{"Name": "chuck"}' -H 'x-amz-target: DynamoDB_custom.HelloWorld' localhost:6543
+{'Hello': 'World (and "chuck" too!)'}
+
+But this is most likely to crash the server if 'Name' is not in ``Post``. This is
+where ``Voluptuous`` comes.
+
+In ddbmock, all you need to do to enable automatic validations is to add a file
+with the underscore name in ``ddbmock.validators``. It must contain a ``post``
+member with the rules.
+
+Example: HelloWorld validator for HelloWorld method:
+
+::
+
+    # -*- coding: utf-8 -*-
+    # module: ddbmock.validators.hello_world.py
+
+    post = {
+        u'Name': unicode,
+    }
+
+Done !

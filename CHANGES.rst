@@ -14,10 +14,12 @@ Removal
 -------
 
 - legacy ``connect_boto`` and ``connect_ddbmock``
+- ``dynamodb_api_validate`` decorator. It is now called automatically
 
 Changes
 -------
 
+- fix server startup with pserve (bad backage name)
 - accurate throughput for all Read  operations
 - accurate throughput for all Write operations
 - move 'views' to 'routes'
