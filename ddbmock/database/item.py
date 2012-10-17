@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from ddbmock.errors import ConditionalCheckFailedException
+from ddbmock import config
 from decimal import Decimal
 from math import ceil
 from . import comparison
 
-INDEX_OVERHEAD = 100
 
 def _decode_field(field):
     return field.items()[0]
@@ -26,7 +26,7 @@ class ItemSize(int):
         to compute the table disk size as DynamoDB would but it's not included
         in the capacity unit calculation.
         """
-        return self + INDEX_OVERHEAD
+        return self + config.INDEX_OVERHEAD
 
 
 class Item(dict):
@@ -60,6 +60,7 @@ class Item(dict):
 
         if action[u'Action'] == u"PUT":
             self[fieldname] = action[u'Value']
+
         if action[u'Action'] == u"DELETE": # Starts to be anoying
             if not fieldname in self:
                 return  #shortcut

@@ -197,7 +197,7 @@ class TestItem(unittest.TestCase):
         self.assertEqual(24, item.get_field_size(u"BS"))
 
     def test_item_size_computation(self):
-        from ddbmock.database.item import Item, INDEX_OVERHEAD
+        from ddbmock.database.item import Item
 
         item1 = Item()
         item2 = Item(ITEM_TYPE)

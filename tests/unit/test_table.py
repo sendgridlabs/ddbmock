@@ -20,7 +20,7 @@ RT100 = 201
 WT100 = 201
 CREATION = 2*24*3600  # day 2 of our era (UNIX) (avoids stupid side effects of 0 in the test)
 
-class TestItem(unittest.TestCase):
+class TestTable(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.table import Table
         self.table = Table(NAME, RT, WT, None, None)
@@ -85,7 +85,7 @@ class TestItem(unittest.TestCase):
         # 2nd decrease 2 hour after creation (fail)
         m_time.time.return_value = CREATION + 2*3600
         self.assertRaisesRegexp(LimitExceededException,
-                                "same day",
+                                "once .* day",
                                 self.table.update_throughput,
                                 RT4, WT4)
         self.assertEqual(RT3, self.table.rt)

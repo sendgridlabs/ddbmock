@@ -149,12 +149,11 @@ class TestCreateTable(unittest.TestCase):
         )
 
     def test_create_table_reach_max(self):
-        from ddbmock import connect_boto_patch
-        from ddbmock.database import db as database
+        from ddbmock import connect_boto_patch, config
         from boto.exception import DynamoDBResponseError
 
-        BK = database.MAX_TABLES
-        database.MAX_TABLES = 3
+        BK = config.MAX_TABLES
+        config.MAX_TABLES = 3
 
         db = connect_boto_patch()
 
@@ -192,4 +191,4 @@ class TestCreateTable(unittest.TestCase):
         )
 
         #restore max
-        database.MAX_TABLES = BK
+        config.MAX_TABLES = BK

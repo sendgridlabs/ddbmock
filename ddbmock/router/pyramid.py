@@ -13,6 +13,7 @@ def pyramid_router(request):
     # extract action
     target = request.headers.get('x-amz-target')
     action = target.split('.', 2)[1] if target is not None else ""
+
     # do the job
     try:
         body = router(action, request.json)
@@ -20,10 +21,12 @@ def pyramid_router(request):
     except DDBError as e:
         body = e.to_dict()
         status = '{} {}'.format(e.status, e.status_str)
+
     # prepare output
     response = Response()
     response.body = json.dumps(body)
     response.status = status
     response.content_type = 'application/x-amz-json-1.0'
+
     # done
     return response

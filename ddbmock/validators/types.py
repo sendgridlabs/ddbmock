@@ -3,6 +3,7 @@
 # Very bad import statement
 from voluptuous import *
 from decimal import Decimal
+from ddbmock import config
 import re
 
 # backport, will be in following releases
@@ -55,7 +56,7 @@ primary_key_type = all(
 
 throughtput = all(
     int,
-    range(1, 10000, msg="throughtput value must be between 1 and 10000"),
+    range(config.MIN_TP, config.MAX_TP, msg="throughtput value must be between {} and {}".format(config.MIN_TP, config.MAX_TP)),
 )
 
 return_values = all(

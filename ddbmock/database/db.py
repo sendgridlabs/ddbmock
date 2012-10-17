@@ -3,12 +3,11 @@
 from .table import Table
 from .item import ItemSize
 from collections import defaultdict
+from ddbmock import config
 from ddbmock.errors import (ResourceNotFoundException,
                             ResourceInUseException,
                             LimitExceededException,
                            )
-
-MAX_TABLES = 256
 
 # All validations are performed on *incomming* data => already done :)
 
@@ -35,8 +34,8 @@ class DynamoDB(object):
     def create_table(self, name, data):
         if name in self.data:
             raise ResourceInUseException("Table {} already exists".format(name))
-        if len(self.data) >= MAX_TABLES:
-            raise LimitExceededException("Table limit reached. You can have more than {} tables simultaneously".format(MAX_TABLES))
+        if len(self.data) >= config.MAX_TABLES:
+            raise LimitExceededException("Table limit reached. You can have more than {} tables simultaneously".format(config.MAX_TABLES))
 
         self.data[name] = Table.from_dict(data)
         return self.data[name]

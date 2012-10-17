@@ -2,14 +2,11 @@
 
 from .key import Key, PrimaryKey
 from .item import Item, ItemSize
+from ddbmock import config
 from collections import defaultdict, namedtuple
 from ddbmock.errors import ValidationException, LimitExceededException
 import time, copy, datetime
 
-# constants
-MAX_HK_SIZE = 2048
-MAX_RK_SIZE = 1024
-MAX_ITEM_SIZE = 64*1024
 
 def change_is_less_than_x_percent(current, candidate, threshold):
     """Return True iff 0% < change < 10%"""
@@ -44,28 +41,28 @@ class Table(object):
         self.status = "ACTIVE"
 
     def update_throughput(self, rt, wt):
-        if change_is_less_than_x_percent(self.rt, rt, 10):
-            raise LimitExceededException('Requested provisioned throughput change is not allowed. The ReadCapacityUnits change must be at least 10 percent of current value. Current ReadCapacityUnits provisioned for the table: {}. Requested ReadCapacityUnits: {}.'.format(self.rt, rt))
-        if change_is_less_than_x_percent(self.wt, wt, 10):
-            raise LimitExceededException('Requested provisioned throughput change is not allowed. The WriteCapacityUnits change must be at least 10 percent of current value. Current WriteCapacityUnits provisioned for the table: {}. Requested WriteCapacityUnits: {}.'.format(self.wt, wt))
+        if change_is_less_than_x_percent(self.rt, rt, config.MIN_TP_CHANGE):
+            raise LimitExceededException('Requested provisioned throughput change is not allowed. The ReadCapacityUnits change must be at least {} percent of current value. Current ReadCapacityUnits provisioned for the table: {}. Requested ReadCapacityUnits: {}.'.format(config.MIN_TP_CHANGE, self.rt, rt))
+        if change_is_less_than_x_percent(self.wt, wt, config.MIN_TP_CHANGE):
+            raise LimitExceededException('Requested provisioned throughput change is not allowed. The WriteCapacityUnits change must be at least {} percent of current value. Current WriteCapacityUnits provisioned for the table: {}. Requested WriteCapacityUnits: {}.'.format(config.MIN_TP_CHANGE, self.wt, wt))
 
         # is decrease ?
         if self.rt > rt or self.wt > wt:
             current_time = time.time()
             current_date = datetime.date.fromtimestamp(current_time)
             last_decrease = datetime.date.fromtimestamp(self.last_decrease_time)
-            if (current_date - last_decrease).days == 0:
+            if (current_date - last_decrease).days < config.MIN_TP_DEC_INTERVAL:
                 last = datetime.datetime.fromtimestamp(self.last_decrease_time)
                 current = datetime.datetime.fromtimestamp(current_time)
-                raise LimitExceededException("Subscriber limit exceeded: Provisioned throughput can be decreased only once within the same day. Last decrease time: Tuesday, {}. Request time: {}".format(last, current))
+                raise LimitExceededException("Subscriber limit exceeded: Provisioned throughput can be decreased only once within the {} day. Last decrease time: Tuesday, {}. Request time: {}".format(config.MIN_TP_DEC_INTERVAL, last, current))
             self.last_decrease_time = current_time
 
         # is increase ?
         if self.rt < rt or self.wt < wt:
-            if self.rt * 2 < rt:
-                raise LimitExceededException('Requested provisioned throughput change is not allowed. The ReadCapacityUnits change must be at most 100 percent of current value. Current ReadCapacityUnits provisioned for the table: {}. Requested ReadCapacityUnits: {}.'.format(self.rt, rt))
-            if self.wt * 2 < wt:
-                raise LimitExceededException('Requested provisioned throughput change is not allowed. The WriteCapacityUnits change must be at most 100 percent of current value. Current WriteCapacityUnits provisioned for the table: {}. Requested WriteCapacityUnits: {}.'.format(self.wt, wt))
+            if (rt - self.rt)/float(self.rt)*100 > config.MAX_TP_INC_CHANGE:
+                raise LimitExceededException('Requested provisioned throughput change is not allowed. The ReadCapacityUnits change must be at most {} percent of current value. Current ReadCapacityUnits provisioned for the table: {}. Requested ReadCapacityUnits: {}.'.format(config.MAX_TP_INC_CHANGE, self.rt, rt))
+            if (wt - self.wt)/float(self.wt)*100 > config.MAX_TP_INC_CHANGE:
+                raise LimitExceededException('Requested provisioned throughput change is not allowed. The WriteCapacityUnits change must be at most {} percent of current value. Current WriteCapacityUnits provisioned for the table: {}. Requested WriteCapacityUnits: {}.'.format(config.MAX_TP_INC_CHANGE, self.wt, wt))
             self.last_increase_time = time.time()
 
         #stub
@@ -95,8 +92,8 @@ class Table(object):
 
     def update_item(self, key, actions, expected):
         key = Item(key)
-        hash_key = key.read_key(self.hash_key, u'HashKeyElement', max_size=MAX_HK_SIZE)
-        range_key = key.read_key(self.range_key, u'RangeKeyElement', max_size=MAX_RK_SIZE)
+        hash_key = key.read_key(self.hash_key, u'HashKeyElement', max_size=config.MAX_HK_SIZE)
+        range_key = key.read_key(self.range_key, u'RangeKeyElement', max_size=config.MAX_RK_SIZE)
 
         # Need a deep copy as we will *modify* it
         old = copy.deepcopy(self.data[hash_key][range_key])
@@ -112,9 +109,9 @@ class Table(object):
         new = copy.deepcopy(self.data[hash_key][range_key])
 
         size = self.data[hash_key][range_key].get_size()
-        if size > MAX_ITEM_SIZE:
+        if size > config.MAX_ITEM_SIZE:
             self.data[hash_key][range_key] = old  # roll back
-            raise ValueError("Items must be smaller than {} bytes. Got {} after applying update".format(MAX_ITEM_SIZE, size))
+            raise ValueError("Items must be smaller than {} bytes. Got {} after applying update".format(config.MAX_ITEM_SIZE, size))
 
 
         # If new item:
@@ -131,11 +128,11 @@ class Table(object):
     def put(self, item, expected):
         item = Item(item)
 
-        if item.get_size() > MAX_ITEM_SIZE:
-            raise ValueError("Items must be smaller than {} bytes. Got {}".format(MAX_ITEM_SIZE, item.get_size()))
+        if item.get_size() > config.MAX_ITEM_SIZE:
+            raise ValueError("Items must be smaller than {} bytes. Got {}".format(config.MAX_ITEM_SIZE, item.get_size()))
 
-        hash_key = item.read_key(self.hash_key, max_size=MAX_HK_SIZE)
-        range_key = item.read_key(self.range_key, max_size=MAX_RK_SIZE)
+        hash_key = item.read_key(self.hash_key, max_size=config.MAX_HK_SIZE)
+        range_key = item.read_key(self.range_key, max_size=config.MAX_RK_SIZE)
 
         old = self.data[hash_key][range_key]
         old.assert_match_expected(expected)
