@@ -33,7 +33,4 @@ def wrap_exceptions(func):
             return func(*args)
         except (TypeError, ValueError) as e:
             raise ValidationException(*e.args)
-        # Intercept key errors here to avoid special treatment in router
-        except KeyError as e:
-            raise InternalServerError(*e.args)
     return wrapped

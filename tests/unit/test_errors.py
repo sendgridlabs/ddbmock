@@ -22,14 +22,3 @@ class TestErrors(unittest.TestCase):
         self.assertRaises(ValidationException,
                           wrap_exceptions(m_func),
                           *ARGS)
-
-    def test_wrap_exceptions_key_error(self):
-        from ddbmock.errors import wrap_exceptions
-        from ddbmock.errors import InternalServerError
-
-        m_func = mock.Mock()
-        m_func.side_effect = KeyError
-
-        self.assertRaises(InternalServerError,
-                          wrap_exceptions(m_func),
-                          *ARGS)
