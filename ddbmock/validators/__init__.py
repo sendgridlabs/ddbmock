@@ -23,6 +23,6 @@ def dynamodb_api_validate(action, post):
         validate = Schema(schema, required=True)
         validate(post)
     except Invalid as e:
-        raise ValidationException(e.errors)
+        raise ValidationException(str(e.errors))
 
     return True

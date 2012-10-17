@@ -19,7 +19,8 @@ Removal
 Changes
 -------
 
-- fix server startup with pserve (bad backage name)
+- fix server startup with pserver (bad backage name)
+- fix server crash on validation exception (bad serialization)
 - accurate throughput for all Read  operations
 - accurate throughput for all Write operations
 - move 'views' to 'routes'
