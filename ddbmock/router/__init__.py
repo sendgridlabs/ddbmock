@@ -2,6 +2,7 @@
 
 from importlib import import_module
 from ddbmock.errors import InternalFailure
+from ddbmock.validators import dynamodb_api_validate
 import re
 
 first_cap_re = re.compile('(.)([A-Z][a-z]+)')
@@ -14,10 +15,13 @@ def action_to_route(name):
 def router(action, post):
     # handles the request and wrap exceptions
     # Fixme: theses wrappers makes it very hard to find the actual issue...
+    target = action_to_route(action)
+
     try:
-        target = action_to_route(action)
         mod = import_module('ddbmock.routes.{}'.format(target))
         func = getattr(mod, target)
-        return func(post)
     except ImportError:
         raise InternalFailure("Method: {} does not exist".format(action))
+
+    dynamodb_api_validate(target, post)
+    return func(post)

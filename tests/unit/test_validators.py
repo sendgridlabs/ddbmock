@@ -5,6 +5,10 @@ from decimal import Decimal
 
 # tests
 # - number validator
+# - dynamodb_api_validate errors
+
+ACTION_404 = "!~I bet this route won't ever exist~!"
+POST = {"toto":"titi"}
 
 class TestValidators(unittest.TestCase):
     def test_number_max_exp(self):
@@ -33,3 +37,8 @@ class TestValidators(unittest.TestCase):
         self.assertRaisesRegexp(Invalid, "digits",
                                 precision(max_digits=3),
                                 Decimal("-1.211E50"))
+
+    def test_validator_not_found(self):
+        from ddbmock.validators import dynamodb_api_validate
+
+        self.assertFalse(dynamodb_api_validate(ACTION_404, POST))

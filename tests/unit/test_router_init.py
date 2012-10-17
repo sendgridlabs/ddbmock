@@ -9,7 +9,8 @@ POST = {"toto":"titi"}
 
 class TestRouterInit(unittest.TestCase):
     @mock.patch("ddbmock.router.import_module")
-    def test_do_request_nominal(self, m_import):
+    @mock.patch("ddbmock.router.dynamodb_api_validate")
+    def test_do_request_nominal(self, m_validate, m_import):
         from ddbmock.router import router
 
         m_module = m_import.return_value
@@ -19,6 +20,7 @@ class TestRouterInit(unittest.TestCase):
         router(ACTION, POST)
 
         m_import.assert_called_with("ddbmock.routes.{}".format(ROUTE))
+        m_validate.assert_called_with(ROUTE, POST)
         m_route.assert_called_with(POST)
 
     def test_do_request_route_404(self):
