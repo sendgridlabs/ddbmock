@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.database import DynamoDB
+from ddbmock.utils import load_table
 from ddbmock.errors import ValidationException
 
-def query(post):
+@load_table
+def query(post, table):
     #FIXME: this line is a temp workaround
     if u'RangeKeyCondition' not in post:
         post[u'RangeKeyCondition'] = None
@@ -24,8 +25,6 @@ def query(post):
         raise ValidationException("Can filter fields when only count is requested")
 
     base_capacity = 1 if post[u'ConsistentRead'] else 0.5
-    name = post[u'TableName']
-    table = DynamoDB().get_table(name)
 
     results = table.query(
         post[u'HashKeyValue'],

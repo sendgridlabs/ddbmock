@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.database import DynamoDB
+from ddbmock.utils import load_table
 
-def describe_table(post):
-    name = post[u'TableName']
-    table = DynamoDB().get_table(name)
-
+@load_table
+def describe_table(post, table):
     return {
         "Table": table.to_dict()
     }

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.database import DynamoDB
+from ddbmock.utils import load_table
 from ddbmock.errors import ValidationException
 
-def scan(post):
+@load_table
+def scan(post, table):
     #FIXME: this line is a temp workaround
     if u'ScanFilter' not in post:
         post[u'ScanFilter'] = {}
@@ -18,9 +19,6 @@ def scan(post):
 
     if post[u'AttributesToGet'] and post[u'Count']:
         raise ValidationException("Can not filter fields when only count is requested")
-
-    name = post[u'TableName']
-    table = DynamoDB().get_table(name)
 
     results = table.scan(
         post[u'ScanFilter'],

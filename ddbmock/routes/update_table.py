@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.database import DynamoDB
+from ddbmock.utils import load_table
 
-def update_table(post):
-    name = post[u'TableName']
-    table = DynamoDB().get_table(name)
-
+@load_table
+def update_table(post, table):
     table.update_throughput(post[u'ProvisionedThroughput'][u'ReadCapacityUnits'],
                             post[u'ProvisionedThroughput'][u'WriteCapacityUnits'],
                             )

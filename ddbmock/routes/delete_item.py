@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.database import DynamoDB
+from ddbmock.utils import load_table
 
-def delete_item(post):
+@load_table
+def delete_item(post, table):
     #FIXME: this line is a temp workaround
     if u'ReturnValues' not in post:
         post[u'ReturnValues'] = u"NONE"
     if u'Expected' not in post:
         post[u'Expected'] = {}
 
-    name = post[u'TableName']
-    table = DynamoDB().get_table(name)
     item = table.delete_item(post[u'Key'], post[u'Expected'])
 
     ret = {
