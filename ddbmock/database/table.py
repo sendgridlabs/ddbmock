@@ -192,24 +192,35 @@ class Table(object):
         :return: Results(results, cumulated_size, last_key)
         """
         #FIXME: naive implementation
+        #FIXME: what is an item disappears during the operation ?
         #TODO:
-        # - reverse
         # - esk
-        # - limit
         # - size limit
         # - last evaluated key
 
         hk_name = self.hash_key.read(hash_key)
         rk_name = self.range_key.name
         size = ItemSize(0)
+        good_item_count = 0
         results = []
 
-        for item in self.data[hk_name].values():
+        if reverse:
+            keys = sorted(self.data[hk_name].keys()).reverse()
+        else:
+            keys = sorted(self.data[hk_name].keys())
+
+        for key in keys:
+            item = self.data[hk_name][key]
+
             if item.field_match(rk_name, rk_condition):
+                good_item_count += 1
                 size += item.get_size()
                 results.append(item.filter(fields))
 
-        return Results(results, size, None, 0)
+            if good_item_count == limit:
+                break
+
+        return Results(results, size, None, -1)
 
     def scan(self, scan_conditions, fields, start, limit):
         """Scans a whole table, no matter the structure, and return matches as

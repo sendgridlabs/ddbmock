@@ -81,7 +81,7 @@ class TestQuery(unittest.TestCase):
 
         expected = {
             u"Count": 5,
-            u"Items": [ITEM3, ITEM2, ITEM1, ITEM5, ITEM4],
+            u"Items": [ITEM1, ITEM2, ITEM3, ITEM4, ITEM5],
             u"ConsumedCapacityUnits": 0.5,
         }
 
@@ -97,11 +97,11 @@ class TestQuery(unittest.TestCase):
         expected = {
             u"Count": 5,
             u"Items": [
-                {u"relevant_data": {u"S": "titi"}},
-                {u"relevant_data": {u"S": "tete"}},
                 {u"relevant_data": {u"S": "tata"}},
-                {u"relevant_data": {u"S": "tutu"}},
+                {u"relevant_data": {u"S": "tete"}},
+                {u"relevant_data": {u"S": "titi"}},
                 {u"relevant_data": {u"S": "toto"}},
+                {u"relevant_data": {u"S": "tutu"}},
             ],
             u"ConsumedCapacityUnits": 0.5,
         }
@@ -121,8 +121,8 @@ class TestQuery(unittest.TestCase):
             u"Count": 3,
             u"Items": [
                 {u"relevant_data": {u"S": u"titi"}},
-                {u"relevant_data": {u"S": u"tutu"}},
                 {u"relevant_data": {u"S": u"toto"}},
+                {u"relevant_data": {u"S": u"tutu"}},
             ],
             u"ConsumedCapacityUnits": 0.5,
         }
@@ -141,7 +141,7 @@ class TestQuery(unittest.TestCase):
 
         expected = {
             u"Count": 5,
-            u"Items": [ITEM3, ITEM2, ITEM1, ITEM5, ITEM4],
+            u"Items": [ITEM1, ITEM2, ITEM3, ITEM4, ITEM5],
             u"ConsumedCapacityUnits": 1,
         }
 

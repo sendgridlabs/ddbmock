@@ -103,8 +103,8 @@ class TestQuery(unittest.TestCase):
             u"Count": 3,
             u"Items": [
                 {u"relevant_data": {u"S": u"titi"}},
-                {u"relevant_data": {u"S": u"tutu"}},
                 {u"relevant_data": {u"S": u"toto"}},
+                {u"relevant_data": {u"S": u"tutu"}},
             ],
             u"ConsumedCapacityUnits": 0.5,
         }
