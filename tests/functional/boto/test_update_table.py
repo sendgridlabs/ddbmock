@@ -64,8 +64,9 @@ class TestUpdateTables(unittest.TestCase):
         db = connect_boto_patch()
 
         self.assertRaisesRegexp(DynamoDBResponseError, 'ResourceInUseException',
-                                db.layer1.delete_table,
-                                TABLE_NAME2)
+                                db.layer1.update_table,
+                                TABLE_NAME2, {'ReadCapacityUnits': TABLE_RT2,
+                                              'WriteCapacityUnits': TABLE_WT2})
 
     def test_update_404(self):
         from ddbmock import connect_boto_patch
