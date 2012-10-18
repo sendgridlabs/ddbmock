@@ -20,9 +20,8 @@ Methods support
 - ``Query`` WIP
 - ``Scan`` WIP
 
-There is basically no support for ``Limit``, ``ExclusiveStartKey``,
-``ScanIndexForward`` and their associated features at all in ddbmock. This
-affects all "WIP" functions.
+There is basically no support for ``ExclusiveStartKey``, and their associated
+features at all in ddbmock. This affects all "WIP" functions.
 
 ``UpdateItem`` has a different behavior when the target item did not exist prior
 the update operation. In particular, the ``ADD`` operator will always behave as

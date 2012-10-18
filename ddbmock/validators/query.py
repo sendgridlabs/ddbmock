@@ -9,7 +9,7 @@ post = {
     u'TableName': table_name,
     u'HashKeyValue': key_field_value,
     optional(u'RangeKeyCondition'): range_key_condition,
-    optional(u'ScanIndexForward'): boolean,
+    optional(u'ScanIndexForward'): scan_index_forward,
     optional(u'Count'): boolean,
     optional(u'Limit'): limit,
     optional(u'ExclusiveStartKey'): get_key_schema,

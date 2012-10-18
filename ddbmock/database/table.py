@@ -204,10 +204,10 @@ class Table(object):
         good_item_count = 0
         results = []
 
+        keys = sorted(self.data[hk_name].keys())
+
         if reverse:
-            keys = sorted(self.data[hk_name].keys()).reverse()
-        else:
-            keys = sorted(self.data[hk_name].keys())
+            keys.reverse()
 
         for key in keys:
             item = self.data[hk_name][key]

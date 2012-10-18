@@ -90,6 +90,36 @@ class TestQuery(unittest.TestCase):
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE})
         self.assertEqual(expected, ret)
 
+    def test_query_2_first(self):
+        from ddbmock import connect_boto_patch
+        from ddbmock.database.db import DynamoDB
+
+        expected = {
+            u"Count": 2,
+            u"Items": [ITEM1, ITEM2],
+            u"ConsumedCapacityUnits": 0.5,
+        }
+
+        db = connect_boto_patch()
+
+        ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, limit=2)
+        self.assertEqual(expected, ret)
+
+    def test_query_2_last(self):
+        from ddbmock import connect_boto_patch
+        from ddbmock.database.db import DynamoDB
+
+        expected = {
+            u"Count": 2,
+            u"Items": [ITEM5, ITEM4],
+            u"ConsumedCapacityUnits": 0.5,
+        }
+
+        db = connect_boto_patch()
+
+        ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, limit=2, scan_index_forward=False)
+        self.assertEqual(expected, ret)
+
     def test_query_all_filter_fields(self):
         from ddbmock import connect_boto_patch
         from ddbmock.database.db import DynamoDB
