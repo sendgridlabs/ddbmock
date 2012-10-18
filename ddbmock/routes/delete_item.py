@@ -12,13 +12,12 @@ def delete_item(post, table):
 
     item = table.delete_item(post[u'Key'], post[u'Expected'])
 
-    ret = {
-        "ConsumedCapacityUnits": item.get_size().as_units(),
-        "Attributes": item,
-    }
-
     if post[u'ReturnValues'] == "ALL_OLD":
-        return ret
+        return {
+            "ConsumedCapacityUnits": item.get_size().as_units(),
+            "Attributes": item,
+        }
     else:
-        del ret["Attributes"]
-        return ret
+        return {
+            "ConsumedCapacityUnits": item.get_size().as_units(),
+        }
