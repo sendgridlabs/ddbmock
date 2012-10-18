@@ -194,7 +194,6 @@ class Table(object):
         #FIXME: naive implementation
         #FIXME: what is an item disappears during the operation ?
         #TODO:
-        # - esk
         # - size limit
 
         hash_value = self.hash_key.read(hash_key)
@@ -204,10 +203,18 @@ class Table(object):
         results = []
         lek = None
 
+        if start and start['HashKeyElement'] != hash_key:
+            raise KeyError("'HashKeyElement' element of 'ExclusiveStartKey' must be the same as the hash_key. Expected {}, got {}".format(hash_key, start['HashKeyElement']))
+
         keys = sorted(self.data[hash_value].keys())
 
         if reverse:
             keys.reverse()
+
+        if start:
+            first_key = self.range_key.read(start['RangeKeyElement'])
+            index = keys.index(first_key) + 1  # May raise ValueError but that's OK
+            keys = keys[index:]
 
         for key in keys:
             item = self.data[hash_value][key]

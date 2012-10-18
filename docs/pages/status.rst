@@ -17,11 +17,12 @@ Methods support
 - ``UpdateItem`` ALMOST
 - ``BatchGetItem`` WIP
 - ``BatchWriteItem`` WIP
-- ``Query`` WIP
+- ``Query`` DONE
 - ``Scan`` WIP
 
 There is basically no support for ``ExclusiveStartKey``, and their associated
-features at all in ddbmock. This affects all "WIP" functions.
+features at all in ddbmock. This affects all "WIP" functions. ``Query`` is the
+only exception.
 
 ``UpdateItem`` has a different behavior when the target item did not exist prior
 the update operation. In particular, the ``ADD`` operator will always behave as

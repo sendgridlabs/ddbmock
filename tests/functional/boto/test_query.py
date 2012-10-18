@@ -101,13 +101,50 @@ class TestQuery(unittest.TestCase):
             u'LastEvaluatedKey': {
                 u'HashKeyElement': {u'N': u'123'},
                 u'RangeKeyElement': {u'S': u'Waldo-2'},
-            }
+            },
         }
 
         db = connect_boto_patch()
 
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, limit=2)
         self.assertEqual(expected, ret)
+
+    def test_query_paged(self):
+        from ddbmock import connect_boto_patch
+        from ddbmock.database.db import DynamoDB
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        esk = {
+            u'HashKeyElement': {u'N': u'123'},
+            u'RangeKeyElement': {u'S': u'Waldo-3'},
+        }
+
+        bad_esk = {
+            u'HashKeyElement': {u'N': u'123.43'},
+            u'RangeKeyElement': {u'S': u'Waldo-3'},
+        }
+
+        expected1 = {
+            u"Count": 3,
+            u"Items": [ITEM1, ITEM2, ITEM3],
+            u"ConsumedCapacityUnits": 0.5,
+            u'LastEvaluatedKey': esk,
+        }
+        expected2 = {
+            u"Count": 2,
+            u"Items": [ITEM4, ITEM5],
+            u"ConsumedCapacityUnits": 0.5,
+        }
+
+        db = connect_boto_patch()
+
+        ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, limit=3)
+        self.assertEqual(expected1, ret)
+        ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, limit=3, exclusive_start_key=esk)
+        self.assertEqual(expected2, ret)
+        self.assertRaises(DynamoDBValidationError,
+                          db.layer1.query,
+                          TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE}, limit=3, exclusive_start_key=bad_esk)
 
     def test_query_2_last(self):
         from ddbmock import connect_boto_patch

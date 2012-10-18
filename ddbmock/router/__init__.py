@@ -27,5 +27,5 @@ def router(action, post):
     # Run request and translate engine errors to DynamoDB errors
     try:
         return func(post)
-    except (TypeError, ValueError) as e:
+    except (TypeError, ValueError, KeyError) as e:
         raise ValidationException(*e.args)
