@@ -4,8 +4,8 @@ from ddbmock.database import DynamoDB
 
 def delete_table(post):
     name = post[u'TableName']
-    ret = DynamoDB().delete_table(name)
+    table = DynamoDB().delete_table(name)
 
     return {
-        'TableDescription': ret,
+        'TableDescription': table.to_dict(verbose=False)
     }

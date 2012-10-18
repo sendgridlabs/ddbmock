@@ -11,6 +11,8 @@ Additions
 ---------
 
 - consistent_read parameter to ``Query``
+- central config.py file with all constraints
+- timer for table status changes
 
 Removal
 -------

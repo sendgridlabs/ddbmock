@@ -45,6 +45,22 @@ Example: adding a ``HelloWorld`` method:
             'Hello': 'World'
         }
 
+If the ``post`` of your method contains ``TableName``, you may auto-load the
+corresponding table this way:
+
+::
+
+    # -*- coding: utf-8 -*-
+    # module: ddbmock.routes.hello_world.py
+
+    from ddbmock.utils import load_table()
+
+    @load_table
+    def hello_world(post):
+        return {
+            'Hello': 'World'
+        }
+
 Adding a custom validator
 =========================
 

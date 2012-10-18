@@ -6,12 +6,16 @@ INDEX_OVERHEAD = 100
 # count: maximum number of tables
 MAX_TABLES = 256
 
+### items constraints ###
+
 # bytes: max hash_key_size
 MAX_HK_SIZE = 2048
 # bytes: max range key size
 MAX_RK_SIZE = 1024
 # bytes: max item size, not including the index overhead
 MAX_ITEM_SIZE = 64*1024
+
+### throughput constraints ###
 
 # value: minimum throughput value
 MIN_TP = 1
@@ -23,3 +27,12 @@ MIN_TP_CHANGE = 10
 MIN_TP_DEC_INTERVAL = 1
 # percent: max throughput increase per single operation
 MAX_TP_INC_CHANGE = 100
+
+### slowness simulation ###
+
+# seconds: simulate table creation delay. It will still be available immediately
+DELAY_CREATING = 1000
+# seconds: simulate table update delay. It will still be available immediately
+DELAY_UPDATING = 1000
+# seconds: simulate table deletion delay. It will still be available until time is exhauted
+DELAY_DELETING = 1000

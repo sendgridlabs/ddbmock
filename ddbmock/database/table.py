@@ -4,7 +4,8 @@ from .key import Key, PrimaryKey
 from .item import Item, ItemSize
 from ddbmock import config
 from collections import defaultdict, namedtuple
-from ddbmock.errors import ValidationException, LimitExceededException
+from threading import Timer
+from ddbmock.errors import ValidationException, LimitExceededException, ResourceInUseException
 import time, copy, datetime
 
 
@@ -32,15 +33,29 @@ class Table(object):
         self.last_decrease_time = 0
         self.count = 0
 
-    def delete(self):
-        #stub
+        Timer(config.DELAY_CREATING, self.activate).start()
+
+    def delete(self, callback):
+        """
+        delete is really done when the timeout is exhausted, so we need a callback
+        for this
+
+        :ivar callback: real delete function
+        """
+        if self.status != "ACTIVE":
+            raise ResourceInUseException("Table {} is in {} state. Can not UPDATE.".format(self.name, self.status))
+
         self.status = "DELETING"
 
+        Timer(config.DELAY_DELETING, callback).start()
+
     def activate(self):
-        #stub
         self.status = "ACTIVE"
 
     def update_throughput(self, rt, wt):
+        if self.status != "ACTIVE":
+            raise ResourceInUseException("Table {} is in {} state. Can not UPDATE.".format(self.name, self.status))
+
         if change_is_less_than_x_percent(self.rt, rt, config.MIN_TP_CHANGE):
             raise LimitExceededException('Requested provisioned throughput change is not allowed. The ReadCapacityUnits change must be at least {} percent of current value. Current ReadCapacityUnits provisioned for the table: {}. Requested ReadCapacityUnits: {}.'.format(config.MIN_TP_CHANGE, self.rt, rt))
         if change_is_less_than_x_percent(self.wt, wt, config.MIN_TP_CHANGE):
@@ -65,11 +80,13 @@ class Table(object):
                 raise LimitExceededException('Requested provisioned throughput change is not allowed. The WriteCapacityUnits change must be at most {} percent of current value. Current WriteCapacityUnits provisioned for the table: {}. Requested WriteCapacityUnits: {}.'.format(config.MAX_TP_INC_CHANGE, self.wt, wt))
             self.last_increase_time = time.time()
 
-        #stub
+        # real work
         self.status = "UPDATING"
 
         self.rt = rt
         self.wt = wt
+
+        Timer(config.DELAY_UPDATING, self.activate).start()
 
     def delete_item(self, key, expected):
         key = Item(key)

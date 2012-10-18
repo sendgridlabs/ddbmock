@@ -9,7 +9,6 @@ def update_table(post, table):
                            )
 
     desc = table.to_dict()
-    table.activate() # FIXME: This sould not be part of the view
 
     return {
         "TableDescription": desc,

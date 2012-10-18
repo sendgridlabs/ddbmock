@@ -40,13 +40,17 @@ class DynamoDB(object):
         self.data[name] = Table.from_dict(data)
         return self.data[name]
 
+    def _internal_delete_table(self, name):
+        """This is ran only after the timer is exhausted"""
+        if name in self.data:
+            del self.data[name]
+
     def delete_table(self, name):
         if name not in self.data:
             raise ResourceNotFoundException("Table {} does not exist".format(name))
-        self.data[name].delete()
-        ret = self.data[name].to_dict(verbose=False) # Not really the best place either...
-        del self.data[name]
-        return ret
+        self.data[name].delete(callback=self._internal_delete_table)
+
+        return self.data[name]
 
     def get_batch(self, batch):
         ret = defaultdict(dict)
