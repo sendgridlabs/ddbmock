@@ -98,6 +98,10 @@ class TestQuery(unittest.TestCase):
             u"Count": 2,
             u"Items": [ITEM1, ITEM2],
             u"ConsumedCapacityUnits": 0.5,
+            u'LastEvaluatedKey': {
+                u'HashKeyElement': {u'N': u'123'},
+                u'RangeKeyElement': {u'S': u'Waldo-2'},
+            }
         }
 
         db = connect_boto_patch()
@@ -113,6 +117,10 @@ class TestQuery(unittest.TestCase):
             u"Count": 2,
             u"Items": [ITEM5, ITEM4],
             u"ConsumedCapacityUnits": 0.5,
+            u'LastEvaluatedKey': {
+                u'HashKeyElement': {u'N': u'123'},
+                u'RangeKeyElement': {u'S': u'Waldo-4'},
+            }
         }
 
         db = connect_boto_patch()

@@ -38,8 +38,10 @@ def query(post, table):
     ret = {
         "Count": len(results.items),
         "ConsumedCapacityUnits": base_capacity*results.size.as_units(),
-        #TODO: last evaluated key where applicable
     }
+
+    if results.last_key is not None:
+        ret['LastEvaluatedKey'] = results.last_key
 
     if not post[u'Count']:
         ret[u'Items'] = results.items

@@ -196,21 +196,21 @@ class Table(object):
         #TODO:
         # - esk
         # - size limit
-        # - last evaluated key
 
-        hk_name = self.hash_key.read(hash_key)
+        hash_value = self.hash_key.read(hash_key)
         rk_name = self.range_key.name
         size = ItemSize(0)
         good_item_count = 0
         results = []
+        lek = None
 
-        keys = sorted(self.data[hk_name].keys())
+        keys = sorted(self.data[hash_value].keys())
 
         if reverse:
             keys.reverse()
 
         for key in keys:
-            item = self.data[hk_name][key]
+            item = self.data[hash_value][key]
 
             if item.field_match(rk_name, rk_condition):
                 good_item_count += 1
@@ -218,9 +218,13 @@ class Table(object):
                 results.append(item.filter(fields))
 
             if good_item_count == limit:
+                lek = {
+                    u'HashKeyElement': hash_key,
+                    u'RangeKeyElement': item[rk_name],
+                }
                 break
 
-        return Results(results, size, None, -1)
+        return Results(results, size, lek, -1)
 
     def scan(self, scan_conditions, fields, start, limit):
         """Scans a whole table, no matter the structure, and return matches as
