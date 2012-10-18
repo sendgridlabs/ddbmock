@@ -4,6 +4,7 @@ import unittest
 import boto
 
 TABLE_NAME = 'Table-1'
+TABLE_NAME2 = 'Table-2'
 TABLE_NAME_404= 'Waldo'
 TABLE_RT = 45
 TABLE_WT = 123
@@ -24,9 +25,11 @@ class TestDeleteTables(unittest.TestCase):
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
 
-        t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
+        t1 = Table(TABLE_NAME , TABLE_RT, TABLE_WT, hash_key, range_key, status="ACTIVE")
+        t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, range_key)
 
-        db.data[TABLE_NAME] = t1
+        db.data[TABLE_NAME]  = t1
+        db.data[TABLE_NAME2] = t2
 
     def tearDown(self):
         from ddbmock.database.db import DynamoDB
@@ -41,7 +44,18 @@ class TestDeleteTables(unittest.TestCase):
         db.layer1.delete_table(TABLE_NAME)
 
         data = DynamoDB().data
-        assert TABLE_NAME not in DynamoDB().data
+        self.assertEqual("DELETING", data[TABLE_NAME].status)
+
+    def test_delete_CREATING_status(self):
+        from ddbmock import connect_boto_patch
+        from ddbmock.database.db import DynamoDB
+        from boto.exception import DynamoDBResponseError
+
+        db = connect_boto_patch()
+
+        self.assertRaisesRegexp(DynamoDBResponseError, 'ResourceInUseException',
+                                db.layer1.delete_table,
+                                TABLE_NAME2)
 
     def test_delete_404(self):
         from ddbmock import connect_boto_patch

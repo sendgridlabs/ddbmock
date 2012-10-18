@@ -47,7 +47,7 @@ class Table(object):
 
         self.status = "DELETING"
 
-        Timer(config.DELAY_DELETING, callback).start()
+        Timer(config.DELAY_DELETING, callback, [self.name]).start()
 
     def activate(self):
         self.status = "ACTIVE"

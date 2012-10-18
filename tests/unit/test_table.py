@@ -23,7 +23,7 @@ CREATION = 2*24*3600  # day 2 of our era (UNIX) (avoids stupid side effects of 0
 class TestTable(unittest.TestCase):
     def setUp(self):
         from ddbmock.database.table import Table
-        self.table = Table(NAME, RT, WT, None, None)
+        self.table = Table(NAME, RT, WT, None, None, status="ACTIVE")
 
     def tearDown(self):
         self.table = None
@@ -81,6 +81,9 @@ class TestTable(unittest.TestCase):
         self.table.update_throughput(RT3, WT3)
         self.assertEqual(RT3, self.table.rt)
         self.assertEqual(WT3, self.table.wt)
+
+        # bypass the timer
+        self.table.status = "ACTIVE"
 
         # 2nd decrease 2 hour after creation (fail)
         m_time.time.return_value = CREATION + 2*3600
