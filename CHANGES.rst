@@ -25,6 +25,7 @@ Removal
 Changes
 -------
 
+- Move from Voluptuous to Onctuous for validations, less code
 - fix server startup with pserver (bad backage name)
 - fix server crash on validation exception (bad serialization)
 - accurate throughput for all Read  operations

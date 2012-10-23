@@ -33,10 +33,11 @@ class TestKey(unittest.TestCase):
 
     def test_key_read(self):
         from ddbmock.database.key import Key
+        from ddbmock.errors import ValidationException
 
         k = Key(KEY_NAME, KEY_TYPE)
         self.assertEqual(KEY_VALUE, k.read(KEY1))
-        self.assertRaises(TypeError,
+        self.assertRaises(ValidationException,
                           k.read,
                           KEY2)
 

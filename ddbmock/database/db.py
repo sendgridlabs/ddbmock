@@ -56,7 +56,7 @@ class DynamoDB(object):
         ret = defaultdict(dict)
 
         for tablename, keys in batch.iteritems():
-            fields = keys[u'AttributesToGet'] if u'AttributesToGet' in keys else []
+            fields = keys[u'AttributesToGet']
             table = self.get_table(tablename)
             units = ItemSize(0)
             items = []

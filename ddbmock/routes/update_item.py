@@ -4,12 +4,6 @@ from ddbmock.utils import load_table
 
 @load_table
 def update_item(post, table):
-    #FIXME: this line is a temp workaround
-    if u'ReturnValues' not in post:
-        post[u'ReturnValues'] = u"NONE"
-    if u'Expected' not in post:
-        post[u'Expected'] = {}
-
     old, new = table.update_item(
             post[u'Key'],
             post[u'AttributeUpdates'],

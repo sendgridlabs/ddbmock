@@ -128,7 +128,7 @@ class Table(object):
         size = self.data[hash_key][range_key].get_size()
         if size > config.MAX_ITEM_SIZE:
             self.data[hash_key][range_key] = old  # roll back
-            raise ValueError("Items must be smaller than {} bytes. Got {} after applying update".format(config.MAX_ITEM_SIZE, size))
+            raise ValidationException("Items must be smaller than {} bytes. Got {} after applying update".format(config.MAX_ITEM_SIZE, size))
 
 
         # If new item:
@@ -146,7 +146,7 @@ class Table(object):
         item = Item(item)
 
         if item.get_size() > config.MAX_ITEM_SIZE:
-            raise ValueError("Items must be smaller than {} bytes. Got {}".format(config.MAX_ITEM_SIZE, item.get_size()))
+            raise ValidationException("Items must be smaller than {} bytes. Got {}".format(config.MAX_ITEM_SIZE, item.get_size()))
 
         hash_key = item.read_key(self.hash_key, max_size=config.MAX_HK_SIZE)
         range_key = item.read_key(self.range_key, max_size=config.MAX_RK_SIZE)
@@ -204,7 +204,7 @@ class Table(object):
         lek = None
 
         if start and start['HashKeyElement'] != hash_key:
-            raise KeyError("'HashKeyElement' element of 'ExclusiveStartKey' must be the same as the hash_key. Expected {}, got {}".format(hash_key, start['HashKeyElement']))
+            raise ValidationException("'HashKeyElement' element of 'ExclusiveStartKey' must be the same as the hash_key. Expected {}, got {}".format(hash_key, start['HashKeyElement']))
 
         keys = sorted(self.data[hash_value].keys())
 

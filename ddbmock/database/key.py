@@ -2,6 +2,8 @@
 
 # All validations are performed on *incomming* data => already done :)
 
+from ddbmock.errors import ValidationException
+
 class Key(object):
     def __init__(self, name, typename):
         self.name = name
@@ -13,7 +15,7 @@ class Key(object):
         """
         typename, value = key.items()[0]
         if self.typename != typename:
-            raise TypeError('Expected key type = {} for field {}. Got {}'.format(
+            raise ValidationException('Expected key type = {} for field {}. Got {}'.format(
                 self.typename, self.name, typename))
 
         return value

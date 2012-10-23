@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from importlib import import_module
-from ddbmock.errors import InternalFailure, ValidationException
+from ddbmock.errors import InternalFailure
 from ddbmock.validators import dynamodb_api_validate
 import re
 
@@ -22,10 +22,10 @@ def router(action, post):
         raise InternalFailure("Method: {} does not exist".format(action))
 
     # Validate the input
-    dynamodb_api_validate(target, post)
+    post = dynamodb_api_validate(target, post)
 
     # Run request and translate engine errors to DynamoDB errors
     try:
         return func(post)
     except (TypeError, ValueError, KeyError) as e:
-        raise ValidationException(*e.args)
+        raise InternalFailure("{}: {}".format(type(e).__name__, str(e.args)))

@@ -12,33 +12,33 @@ POST = {"toto":"titi"}
 
 class TestValidators(unittest.TestCase):
     def test_number_max_exp(self):
-        from ddbmock.validators.types import precision
-        from voluptuous import Invalid
+        from ddbmock.validators.types import Precision
+        from onctuous import Invalid
 
-        self.assertEqual(Decimal("382.1E4"), precision(max_exp=3)(Decimal("382.1E4")))
+        self.assertEqual(Decimal("382.1E4"), Precision(max_exp=3)(Decimal("382.1E4")))
         self.assertRaisesRegexp(Invalid, "bigger",
-                                precision(max_exp=3),
+                                Precision(max_exp=3),
                                 Decimal("395.1E5"))
 
     def test_number_min_exp(self):
-        from ddbmock.validators.types import precision
-        from voluptuous import Invalid
+        from ddbmock.validators.types import Precision
+        from onctuous import Invalid
 
-        self.assertEqual(Decimal("-50.52"), precision(min_exp=-2)(Decimal("-50.52")))
+        self.assertEqual(Decimal("-50.52"), Precision(min_exp=-2)(Decimal("-50.52")))
         self.assertRaisesRegexp(Invalid, "smaller",
-                                precision(min_exp=-2),
+                                Precision(min_exp=-2),
                                 Decimal("-50.521"))
 
     def test_number_max_digits(self):
-        from ddbmock.validators.types import precision
-        from voluptuous import Invalid
+        from ddbmock.validators.types import Precision
+        from onctuous import Invalid
 
-        self.assertEqual(Decimal("-1.21E50"), precision(max_digits=3)(Decimal("-1.21E50")))
+        self.assertEqual(Decimal("-1.21E50"), Precision(max_digits=3)(Decimal("-1.21E50")))
         self.assertRaisesRegexp(Invalid, "digits",
-                                precision(max_digits=3),
+                                Precision(max_digits=3),
                                 Decimal("-1.211E50"))
 
     def test_validator_not_found(self):
         from ddbmock.validators import dynamodb_api_validate
 
-        self.assertFalse(dynamodb_api_validate(ACTION_404, POST))
+        self.assertEqual(POST, dynamodb_api_validate(ACTION_404, POST))

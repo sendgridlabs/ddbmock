@@ -5,18 +5,6 @@ from ddbmock.errors import ValidationException
 
 @load_table
 def scan(post, table):
-    #FIXME: this line is a temp workaround
-    if u'ScanFilter' not in post:
-        post[u'ScanFilter'] = {}
-    if u'AttributesToGet' not in post:
-        post[u'AttributesToGet'] = []
-    if u'Count' not in post:
-        post[u'Count'] = False
-    if u'Limit' not in post:
-        post[u'Limit'] = None
-    if u'ExclusiveStartKey' not in post:
-        post[u'ExclusiveStartKey'] = None
-
     if post[u'AttributesToGet'] and post[u'Count']:
         raise ValidationException("Can not filter fields when only count is requested")
 

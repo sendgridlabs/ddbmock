@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.errors import ConditionalCheckFailedException
+from ddbmock.errors import ConditionalCheckFailedException, ValidationException
 from ddbmock import config
 from decimal import Decimal
 from math import ceil
@@ -54,10 +54,6 @@ class Item(dict):
 
     def _apply_action(self, fieldname, action):
         # Rewrite this function, it's disgustting code
-        #FIXME: temp hack
-        if u"Action" not in action:
-            action[u'Action'] = u"PUT"
-
         if action[u'Action'] == u"PUT":
             self[fieldname] = action[u'Value']
 
@@ -72,9 +68,9 @@ class Item(dict):
             ftypename, fvalue = _decode_field(self[fieldname])
 
             if len(ftypename) != 2:
-                raise TypeError("Can not DELETE elements from a non set type. Got {}".format(ftypename))
+                raise ValidationException(u"Can not DELETE elements from a non set type. Got {}".format(ftypename))
             if ftypename != typename:
-                raise TypeError("Expected type {t} for DELETE from type {t}. Got {}".format(typename, t=ftypename))
+                raise ValidationException(u"Expected type {t} for DELETE from type {t}. Got {}".format(typename, t=ftypename))
 
             # do the dirty work
             data = set(fvalue).difference(value)
@@ -95,14 +91,14 @@ class Item(dict):
                     self[fieldname][u"N"] = unicode(data)
                 elif ftypename in [u"NS", u"SS", u"BS"]:
                     if ftypename != typename:
-                        raise TypeError("Expected type {t} for ADD in type {t}. Got {}".format(typename, t=ftypename))
+                        raise ValidationException(u"Expected type {t} for ADD in type {t}. Got {}".format(typename, t=ftypename))
                     data = set(fvalue).union(value)
                     self[fieldname][typename] = list(data)
                 else:
-                    raise TypeError("Only N, NS, SS and BS types supports ADD operation. Got {}".format(ftypename))
+                    raise ValidationException(u"Only N, NS, SS and BS types supports ADD operation. Got {}".format(ftypename))
             else:
                 if typename not in [u"N", u"NS"]:
-                    raise ValueError("When performing ADD operation on new field, only Numbers or Numbers set are allowed. Got {} of type {}".format(value, typename))
+                    raise ValidationException(u"When performing ADD operation on new field, only Numbers or Numbers set are allowed. Got {} of type {}".format(value, typename))
                 self[fieldname] = action[u'Value']
 
     def apply_actions(self, actions):
@@ -182,12 +178,12 @@ class Item(dict):
         try:
             field = self[name]
         except KeyError:
-            raise ValueError('Field {} not found'.format(name))
+            raise ValidationException(u'Field {} not found'.format(name))
 
         if max_size:
             size = self.get_field_size(name)
             if size > max_size:
-                raise ValueError('Field {} is over {} bytes limit. Got {}'.format(name, max_size, size))
+                raise ValidationException(u'Field {} is over {} bytes limit. Got {}'.format(name, max_size, size))
 
         return key.read(field)
 

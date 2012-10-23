@@ -128,7 +128,7 @@ class TestBatchWriteItem(unittest.TestCase):
 
         db = connect_boto_patch()
 
-        self.assertRaises(BotoServerError, db.layer1.batch_get_item, {
+        self.assertRaises(BotoServerError, db.layer1.batch_write_item, {
             TABLE_NAME_404: [
                 {
                     u"DeleteRequest": {

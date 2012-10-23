@@ -41,14 +41,8 @@ class TestItem(unittest.TestCase):
     def test_action_put(self):
         from ddbmock.database.item import Item
 
-        # explicit
         item = Item({})
         item._apply_action(FIELDNAME, {"Action": "PUT", "Value": VALUE_S})
-        self.assertEqual([(FIELDNAME, VALUE_S)], item.items())
-
-        # implicit
-        item = Item({})
-        item._apply_action(FIELDNAME, {"Value": VALUE_S})
         self.assertEqual([(FIELDNAME, VALUE_S)], item.items())
 
     def test_action_delete(self):
@@ -101,16 +95,17 @@ class TestItem(unittest.TestCase):
 
     def test_action_type_mismatch(self):
         from ddbmock.database.item import Item
+        from ddbmock.errors import ValidationException
 
         # delete from set, set of same type
         item = Item({
             FIELDNAME: VALUE_SS,
         })
-        self.assertRaises(TypeError,
+        self.assertRaises(ValidationException,
                           item._apply_action,
                           FIELDNAME, {"Action": "DELETE", "Value": VALUE_S})
         self.assertEqual([(FIELDNAME, VALUE_SS)], item.items())
-        self.assertRaises(TypeError,
+        self.assertRaises(ValidationException,
                           item._apply_action,
                           FIELDNAME, {"Action": "DELETE", "Value": VALUE_NS})
         self.assertEqual([(FIELDNAME, VALUE_SS)], item.items())
@@ -119,28 +114,28 @@ class TestItem(unittest.TestCase):
         item = Item({
             FIELDNAME: VALUE_S,
         })
-        self.assertRaises(TypeError,
+        self.assertRaises(ValidationException,
                           item._apply_action,
                           FIELDNAME, {"Action": "DELETE", "Value": VALUE_S})
         self.assertEqual([(FIELDNAME, VALUE_S)], item.items())
 
         # add to scalar non number field
         item = Item({FIELDNAME: VALUE_S})
-        self.assertRaises(TypeError,
+        self.assertRaises(ValidationException,
                           item._apply_action,
                           FIELDNAME, {"Action": "ADD", "Value": VALUE_S})
         self.assertEqual([(FIELDNAME, VALUE_S)], item.items())
 
         # add to set of different type
         item = Item({FIELDNAME: VALUE_SS})
-        self.assertRaises(TypeError,
+        self.assertRaises(ValidationException,
                           item._apply_action,
                           FIELDNAME, {"Action": "ADD", "Value": VALUE_NS})
         self.assertEqual([(FIELDNAME, VALUE_SS)], item.items())
 
         # add non number to non existing field
         item = Item({})
-        self.assertRaises(ValueError,
+        self.assertRaises(ValidationException,
                           item._apply_action,
                           FIELDNAME, {"Action": "ADD", "Value": VALUE_S})
         self.assertEqual([], item.items())

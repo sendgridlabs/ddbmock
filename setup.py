@@ -8,7 +8,7 @@ install_requires = [
 
     'pyramid',
     'waitress',
-    'voluptuous',
+    'onctuous',
 
     'setuptools >= 0.6b1',
 ]
