@@ -36,3 +36,10 @@ DELAY_CREATING = 1000
 DELAY_UPDATING = 1000
 # seconds: simulate table deletion delay. It will still be available until time is exhauted
 DELAY_DELETING = 1000
+
+### Throughput statistics ###
+
+# seconds: datapoint duration
+STAT_TP_SAMPLE = 1
+# seconds: aggregation period
+STAT_TP_AGGREG = 5*60
