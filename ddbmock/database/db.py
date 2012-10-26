@@ -4,6 +4,7 @@ from .table import Table
 from .item import ItemSize
 from collections import defaultdict
 from ddbmock import config
+from ddbmock.utils import push_write_throughput, push_read_throughput
 from ddbmock.errors import (ResourceNotFoundException,
                             ResourceInUseException,
                             LimitExceededException,
@@ -65,6 +66,7 @@ class DynamoDB(object):
                 if item:
                     units += item.get_size().as_units()
                     items.append(item)
+            push_read_throughput(tablename, 0.5*units)
             ret[tablename][u'Items'] = items
             ret[tablename][u'ConsumedCapacityUnits'] = 0.5*units  # eventually consistent read
 
@@ -83,6 +85,7 @@ class DynamoDB(object):
                 if u'DeleteRequest' in operation:
                     old = table.delete_item(operation[u'DeleteRequest'][u'Key'], {})
                     units += old.get_size().as_units()
+            push_write_throughput(tablename, units)
             ret[tablename][u'ConsumedCapacityUnits'] = units
 
         return ret

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.utils import load_table
+from . import load_table
+from ddbmock.utils import push_write_throughput
 from ddbmock.errors import ValidationException
 
 @load_table
@@ -19,9 +20,12 @@ def query(post, table):
         post[u'Limit'],
     )
 
+    capacity = base_capacity*results.size.as_units()
+    push_write_throughput(table.name, capacity)
+
     ret = {
         "Count": len(results.items),
-        "ConsumedCapacityUnits": base_capacity*results.size.as_units(),
+        "ConsumedCapacityUnits": capacity,
     }
 
     if results.last_key is not None:

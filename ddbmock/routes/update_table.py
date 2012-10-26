@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.utils import load_table
+from . import load_table
 
 @load_table
 def update_table(post, table):

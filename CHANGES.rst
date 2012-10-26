@@ -14,6 +14,7 @@ Additions
 - central config.py file with all constraints
 - timer for table status changes
 - full ``Query`` support
+- throughput statistics to help plan real usage
 
 Removal
 -------

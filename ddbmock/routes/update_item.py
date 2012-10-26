@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.utils import load_table
+from . import load_table
+from ddbmock.utils import push_write_throughput
 
 @load_table
 def update_item(post, table):
@@ -10,8 +11,9 @@ def update_item(post, table):
             post[u'Expected'],
     )
 
-    units = max(old.get_size().as_units(), new.get_size().as_units())
-    ret = {"ConsumedCapacityUnits": units}
+    capacity = max(old.get_size().as_units(), new.get_size().as_units())
+    push_write_throughput(table.name, capacity)
+    ret = {"ConsumedCapacityUnits": capacity}
 
     if post[u'ReturnValues'] == "ALL_OLD":
         ret["Attributes"] = old

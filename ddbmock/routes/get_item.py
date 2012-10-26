@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.utils import load_table
+from . import load_table
+from ddbmock.utils import push_read_throughput
 
 @load_table
 def get_item(post, table):
@@ -8,11 +9,14 @@ def get_item(post, table):
     item = table.get(post[u'Key'], post[u'AttributesToGet'])
 
     if item is not None:
+        capacity = base_capacity*item.get_size().as_units()
+        push_read_throughput(table.name, capacity)
         return {
-            "ConsumedCapacityUnits": base_capacity*item.get_size().as_units(),
+            "ConsumedCapacityUnits": capacity,
             "Item": item,
         }
     else:
+        push_read_throughput(table.name, base_capacity)
         return {
             "ConsumedCapacityUnits": base_capacity,
         }

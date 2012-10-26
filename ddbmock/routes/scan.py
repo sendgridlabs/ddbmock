@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.utils import load_table
+from . import load_table
+from ddbmock.utils import push_write_throughput
 from ddbmock.errors import ValidationException
 
 @load_table
@@ -15,10 +16,13 @@ def scan(post, table):
         post[u'Limit'],
     )
 
+    capacity = 0.5*results.size.as_units()
+    push_write_throughput(table.name, capacity)
+
     ret = {
         "Count": len(results.items),
         "ScannedCount": results.scanned,
-        "ConsumedCapacityUnits": 0.5*results.size.as_units(),
+        "ConsumedCapacityUnits": capacity,
         #TODO: last evaluated key where applicable
     }
 
