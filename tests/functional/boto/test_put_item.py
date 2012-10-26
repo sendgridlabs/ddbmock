@@ -82,25 +82,24 @@ ITEM_MAX_R = {
 ITEM_REGRESION = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
     "Views": {"N": "0"},  # the one failing, sighs
-    "forum_name": {"S": "Amazon DynamoDB"},
+    "forum_name": {"S": "Amazon dynamodb"},
     "Tags": {"SS": ["index", "primarykey", "table"]},
     "LastPostDateTime": {"S": "12/9/2011 11:36:03 PM"},
     "LastPostedBy": {"S": "User A"},
     "Answered": {"N": "0"},
     "Replies": {"N": "0"},
-    "Message": {"S": "DynamoDB thread 1 message text"},
+    "Message": {"S": "dynamodb thread 1 message text"},
     "Public": {"N": "1"},
-    "subject": {"S": "DynamoDB Thread 1"}
+    "subject": {"S": "dynamodb Thread 1"}
 }
 
 class TestPutItem(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         hash_key2 = PrimaryKey(TABLE_HK_NAME, TABLE_RK_TYPE)
@@ -110,17 +109,17 @@ class TestPutItem(unittest.TestCase):
         self.t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, None)
         self.t3 = Table(TABLE_NAME3, TABLE_RT, TABLE_WT, hash_key2, range_key)
 
-        db.data[TABLE_NAME]  = self.t1
-        db.data[TABLE_NAME2] = self.t2
-        db.data[TABLE_NAME3] = self.t3
+        dynamodb.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME2] = self.t2
+        dynamodb.data[TABLE_NAME3] = self.t3
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_put_hr(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -140,7 +139,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_h(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -160,7 +159,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_check_throughput_max_old_new(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -181,7 +180,7 @@ class TestPutItem(unittest.TestCase):
         # From http://docs.amazonwebservices.com/amazondynamodb/latest/developerguide/API_PutItem.html
         # Attribute values may not be null; string and binary type attributes must have lengths greater than zero; and set type attributes must not be empty. Requests with empty values will be rejected with a ValidationException.
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         db = connect_boto_patch()
@@ -200,7 +199,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_hr_404(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.exception import DynamoDBResponseError
 
         db = connect_boto_patch()
@@ -211,7 +210,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_h_404(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.exception import DynamoDBResponseError
 
         db = connect_boto_patch()
@@ -222,7 +221,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_hr_missing_r(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         db = connect_boto_patch()
@@ -233,7 +232,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_h_missing_h(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         db = connect_boto_patch()
@@ -244,7 +243,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_h_expect_no_exist(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.exception import DynamoDBResponseError
 
         db = connect_boto_patch()
@@ -263,7 +262,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_h_expect_field_value(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.exception import DynamoDBResponseError
 
         db = connect_boto_patch()
@@ -286,7 +285,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_oversized_h(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         db = connect_boto_patch()
@@ -298,7 +297,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_oversized_r(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         db = connect_boto_patch()
@@ -310,7 +309,7 @@ class TestPutItem(unittest.TestCase):
 
     def test_put_oversized_item(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         db = connect_boto_patch()
@@ -326,7 +325,7 @@ class TestPutItem(unittest.TestCase):
         # we do no assertion. It should "just work"
 
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
         db.layer1.put_item(TABLE_NAME2, ITEM_REGRESION)

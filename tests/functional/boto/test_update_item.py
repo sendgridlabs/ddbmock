@@ -52,12 +52,11 @@ FIELD_BIG   = {u'S': u'a'*1024}
 
 class TestUpdateItem(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
@@ -65,15 +64,15 @@ class TestUpdateItem(unittest.TestCase):
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
         self.t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, None)
 
-        db.data[TABLE_NAME]  = self.t1
-        db.data[TABLE_NAME2] = self.t2
+        dynamodb.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME2] = self.t2
 
         self.t1.put(cp(ITEM), {})
         self.t2.put(cp(ITEM2), {})
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_update_item_put_hr(self):
         from ddbmock import connect_boto_patch
@@ -144,7 +143,7 @@ class TestUpdateItem(unittest.TestCase):
 
     def test_put_check_throughput_max_old_new(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 

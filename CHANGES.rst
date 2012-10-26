@@ -33,12 +33,15 @@ Changes
 - move 'views' to 'routes'
 - remove all pyramid code from 'views'/'routes'
 - pyramid and boto entry points now shares most of the router
+- pre-instanciate DynamoDB as dynamodb
 
 Upgrade
 -------
 
 - rename ``connect_boto`` to ``connect_boto_patch``
 - rename ``connect_ddbmock`` to ``connect_boto_network``
+- rename all ``DynamoDB() to ``dynamodb``
+- replace ...import DynamoDB by ... import dynamodb
 
 
 =============

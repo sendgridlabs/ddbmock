@@ -30,12 +30,11 @@ ITEM2 = {
 
 class TestDescribeTables(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
@@ -45,11 +44,11 @@ class TestDescribeTables(unittest.TestCase):
         t1.put(ITEM1, {})
         t1.put(ITEM2, {})
 
-        db.data[TABLE_NAME] = t1
+        dynamodb.data[TABLE_NAME] = t1
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_describe_table(self):
         from ddbmock import connect_boto_patch

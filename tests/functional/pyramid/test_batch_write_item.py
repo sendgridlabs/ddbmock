@@ -51,14 +51,14 @@ ITEM5 = {
 }
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.BatchWriteItem',
+    'x-amz-target': 'dynamodb_20111205.BatchWriteItem',
     'content-type': 'application/x-amz-json-1.0',
 }
 
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestBatchWriteItem(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
@@ -67,8 +67,7 @@ class TestBatchWriteItem(unittest.TestCase):
         from webtest import TestApp
         self.app = TestApp(app)
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
@@ -76,18 +75,18 @@ class TestBatchWriteItem(unittest.TestCase):
         self.t1 = Table(TABLE_NAME1, TABLE_RT, TABLE_WT, hash_key, range_key)
         self.t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, None)
 
-        db.data[TABLE_NAME1]  = self.t1
-        db.data[TABLE_NAME2]  = self.t2
+        dynamodb.data[TABLE_NAME1]  = self.t1
+        dynamodb.data[TABLE_NAME2]  = self.t2
 
         self.t1.put(ITEM1, {})
         self.t2.put(ITEM4, {})
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_batch_write_item(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         request = {
             u"RequestItems": {

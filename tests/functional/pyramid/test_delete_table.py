@@ -13,7 +13,7 @@ TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.DeleteTable',
+    'x-amz-target': 'dynamodb_20111205.DeleteTable',
     'content-type': 'application/x-amz-json-1.0',
 }
 
@@ -21,7 +21,7 @@ HEADERS = {
 class TestDeleteTable(unittest.TestCase):
     @mock.patch("ddbmock.database.table.time")  # Brrr
     def setUp(self, m_time):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
@@ -32,20 +32,19 @@ class TestDeleteTable(unittest.TestCase):
 
         m_time.time.return_value = NOW
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
         t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key, status='ACTIVE')
-        db.data[TABLE_NAME] = t1
+        dynamodb.data[TABLE_NAME] = t1
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_delete_table(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         request = {"TableName": TABLE_NAME}
 

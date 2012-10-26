@@ -16,7 +16,7 @@ TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.UpdateTable',
+    'x-amz-target': 'dynamodb_20111205.UpdateTable',
     'content-type': 'application/x-amz-json-1.0',
 }
 
@@ -24,7 +24,7 @@ HEADERS = {
 class TestUpdateTable(unittest.TestCase):
     @mock.patch("ddbmock.database.table.time")  # Brrr
     def setUp(self, m_time):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
@@ -35,22 +35,21 @@ class TestUpdateTable(unittest.TestCase):
 
         m_time.time.return_value = NOW
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
         t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key, status="ACTIVE")
-        db.data[TABLE_NAME] = t1
+        dynamodb.data[TABLE_NAME] = t1
 
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     @mock.patch("ddbmock.database.table.time")
     def test_update(self, m_time):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         m_time.time.return_value = NOW2
 
@@ -89,7 +88,7 @@ class TestUpdateTable(unittest.TestCase):
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
         # Live data check
-        data = DynamoDB().data
+        data = dynamodb.data
         assert TABLE_NAME in data
         table = data[TABLE_NAME]
 

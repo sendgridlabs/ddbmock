@@ -19,12 +19,11 @@ TABLE_RK_TYPE = u'S'
 
 class TestUpdateTables(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
@@ -32,23 +31,23 @@ class TestUpdateTables(unittest.TestCase):
         t1 = Table(TABLE_NAME,  TABLE_RT, TABLE_WT, hash_key, range_key, status="ACTIVE")
         t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, range_key)
 
-        db.data[TABLE_NAME]  = t1
-        db.data[TABLE_NAME2] = t2
+        dynamodb.data[TABLE_NAME]  = t1
+        dynamodb.data[TABLE_NAME2] = t2
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_update(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
         db.layer1.update_table(TABLE_NAME, {'ReadCapacityUnits': TABLE_RT2,
                                             'WriteCapacityUnits': TABLE_WT2})
 
-        data = DynamoDB().data
+        data = dynamodb.data
         assert TABLE_NAME in data
         table = data[TABLE_NAME]
 
@@ -58,7 +57,7 @@ class TestUpdateTables(unittest.TestCase):
 
     def test_update_CREATING_status(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.exception import DynamoDBResponseError
 
         db = connect_boto_patch()

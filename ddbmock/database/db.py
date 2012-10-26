@@ -86,3 +86,6 @@ class DynamoDB(object):
             ret[tablename][u'ConsumedCapacityUnits'] = units
 
         return ret
+
+# reference instance
+dynamodb = DynamoDB()

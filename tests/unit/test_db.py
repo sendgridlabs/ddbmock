@@ -9,28 +9,26 @@ TABLE_NAME = "tabloid"
 
 class TestDB(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database import DynamoDB
+        from ddbmock.database import dynamodb
 
-        DynamoDB().data[TABLE_NAME] = mock.Mock()
+        dynamodb.data[TABLE_NAME] = mock.Mock()
 
     def test_internal_delet_table(self):
-        from ddbmock.database import DynamoDB
+        from ddbmock.database import dynamodb
 
-        db = DynamoDB()
 
         # delete a table
-        db._internal_delete_table(TABLE_NAME)
-        self.assertNotIn(TABLE_NAME, db.data)
+        dynamodb._internal_delete_table(TABLE_NAME)
+        self.assertNotIn(TABLE_NAME, dynamodb.data)
 
         # make sure deleting already deleted table does not harm
-        db._internal_delete_table(TABLE_NAME)
+        dynamodb._internal_delete_table(TABLE_NAME)
 
     def test_delete_table(self):
-        from ddbmock.database import DynamoDB
+        from ddbmock.database import dynamodb
 
-        db = DynamoDB()
 
-        db.delete_table(TABLE_NAME)
+        dynamodb.delete_table(TABLE_NAME)
 
-        db.data[TABLE_NAME].delete.assert_called_withassert_called_with(callback=db._internal_delete_table)
+        dynamodb.data[TABLE_NAME].delete.assert_called_withassert_called_with(callback=dynamodb._internal_delete_table)
 

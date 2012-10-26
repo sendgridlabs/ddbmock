@@ -37,12 +37,11 @@ ITEM_BIG = {
 
 class TestGetItem(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
@@ -50,20 +49,20 @@ class TestGetItem(unittest.TestCase):
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
         self.t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, None)
 
-        db.data[TABLE_NAME]  = self.t1
-        db.data[TABLE_NAME2] = self.t2
+        dynamodb.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME2] = self.t2
 
         self.t1.put(ITEM, {})
         self.t2.put(ITEM2, {})
         self.t2.put(ITEM_BIG, {})
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_get_hr(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -81,7 +80,7 @@ class TestGetItem(unittest.TestCase):
 
     def test_get_hr_consistent(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -99,7 +98,7 @@ class TestGetItem(unittest.TestCase):
 
     def test_get_h(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -116,7 +115,7 @@ class TestGetItem(unittest.TestCase):
 
     def test_get_consistent_big_attributes_to_get(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -133,7 +132,7 @@ class TestGetItem(unittest.TestCase):
 
     def test_get_h_404(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBKeyNotFoundError
 
         db = connect_boto_patch()
@@ -148,7 +147,7 @@ class TestGetItem(unittest.TestCase):
 
     def test_get_hr_attr_to_get(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 

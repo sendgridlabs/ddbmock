@@ -54,12 +54,11 @@ ITEM5 = {
 # Please note that most query features are not yet implemented hence not tested
 class TestBatchWriteItem(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
@@ -67,19 +66,19 @@ class TestBatchWriteItem(unittest.TestCase):
         self.t1 = Table(TABLE_NAME1, TABLE_RT, TABLE_WT, hash_key, range_key)
         self.t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, None)
 
-        db.data[TABLE_NAME1]  = self.t1
-        db.data[TABLE_NAME2]  = self.t2
+        dynamodb.data[TABLE_NAME1]  = self.t1
+        dynamodb.data[TABLE_NAME2]  = self.t2
 
         self.t1.put(ITEM1, {})
         self.t2.put(ITEM4, {})
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_batch_write_item_nominal(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -123,7 +122,7 @@ class TestBatchWriteItem(unittest.TestCase):
 
     def test_batch_write_item_table_404(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.exception import BotoServerError
 
         db = connect_boto_patch()

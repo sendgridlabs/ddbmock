@@ -52,32 +52,31 @@ ITEM5 = {
 }
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.Query',
+    'x-amz-target': 'dynamodb_20111205.Query',
     'content-type': 'application/x-amz-json-1.0',
 }
 
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestQuery(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock import main
         app = main({})
         from webtest import TestApp
         self.app = TestApp(app)
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
 
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
 
-        db.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME]  = self.t1
 
         self.t1.put(ITEM1, {})
         self.t1.put(ITEM2, {})
@@ -86,11 +85,11 @@ class TestQuery(unittest.TestCase):
         self.t1.put(ITEM5, {})
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_query_condition_filter_fields(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         request = {
             "TableName": TABLE_NAME,
@@ -115,7 +114,7 @@ class TestQuery(unittest.TestCase):
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
     def test_query_count_and_attrs_to_get_fails(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         request = {
             "TableName": TABLE_NAME,

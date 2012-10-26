@@ -6,13 +6,13 @@ TABLE_NAME1 = 'Table-1'
 TABLE_NAME2 = 'Table-2'
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.ListTables',
+    'x-amz-target': 'dynamodb_20111205.ListTables',
     'content-type': 'application/x-amz-json-1.0',
 }
 
 class TestListTables(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
@@ -21,8 +21,7 @@ class TestListTables(unittest.TestCase):
         from webtest import TestApp
         self.app = TestApp(app)
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey('hash_key', 'N')
         range_key = PrimaryKey('range_key', 'S')
@@ -30,12 +29,12 @@ class TestListTables(unittest.TestCase):
         t1 = Table(TABLE_NAME1, 10, 10, hash_key, range_key)
         t2 = Table(TABLE_NAME2, 10, 10, hash_key, range_key)
 
-        db.data[TABLE_NAME1] = t1
-        db.data[TABLE_NAME2] = t2
+        dynamodb.data[TABLE_NAME1] = t1
+        dynamodb.data[TABLE_NAME2] = t2
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_list_tables(self):
         from ddbmock import connect_boto_patch

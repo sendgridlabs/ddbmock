@@ -24,14 +24,14 @@ ITEM = {
 }
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.PutItem',
+    'x-amz-target': 'dynamodb_20111205.PutItem',
     'content-type': 'application/x-amz-json-1.0',
 }
 
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestTODO(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
@@ -40,20 +40,19 @@ class TestTODO(unittest.TestCase):
         from webtest import TestApp
         self.app = TestApp(app)
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
-        db.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME]  = self.t1
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_put_hr(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         request = {
             "TableName": TABLE_NAME,

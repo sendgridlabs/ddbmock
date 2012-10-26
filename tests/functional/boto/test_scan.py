@@ -60,19 +60,18 @@ ITEM6 = {
 # Please note that most query features are not yet implemented hence not tested
 class TestScan(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
 
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
 
-        db.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME]  = self.t1
 
         self.t1.put(ITEM1, {})
         self.t1.put(ITEM2, {})
@@ -82,12 +81,12 @@ class TestScan(unittest.TestCase):
         self.t1.put(ITEM6, {})
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_scan_all(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 6,
@@ -103,7 +102,7 @@ class TestScan(unittest.TestCase):
 
     def test_scan_all_filter_fields(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         self.maxDiff = None
 
@@ -130,7 +129,7 @@ class TestScan(unittest.TestCase):
     # No need to test all conditions/type mismatch as they are unit tested
     def test_scan_condition_filter_fields_in(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 3,
@@ -158,7 +157,7 @@ class TestScan(unittest.TestCase):
 
     def test_scan_condition_filter_fields_contains(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 1,
@@ -184,7 +183,7 @@ class TestScan(unittest.TestCase):
 
     def test_scan_filter_ghost_fields(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 0,
@@ -208,7 +207,7 @@ class TestScan(unittest.TestCase):
 
     def test_scan_validation_error(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         expected = {

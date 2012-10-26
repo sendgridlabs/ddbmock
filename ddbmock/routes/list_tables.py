@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ddbmock.database import DynamoDB
+from ddbmock.database import dynamodb
 
 def list_tables(post):
     return {
-        'TableNames': DynamoDB().list_tables()
+        'TableNames': dynamodb.list_tables()
     }
 

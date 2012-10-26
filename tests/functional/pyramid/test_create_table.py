@@ -13,27 +13,27 @@ HASH_KEY = {"AttributeName":"hash_key","AttributeType":"N"}
 RANGE_KEY = {"AttributeName":"range_key","AttributeType":"S"}
 
 HEADERS = {
-    'x-amz-target': 'DynamoDB_20111205.CreateTable',
+    'x-amz-target': 'dynamodb_20111205.CreateTable',
     'content-type': 'application/x-amz-json-1.0',
 }
 
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestCreateTable(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock import main
         app = main({})
         from webtest import TestApp
         self.app = TestApp(app)
-        DynamoDB().hard_reset()
+        dynamodb.hard_reset()
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     @mock.patch("ddbmock.database.table.time")
     def test_create_table_hr(self, m_time):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         m_time.time.return_value = NOW
 
@@ -69,7 +69,7 @@ class TestCreateTable(unittest.TestCase):
         self.assertEqual(expected, json.loads(res.body))
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
-        data = DynamoDB().data
+        data = dynamodb.data
         assert TABLE_NAME1 in data
         table = data[TABLE_NAME1]
 
@@ -85,7 +85,7 @@ class TestCreateTable(unittest.TestCase):
     # The real goal of this test is to validate the error view. The tested behavior
     # is already known to work thanks the boto tests
     def test_create_table_twice_fails(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         request = {
             "TableName": TABLE_NAME1,

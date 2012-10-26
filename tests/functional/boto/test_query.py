@@ -51,19 +51,18 @@ ITEM5 = {
 # Please note that most query features are not yet implemented hence not tested
 class TestQuery(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        db = DynamoDB()
-        db.hard_reset()
+        dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
 
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
 
-        db.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME]  = self.t1
 
         self.t1.put(ITEM1, {})
         self.t1.put(ITEM2, {})
@@ -72,12 +71,12 @@ class TestQuery(unittest.TestCase):
         self.t1.put(ITEM5, {})
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_query_all(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 5,
@@ -92,7 +91,7 @@ class TestQuery(unittest.TestCase):
 
     def test_query_2_first(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 2,
@@ -111,7 +110,7 @@ class TestQuery(unittest.TestCase):
 
     def test_query_paged(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         esk = {
@@ -148,7 +147,7 @@ class TestQuery(unittest.TestCase):
 
     def test_query_2_last(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 2,
@@ -167,7 +166,7 @@ class TestQuery(unittest.TestCase):
 
     def test_query_all_filter_fields(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 5,
@@ -190,7 +189,7 @@ class TestQuery(unittest.TestCase):
     # No need to test all conditions/type mismatch as they are unit tested
     def test_query_condition_filter_fields(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 3,
@@ -212,7 +211,7 @@ class TestQuery(unittest.TestCase):
 
     def test_query_all_consistent(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         expected = {
             u"Count": 5,
@@ -227,7 +226,7 @@ class TestQuery(unittest.TestCase):
 
     def test_query_invalid_condition_multiple_data_in_field(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError
 
         condition = {

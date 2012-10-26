@@ -33,16 +33,16 @@ TABLE_SCHEMA_INVALID1 = {
 
 class TestCreateTable(unittest.TestCase):
     def setUp(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def tearDown(self):
-        from ddbmock.database.db import DynamoDB
-        DynamoDB().hard_reset()
+        from ddbmock.database.db import dynamodb
+        dynamodb.hard_reset()
 
     def test_create_table_hash_range(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -62,7 +62,7 @@ class TestCreateTable(unittest.TestCase):
         self.assertEqual(u'N', table.schema.hash_key_type)
         self.assertEqual(u'S', table.schema.range_key_type)
 
-        data = DynamoDB().data
+        data = dynamodb.data
         assert TABLE_NAME1 in data
         table = data[TABLE_NAME1]
 
@@ -76,7 +76,7 @@ class TestCreateTable(unittest.TestCase):
 
     def test_create_table_hash(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
 
         db = connect_boto_patch()
 
@@ -96,7 +96,7 @@ class TestCreateTable(unittest.TestCase):
         self.assertIsNone(table.schema.range_key_name)
         self.assertIsNone(table.schema.range_key_type)
 
-        data = DynamoDB().data
+        data = dynamodb.data
         assert TABLE_NAME2 in data
         table = data[TABLE_NAME2]
 
@@ -109,7 +109,7 @@ class TestCreateTable(unittest.TestCase):
 
     def test_create_table_twice_fails(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.exception import DynamoDBResponseError
 
         db = connect_boto_patch()
@@ -134,12 +134,12 @@ class TestCreateTable(unittest.TestCase):
 
     def test_create_table_invalid_name(self):
         from ddbmock import connect_boto_patch
-        from ddbmock.database.db import DynamoDB
+        from ddbmock.database.db import dynamodb
         from boto.dynamodb.exceptions import DynamoDBValidationError as DDBValidationErr
 
         db = connect_boto_patch()
 
-        assert TABLE_NAME_INVALID1 not in DynamoDB().data
+        assert TABLE_NAME_INVALID1 not in dynamodb.data
 
         self.assertRaises(DDBValidationErr, db.create_table,
             name=TABLE_NAME_INVALID1,
