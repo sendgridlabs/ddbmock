@@ -69,9 +69,9 @@ class Stat(object):
         current_time = int(time())
 
         # aggregate ?
-        if self.current_point_id + self.resolution_interval < current_time:
+        if self.aggregated_points_id + self.current_point_id <= current_time:
             self._aggregate()
-        if self.aggregated_points_id + self.aggregation_interval < current_time:
+        if self.aggregated_points_id + self.aggregation_interval <= current_time:
             self._macro_aggregate()
 
         # update value
@@ -92,5 +92,5 @@ class Stat(object):
                                                           point.max,
                                                           point.average)
 
-        self.current_point_list = []
+        self.aggregated_points_list = []
 
