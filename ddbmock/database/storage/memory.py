@@ -28,7 +28,7 @@ class MemoryStorage(object):
             raise KeyError('hash_key={} not found'.format(hash_key))
         if range_key is None:
             return self.data[hash_key]
-        if range_key not in self.data[hash_key]
+        if range_key not in self.data[hash_key]:
             raise KeyError('range_key={} not found'.format(range_key))
         return self.data[hash_key][range_key]
 
@@ -44,18 +44,13 @@ class MemoryStorage(object):
         self.data[hash_key][range_key] = item
 
     def __delitem__(self, (hash_key, range_key)):
-        """Delete item at key (``hash_key``, ``range_key``) and return old value
-        if it existed.
+        """Delete item at key (``hash_key``, ``range_key``)
 
-        :return: Item if found
         :raises: KeyError if not found
         """
 
         # Let this line throw KeyError if needed. Checks needs to be performed by the caller
-        old = self.data[hash_key][range_key] = item
         del self.data[hash_key][range_key]
-
-        return old
 
     def __iter__(self):
         """ Iterate all over the table, abstracting the ``hash_key`` and
