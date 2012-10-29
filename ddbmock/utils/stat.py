@@ -2,35 +2,34 @@
 
 from time import time, ctime
 from collections import namedtuple
-import atexit
+import atexit, logging
 
+null_logger = logging.getLogger(__name__)
+null_logger.addHandler(logging.NullHandler())
 
-DataPoint = namedtuple('DataPoint', ['id', 'average', 'min', 'max'])
 
 def average(data):
     return sum(data)/len(data)
 
 class Stat(object):
-    def __init__(self, name, resolution_interval=1, aggregation_interval=5*60):
+    def __init__(self, name, resolution_interval=1, aggregation_interval=5*60, logger=null_logger):
         """
         :param name: name of the measured parameter
         :param resolution_interval: all data accumulated in this slot are part of the same point
-        :param aggregation_interval: aggregates data on this period
+        :param aggregation_interval: aggregates data on this period. Must be bigger than ``resolution_interval``
         """
 
         # Load params
-        self.name = name
+        self.name=name
         self.resolution_interval = resolution_interval
         self.aggregation_interval = aggregation_interval
+        self.log = logger
 
         # Set internal state
-        self.current_point_id = int(time())
+        self.current_point_time = int(time())
         self.current_point_list = []
         self.current_point_value = 0
-
-        # macro points
-        self.aggregated_points_id = self.current_point_id
-        self.aggregated_points_list = []
+        self.last_aggregation_time = self.current_point_time
 
         # goodbye
         atexit.register(self.flush)
@@ -40,16 +39,17 @@ class Stat(object):
         # aggregate
         points = self.current_point_list
 
-        d = DataPoint(id=self.aggregated_points_id,
-                      min=min(points),
-                      max=max(points),
-                      average=average(points))
-
-        self.aggregated_points_list.append(d)
+        interval = (self.current_point_time - self.last_aggregation_time) / 60.0
+        self.log.info("%s: interval=%s min=%s max=%s average=%s",
+                       self.name,
+                       round(interval),
+                       min(points),
+                       max(points),
+                       average(points))
 
         #reset
         self.current_point_list = []
-        self.aggregated_points_id = self.current_point_id
+        self.last_aggregation_time = int(time())
 
     def _aggregate(self):
         """Trigger aggregation and reset current data"""
@@ -58,7 +58,7 @@ class Stat(object):
 
         # reset
         self.current_point_value = 0
-        self.current_point_id = int(time())
+        self.current_point_time = int(time())
 
 
     def push(self, value):
@@ -69,9 +69,9 @@ class Stat(object):
         current_time = int(time())
 
         # aggregate ?
-        if self.aggregated_points_id + self.current_point_id <= current_time:
+        if self.current_point_time + self.current_point_time <= current_time:
             self._aggregate()
-        if self.aggregated_points_id + self.aggregation_interval <= current_time:
+        if self.last_aggregation_time + self.aggregation_interval <= current_time:
             self._macro_aggregate()
 
         # update value
@@ -83,14 +83,3 @@ class Stat(object):
 
         self._aggregate()
         self._macro_aggregate()
-
-        print "\nStatistics for '%s':" % self.name
-
-        for point in self.aggregated_points_list:
-            print "\t{}: min={}, max={}, average={}".format(ctime(point.id),
-                                                          point.min,
-                                                          point.max,
-                                                          point.average)
-
-        self.aggregated_points_list = []
-
