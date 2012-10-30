@@ -67,5 +67,5 @@ class TestTODO(unittest.TestCase):
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
         # Live data check
-        self.assertEqual(ITEM, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertEqual(ITEM, self.t1.store[HK_VALUE, RK_VALUE])
 

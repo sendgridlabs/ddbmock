@@ -15,6 +15,8 @@ Additions
 - timer for table status changes
 - full ``Query`` support
 - throughput statistics to help plan real usage
+- datastore API
+- external memory store
 
 Removal
 -------
@@ -35,6 +37,7 @@ Changes
 - remove all pyramid code from 'views'/'routes'
 - pyramid and boto entry points now shares most of the router
 - pre-instanciate DynamoDB as dynamodb
+- UpdateItem failed to save keys properly
 
 Upgrade
 -------

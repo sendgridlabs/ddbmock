@@ -8,6 +8,8 @@ from threading import Timer
 from ddbmock.errors import ValidationException, LimitExceededException, ResourceInUseException
 import time, copy, datetime
 
+# TMP
+from .storage.memory import MemoryStore
 
 def change_is_less_than_x_percent(current, candidate, threshold):
     """Return True iff 0% < change < 10%"""
@@ -27,7 +29,10 @@ class Table(object):
         self.hash_key = hash_key
         self.range_key = range_key
         self.status = status
-        self.data = defaultdict(lambda: defaultdict(Item))
+
+        #self.data = defaultdict(lambda: defaultdict(Item))
+        self.store = MemoryStore(name)
+
         self.creation_time = time.time()
         self.last_increase_time = 0
         self.last_decrease_time = 0
@@ -93,17 +98,14 @@ class Table(object):
         hash_key = key.read_key(self.hash_key, u'HashKeyElement')
         range_key = key.read_key(self.range_key, u'RangeKeyElement')
 
-        old = self.data[hash_key][range_key]
+        try:
+            old = self.store[hash_key, range_key]
+        except KeyError:
+            return Item()
+
         old.assert_match_expected(expected)
-
-        if self.range_key is None:
-            del self.data[hash_key]
-        else:
-            del self.data[hash_key][range_key]
-
-        if not old.is_new():
-            # If this NOT new item, decrement counter
-            self.count -= 1
+        del self.store[hash_key, range_key]
+        self.count -= 1
 
         return old
 
@@ -113,8 +115,20 @@ class Table(object):
         range_key = key.read_key(self.range_key, u'RangeKeyElement', max_size=config.MAX_RK_SIZE)
 
         # Need a deep copy as we will *modify* it
-        old = copy.deepcopy(self.data[hash_key][range_key])
-        old.assert_match_expected(expected)
+        try:
+            old = self.store[hash_key, range_key]
+            new = copy.deepcopy(old)
+            old.assert_match_expected(expected)
+        except KeyError:
+            # Item was not in the DB yet
+            old = Item()
+            new = Item()
+            self.count += 1
+            # append the keys
+            new[self.hash_key.name] = key['HashKeyElement']
+            if self.range_key is not None:
+                new[self.range_key.name] = key['RangeKeyElement']
+
 
         # Make sure we are not altering a key
         if self.hash_key.name in actions:
@@ -122,23 +136,13 @@ class Table(object):
         if self.range_key is not None and self.range_key.name in actions:
             raise ValidationException("UpdateItem can not alter the range_key.")
 
-        self.data[hash_key][range_key].apply_actions(actions)
-        new = copy.deepcopy(self.data[hash_key][range_key])
+        new.apply_actions(actions)
+        self.store[hash_key, range_key] = new
 
-        size = self.data[hash_key][range_key].get_size()
+        size = new.get_size()
         if size > config.MAX_ITEM_SIZE:
-            self.data[hash_key][range_key] = old  # roll back
+            self.store[hash_key, range_key] = old  # roll back
             raise ValidationException("Items must be smaller than {} bytes. Got {} after applying update".format(config.MAX_ITEM_SIZE, size))
-
-
-        # If new item:
-        if old.is_new():
-            # increment counter
-            self.count += 1
-            # append the keys, this is a new item
-            self.data[hash_key][range_key][self.hash_key.name] = hash_key
-            if self.range_key is not None:
-                self.data[hash_key][range_key][self.range_key.name] = range_key
 
         return old, new
 
@@ -151,15 +155,16 @@ class Table(object):
         hash_key = item.read_key(self.hash_key, max_size=config.MAX_HK_SIZE)
         range_key = item.read_key(self.range_key, max_size=config.MAX_RK_SIZE)
 
-        old = self.data[hash_key][range_key]
-        old.assert_match_expected(expected)
-
-        self.data[hash_key][range_key] = item
-        new = copy.deepcopy(self.data[hash_key][range_key])
-
-        # If this a new item, increment counter
-        if not old:
+        try:
+            old = self.store[hash_key, range_key]
+            old.assert_match_expected(expected)
+        except KeyError:
+            # Item was not in the DB yet
             self.count += 1
+            old = Item()
+
+        self.store[hash_key, range_key] = item
+        new = copy.deepcopy(item)  # TODO: is the deepcopy really needed ?
 
         return old, new
 
@@ -171,13 +176,12 @@ class Table(object):
         if self.range_key is None and u'RangeKeyElement' in key:
             raise ValidationException("Table {} has no range_key".format(self.name))
 
-        item = self.data[hash_key][range_key]
-
-        if item.is_new():  # not found
-            del self.data[hash_key][range_key]  # workaround defaultdict "feature" :)
+        try:
+            item = self.store[hash_key, range_key]
+            return item.filter(fields)
+        except KeyError:
+            # Item was not in the DB yet
             return None
-
-        return item.filter(fields)
 
     def query(self, hash_key, rk_condition, fields, start, reverse, limit):
         """Scans all items at hash_key and return matches as well as last
@@ -206,7 +210,9 @@ class Table(object):
         if start and start['HashKeyElement'] != hash_key:
             raise ValidationException("'HashKeyElement' element of 'ExclusiveStartKey' must be the same as the hash_key. Expected {}, got {}".format(hash_key, start['HashKeyElement']))
 
-        keys = sorted(self.data[hash_value].keys())
+        data = self.store[hash_value, None]
+
+        keys = sorted(data.keys())
 
         if reverse:
             keys.reverse()
@@ -217,7 +223,7 @@ class Table(object):
             keys = keys[index:]
 
         for key in keys:
-            item = self.data[hash_value][key]
+            item = data[key]
 
             if item.field_match(rk_name, rk_condition):
                 good_item_count += 1
@@ -256,12 +262,11 @@ class Table(object):
         scanned = 0
         results = []
 
-        for outer in self.data.values():
-            for item in outer.values():
-                size += item.get_size()
-                scanned += 1
-                if item.match(scan_conditions):
-                    results.append(item.filter(fields))
+        for item in self.store:
+            size += item.get_size()
+            scanned += 1
+            if item.match(scan_conditions):
+                results.append(item.filter(fields))
 
         return Results(results, size, None, scanned)
 
@@ -283,9 +288,8 @@ class Table(object):
         # TODO: update size only every 6 hours
         size = 0
 
-        for outer in self.data.values():
-            for item in outer.values():
-                size += item.get_size().with_indexing_overhead()
+        for item in self.store:
+            size += item.get_size().with_indexing_overhead()
 
         return size
 

@@ -17,6 +17,7 @@ TABLE_RK_TYPE = u'S'
 
 HK_VALUE = u'123'
 HK_VALUE2 = u'456'
+HK_VALUE_404 = u'404'
 RK_VALUE = u'Decode this data if you are a coder'
 
 
@@ -75,7 +76,26 @@ class TestDeleteItem(unittest.TestCase):
             },
             db.layer1.delete_item(TABLE_NAME, key),
         )
-        self.assertEqual({}, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertNotIn((HK_VALUE, RK_VALUE), self.t1.store)
+
+    def test_delete_item_hr_404(self):
+        # same behavior as found
+        from ddbmock import connect_boto_patch
+        from ddbmock.database.db import dynamodb
+
+        db = connect_boto_patch()
+
+        key = {
+            u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE_404},
+            u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE},
+        }
+
+        self.assertEqual({
+                u'ConsumedCapacityUnits': 1,
+            },
+            db.layer1.delete_item(TABLE_NAME, key),
+        )
+        self.assertNotIn((HK_VALUE_404, RK_VALUE), self.t1.store)
 
     def test_delete_item_hr_old(self):
         from ddbmock import connect_boto_patch
@@ -97,7 +117,7 @@ class TestDeleteItem(unittest.TestCase):
             expected,
             db.layer1.delete_item(TABLE_NAME, key, return_values=u'ALL_OLD'),
         )
-        self.assertEqual({}, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertNotIn((HK_VALUE, RK_VALUE), self.t1.store)
 
     def test_delete_item_h(self):
         from ddbmock import connect_boto_patch
@@ -114,7 +134,7 @@ class TestDeleteItem(unittest.TestCase):
             },
             db.layer1.delete_item(TABLE_NAME2, key),
         )
-        self.assertEqual({}, self.t2.data[HK_VALUE][False])
+        self.assertNotIn((HK_VALUE, False), self.t2.store)
 
     def test_delete_item_h_big(self):
         from ddbmock import connect_boto_patch
@@ -131,7 +151,7 @@ class TestDeleteItem(unittest.TestCase):
             },
             db.layer1.delete_item(TABLE_NAME2, key),
         )
-        self.assertEqual({}, self.t2.data[HK_VALUE2][False])
+        self.assertNotIn((HK_VALUE2, False), self.t2.store)
 
     def test_delete_item_h_old(self):
         from ddbmock import connect_boto_patch
@@ -152,7 +172,7 @@ class TestDeleteItem(unittest.TestCase):
             expected,
             db.layer1.delete_item(TABLE_NAME2, key, return_values=u'ALL_OLD'),
         )
-        self.assertEqual({}, self.t1.data[HK_VALUE][False])
+        self.assertNotIn((HK_VALUE, False), self.t1.store)
 
     def test_delete_item_hr_missing_r(self):
         from ddbmock import connect_boto_patch
@@ -202,7 +222,7 @@ class TestDeleteItem(unittest.TestCase):
         }
 
         db.layer1.delete_item(TABLE_NAME, key, expected=ddb_expected)
-        self.assertEqual({}, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertNotIn((HK_VALUE, False), self.t1.store)
 
     def test_delete_item_h_expect_field_value_fail(self):
         from ddbmock import connect_boto_patch
@@ -227,4 +247,4 @@ class TestDeleteItem(unittest.TestCase):
             db.layer1.delete_item,
             TABLE_NAME, key, expected=ddb_expected
         )
-        self.assertEqual(ITEM, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertEqual(ITEM, self.t1.store[HK_VALUE, RK_VALUE])

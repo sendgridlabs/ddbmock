@@ -49,9 +49,6 @@ class Item(dict):
             return filtered
         return self
 
-    def is_new(self):
-        return not len(self)
-
     def _apply_action(self, fieldname, action):
         # Rewrite this function, it's disgustting code
         if action[u'Action'] == u"PUT":

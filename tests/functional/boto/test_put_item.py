@@ -128,7 +128,7 @@ class TestPutItem(unittest.TestCase):
             },
             db.layer1.put_item(TABLE_NAME, ITEM),
         )
-        self.assertEqual(ITEM, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertEqual(ITEM, self.t1.store[HK_VALUE, RK_VALUE])
 
         self.assertEqual({
                 u'ConsumedCapacityUnits': 1,
@@ -148,7 +148,7 @@ class TestPutItem(unittest.TestCase):
             },
             db.layer1.put_item(TABLE_NAME2, ITEM3),
         )
-        self.assertEqual(ITEM3, self.t2.data[HK_VALUE][False])
+        self.assertEqual(ITEM3, self.t2.store[HK_VALUE, False])
 
         self.assertEqual({
                 u'ConsumedCapacityUnits': 1,
@@ -189,13 +189,13 @@ class TestPutItem(unittest.TestCase):
                           db.layer1.put_item,
                           TABLE_NAME2, ITEM3_EMPTY_SET)
 
-        self.assertFalse(self.t2.data[HK_VALUE][False])
+        self.assertNotIn((HK_VALUE, False), self.t2.store)
 
         self.assertRaises(DynamoDBValidationError,
                           db.layer1.put_item,
                           TABLE_NAME2, ITEM3_EMPTY_FIELD)
 
-        self.assertFalse(self.t2.data[HK_VALUE][False])
+        self.assertNotIn((HK_VALUE, False), self.t2.store)
 
     def test_put_hr_404(self):
         from ddbmock import connect_boto_patch
@@ -258,7 +258,7 @@ class TestPutItem(unittest.TestCase):
             db.layer1.put_item,
             TABLE_NAME2, ITEM4, expected=ddb_expected
         )
-        self.assertEqual(ITEM3, self.t2.data[HK_VALUE][False])
+        self.assertEqual(ITEM3, self.t2.store[HK_VALUE, False])
 
     def test_put_h_expect_field_value(self):
         from ddbmock import connect_boto_patch
@@ -275,9 +275,9 @@ class TestPutItem(unittest.TestCase):
         }
 
         db.layer1.put_item(TABLE_NAME2, ITEM3)
-        self.assertEqual(ITEM3, self.t2.data[HK_VALUE][False])
+        self.assertEqual(ITEM3, self.t2.store[HK_VALUE, False])
         db.layer1.put_item(TABLE_NAME2, ITEM4, expected=ddb_expected)
-        self.assertEqual(ITEM4, self.t2.data[HK_VALUE][False])
+        self.assertEqual(ITEM4, self.t2.store[HK_VALUE, False])
         self.assertRaisesRegexp(DynamoDBResponseError, 'ConditionalCheckFailedException',
             db.layer1.put_item,
             TABLE_NAME2, ITEM4, expected=ddb_expected
@@ -318,7 +318,7 @@ class TestPutItem(unittest.TestCase):
             db.layer1.put_item,
             TABLE_NAME2, ITEM_HUGE)
 
-        self.assertEqual({}, self.t2.data[HK_VALUE][False])
+        self.assertNotIn((HK_VALUE, False), self.t2.store)
 
     def test_put_boto_intergration(self):
         # This item comes directly from boto intergration test suite

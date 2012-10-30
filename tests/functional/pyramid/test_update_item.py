@@ -74,4 +74,4 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
         # Live data check
-        self.assertEqual(RELEVANT_FIELD, self.t1.data[HK_VALUE][RK_VALUE]['relevant_data'])
+        self.assertEqual(RELEVANT_FIELD, self.t1.store[HK_VALUE, RK_VALUE]['relevant_data'])

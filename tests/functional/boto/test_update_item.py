@@ -92,22 +92,22 @@ class TestUpdateItem(unittest.TestCase):
         db.layer1.update_item(TABLE_NAME, key, {
             'relevant_data': {'Value': RELEVANT_FIELD}  # Move type from 'B' to 'S'
         })
-        self.assertEqual(RELEVANT_FIELD, self.t1.data[HK_VALUE][RK_VALUE]['relevant_data'])
+        self.assertEqual(RELEVANT_FIELD, self.t1.store[HK_VALUE, RK_VALUE]['relevant_data'])
 
         # PUT explicite, champ non existant
         db.layer1.update_item(TABLE_NAME, key, {
             'irelevant_data': {'Action': 'PUT', 'Value': IRELEVANT_FIELD}
         })
-        self.assertEqual(RELEVANT_FIELD, self.t1.data[HK_VALUE][RK_VALUE]['relevant_data'])
-        self.assertEqual(IRELEVANT_FIELD, self.t1.data[HK_VALUE][RK_VALUE]['irelevant_data'])
+        self.assertEqual(RELEVANT_FIELD, self.t1.store[HK_VALUE, RK_VALUE]['relevant_data'])
+        self.assertEqual(IRELEVANT_FIELD, self.t1.store[HK_VALUE, RK_VALUE]['irelevant_data'])
 
         # PUT explicite, item non existant(full item creation)
         db.layer1.update_item(TABLE_NAME, key2, {
             'relevant_data': {'Action': 'PUT', 'Value': RELEVANT_FIELD}
         })
-        self.assertEqual(HK_VALUE2, self.t1.data[HK_VALUE2][RK_VALUE][TABLE_HK_NAME])
-        self.assertEqual(RK_VALUE, self.t1.data[HK_VALUE2][RK_VALUE][TABLE_RK_NAME])
-        self.assertEqual(RELEVANT_FIELD, self.t1.data[HK_VALUE2][RK_VALUE]['relevant_data'])
+        self.assertEqual({TABLE_HK_TYPE: HK_VALUE2}, self.t1.store[HK_VALUE2, RK_VALUE][TABLE_HK_NAME])
+        self.assertEqual({TABLE_RK_TYPE: RK_VALUE}, self.t1.store[HK_VALUE2, RK_VALUE][TABLE_RK_NAME])
+        self.assertEqual(RELEVANT_FIELD, self.t1.store[HK_VALUE2, RK_VALUE]['relevant_data'])
 
     def test_update_item_put_h(self):
         from ddbmock import connect_boto_patch
@@ -125,21 +125,21 @@ class TestUpdateItem(unittest.TestCase):
         db.layer1.update_item(TABLE_NAME2, key, {
             'relevant_data': {'Value': RELEVANT_FIELD}  # Move type from 'B' to 'S'
         })
-        self.assertEqual(RELEVANT_FIELD, self.t2.data[HK_VALUE][False]['relevant_data'])
+        self.assertEqual(RELEVANT_FIELD, self.t2.store[HK_VALUE, False]['relevant_data'])
 
         # PUT explicite, champ non existant
         db.layer1.update_item(TABLE_NAME2, key, {
             'irelevant_data': {'Action': 'PUT', 'Value': IRELEVANT_FIELD}
         })
-        self.assertEqual(RELEVANT_FIELD, self.t2.data[HK_VALUE][False]['relevant_data'])
-        self.assertEqual(IRELEVANT_FIELD, self.t2.data[HK_VALUE][False]['irelevant_data'])
+        self.assertEqual(RELEVANT_FIELD, self.t2.store[HK_VALUE, False]['relevant_data'])
+        self.assertEqual(IRELEVANT_FIELD, self.t2.store[HK_VALUE, False]['irelevant_data'])
 
         # PUT explicite, item non existant(full item creation)
         db.layer1.update_item(TABLE_NAME2, key2, {
             'relevant_data': {'Action': 'PUT', 'Value': RELEVANT_FIELD}
         })
-        self.assertEqual(HK_VALUE2, self.t2.data[HK_VALUE2][False][TABLE_HK_NAME])
-        self.assertEqual(RELEVANT_FIELD, self.t2.data[HK_VALUE2][False]['relevant_data'])
+        self.assertEqual({TABLE_HK_TYPE: HK_VALUE2}, self.t2.store[HK_VALUE2, False][TABLE_HK_NAME])
+        self.assertEqual(RELEVANT_FIELD, self.t2.store[HK_VALUE2, False]['relevant_data'])
 
     def test_put_check_throughput_max_old_new(self):
         from ddbmock import connect_boto_patch
@@ -180,13 +180,13 @@ class TestUpdateItem(unittest.TestCase):
             db.layer1.update_item,
             TABLE_NAME, key, {TABLE_RK_NAME: {'Action': 'DELETE'}}
         )
-        self.assertEqual({TABLE_RK_TYPE: RK_VALUE}, self.t1.data[HK_VALUE][RK_VALUE][TABLE_RK_NAME])
+        self.assertEqual({TABLE_RK_TYPE: RK_VALUE}, self.t1.store[HK_VALUE, RK_VALUE][TABLE_RK_NAME])
 
         self.assertRaises(DynamoDBValidationError,
             db.layer1.update_item,
             TABLE_NAME, key, {TABLE_HK_NAME: {'Action': 'DELETE'}}
         )
-        self.assertEqual({TABLE_HK_TYPE: HK_VALUE}, self.t1.data[HK_VALUE][RK_VALUE][TABLE_HK_NAME])
+        self.assertEqual({TABLE_HK_TYPE: HK_VALUE}, self.t1.store[HK_VALUE, RK_VALUE][TABLE_HK_NAME])
 
     def test_update_item_delete_field_ok(self):
         from ddbmock import connect_boto_patch
@@ -202,7 +202,7 @@ class TestUpdateItem(unittest.TestCase):
         db.layer1.update_item(TABLE_NAME, key, {
             FIELD_NAME: {'Action': 'DELETE'},
         })
-        self.assertNotIn(FIELD_NAME, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertNotIn(FIELD_NAME, self.t1.store[HK_VALUE, RK_VALUE])
 
         # Attempt to delete non-existing field, do nothing
         db.layer1.update_item(TABLE_NAME, key, {
@@ -230,19 +230,19 @@ class TestUpdateItem(unittest.TestCase):
                 FIELD_SET_NAME: {'Action': 'DELETE', u'Value': {u'S': u'item1'}},
             }
         )
-        self.assertEqual(expected1, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
+        self.assertEqual(expected1, self.t1.store[HK_VALUE, RK_VALUE][FIELD_SET_NAME])
 
         # remove a couple of existing or not item from the field
         db.layer1.update_item(TABLE_NAME, key, {
             FIELD_SET_NAME: {'Action': 'DELETE', u'Value': {u'SS': [u'item2', u'item4', u'item6']}},
         })
-        self.assertEqual(expected2, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
+        self.assertEqual(expected2, self.t1.store[HK_VALUE, RK_VALUE][FIELD_SET_NAME])
 
         # Field shoud disapear (Empty)
         db.layer1.update_item(TABLE_NAME, key, {
             FIELD_SET_NAME: {'Action': 'DELETE', u'Value': {u'SS': [u'item1', u'item3', u'item6']}},
         })
-        self.assertNotIn(FIELD_SET_NAME, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertNotIn(FIELD_SET_NAME, self.t1.store[HK_VALUE, RK_VALUE])
 
     def test_update_item_delete_field_set_bad_type(self):
         from ddbmock import connect_boto_patch
@@ -263,7 +263,7 @@ class TestUpdateItem(unittest.TestCase):
                 FIELD_SET_NAME: {'Action': 'DELETE', u'Value': {u'B': u'item1'}},
             }
         )
-        self.assertEqual(expected, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
+        self.assertEqual(expected, self.t1.store[HK_VALUE, RK_VALUE][FIELD_SET_NAME])
 
         self.assertRaises(DynamoDBValidationError,
             db.layer1.update_item,
@@ -271,7 +271,7 @@ class TestUpdateItem(unittest.TestCase):
                 FIELD_SET_NAME: {'Action': 'DELETE', u'Value': {u'BS': [u'item2', u'item4', u'item6']}},
             }
         )
-        self.assertEqual(expected, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
+        self.assertEqual(expected, self.t1.store[HK_VALUE, RK_VALUE][FIELD_SET_NAME])
 
     def test_update_item_increment(self):
         from ddbmock import connect_boto_patch
@@ -291,7 +291,7 @@ class TestUpdateItem(unittest.TestCase):
         db.layer1.update_item(TABLE_NAME2, key, {
             FIELD_NUM_NAME: {'Action': 'ADD', u'Value': {u'N': unicode(ADD_VALUE)}},
         })
-        self.assertEqual(expected, self.t2.data[HK_VALUE][False][FIELD_NUM_NAME])
+        self.assertEqual(expected, self.t2.store[HK_VALUE, False][FIELD_NUM_NAME])
 
     def test_update_item_push_to_set_ok(self):
         from ddbmock import connect_boto_patch
@@ -313,12 +313,12 @@ class TestUpdateItem(unittest.TestCase):
                 FIELD_SET_NAME: {'Action': 'ADD', u'Value': {u'S': u'item5'}},
             }
         )
-        self.assertEqual(expected1, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
+        self.assertEqual(expected1, self.t1.store[HK_VALUE, RK_VALUE][FIELD_SET_NAME])
 
         db.layer1.update_item(TABLE_NAME, key, {
             FIELD_SET_NAME: {'Action': 'ADD', u'Value': {u'SS': [u'item5']}},
         })
-        self.assertEqual(expected2, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
+        self.assertEqual(expected2, self.t1.store[HK_VALUE, RK_VALUE][FIELD_SET_NAME])
 
     def test_update_item_push_to_non_set_fail(self):
         # sometimes weird black magic types occures in test. these are related
@@ -341,7 +341,7 @@ class TestUpdateItem(unittest.TestCase):
                 FIELD_NAME: {'Action': 'ADD', u'Value': {u'B': u'item5'}},
             }
         )
-        self.assertEqual(expected1, self.t1.data[HK_VALUE][RK_VALUE][FIELD_SET_NAME])
+        self.assertEqual(expected1, self.t1.store[HK_VALUE, RK_VALUE][FIELD_SET_NAME])
 
     def test_update_return_all_old(self):
         from ddbmock import connect_boto_patch
@@ -431,4 +431,4 @@ class TestUpdateItem(unittest.TestCase):
         db.layer1.update_item, TABLE_NAME2, key, {
             'relevant_data': {'Value': RELEVANT_HUGE_FIELD},
         })
-        self.assertEqual(ITEM[FIELD_NAME], self.t2.data[HK_VALUE][False]['relevant_data'])
+        self.assertEqual(ITEM[FIELD_NAME], self.t2.store[HK_VALUE, False]['relevant_data'])

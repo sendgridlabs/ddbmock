@@ -73,4 +73,4 @@ class TestDeleteItem(unittest.TestCase):
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
         # Live data check
-        self.assertEqual({}, self.t1.data[HK_VALUE][RK_VALUE])
+        self.assertNotIn((HK_VALUE, RK_VALUE), self.t1.store)
