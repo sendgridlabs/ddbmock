@@ -26,7 +26,7 @@ base_64 = re.compile(r'^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]
 table_name = All(
     unicode,
     Length(min=3, max=255, msg="Table name Length must be between 3 and 255"),
-    Match(re.compile(r'^[a-zA-Z0-9\-_\.]*$'), msg="Table name may only containe alphanumeric chars and '-' '_' '.'"),
+    Match(re.compile(r'^[a-zA-Z0-9\-_\.]*$'), msg="Table name may only contain alphanumeric chars and '-' '_' '.'"),
 )
 
 table_page = All(

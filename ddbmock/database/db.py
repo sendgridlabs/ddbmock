@@ -22,6 +22,8 @@ class DynamoDB(object):
         self.__dict__ = cls.shared_data
 
     def hard_reset(self):
+        for table in self.data.values():
+            table.store.truncate() # FIXME: should be moved in table
         self.data.clear()
 
     def list_tables(self):
@@ -44,6 +46,7 @@ class DynamoDB(object):
     def _internal_delete_table(self, name):
         """This is ran only after the timer is exhausted"""
         if name in self.data:
+            self.data[name].store.truncate()  # FIXME: should be moved in table
             del self.data[name]
 
     def delete_table(self, name):

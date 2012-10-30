@@ -30,7 +30,6 @@ class Table(object):
         self.range_key = range_key
         self.status = status
 
-        #self.data = defaultdict(lambda: defaultdict(Item))
         self.store = MemoryStore(name)
 
         self.creation_time = time.time()

@@ -43,3 +43,8 @@ DELAY_DELETING = 1000
 STAT_TP_SAMPLE = 1
 # seconds: aggregation period
 STAT_TP_AGGREG = 5*60
+
+### Storage specific settings ###
+
+#SQLite database location
+STORAGE_SQLITE_FILE = 'dynamo.db'
