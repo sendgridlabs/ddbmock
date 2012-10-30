@@ -4,7 +4,7 @@ import unittest, mock
 import sqlite3, cPickle as pickle
 from ddbmock import config
 
-config.STORAGE_SQLITE_FILE = '/tmp/test_ddbmock.db'
+config.STORAGE_SQLITE_FILE = ':memory:'
 TABLE_NAME = 'test_table'
 
 ITEM1 = {"key":"value 1"}
@@ -17,7 +17,8 @@ ITEM6 = {"key":"value 6"}
 
 class TestSQLiteStore(unittest.TestCase):
     def setUp(self):
-        conn = sqlite3.connect(config.STORAGE_SQLITE_FILE)
+        from ddbmock.database.storage.sqlite import conn
+
         conn.execute('DROP TABLE IF EXISTS `test_table`')
         conn.execute('''CREATE TABLE `test_table` (
           `hash_key` blob NOT NULL,

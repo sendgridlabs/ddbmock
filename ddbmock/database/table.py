@@ -9,7 +9,8 @@ from ddbmock.errors import ValidationException, LimitExceededException, Resource
 import time, copy, datetime
 
 # TMP
-from .storage.memory import MemoryStore
+from .storage.memory import MemoryStore as Store
+#from .storage.sqlite import SQLiteStore as Store
 
 def change_is_less_than_x_percent(current, candidate, threshold):
     """Return True iff 0% < change < 10%"""
@@ -30,7 +31,7 @@ class Table(object):
         self.range_key = range_key
         self.status = status
 
-        self.store = MemoryStore(name)
+        self.store = Store(name)
 
         self.creation_time = time.time()
         self.last_increase_time = 0
