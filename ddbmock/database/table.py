@@ -2,15 +2,13 @@
 
 from .key import Key, PrimaryKey
 from .item import Item, ItemSize
+from .storage import Store
 from ddbmock import config
 from collections import defaultdict, namedtuple
 from threading import Timer
 from ddbmock.errors import ValidationException, LimitExceededException, ResourceInUseException
 import time, copy, datetime
 
-# TMP
-from .storage.memory import MemoryStore as Store
-#from .storage.sqlite import SQLiteStore as Store
 
 def change_is_less_than_x_percent(current, candidate, threshold):
     """Return True iff 0% < change < 10%"""

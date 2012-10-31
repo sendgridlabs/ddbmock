@@ -9,7 +9,7 @@ import sqlite3, cPickle as pickle
 # in-memory version of sqlite
 conn = sqlite3.connect(config.STORAGE_SQLITE_FILE)
 
-class SQLiteStore(object):
+class Store(object):
     def __init__(self, name):
         """ Initialize the sqlite store
 

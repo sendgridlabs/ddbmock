@@ -13,9 +13,9 @@ DATA2 = {"key": "value 2"}
 
 class TestMemoryStore(unittest.TestCase):
     def test_truncate(self):
-        from ddbmock.database.storage.memory import MemoryStore
+        from ddbmock.database.storage.memory import Store
 
-        ms = MemoryStore(NAME)
+        ms = Store(NAME)
 
         ms.data[1] = "some data"
         ms.data[2] = "some data"
@@ -28,17 +28,17 @@ class TestMemoryStore(unittest.TestCase):
         self.assertFalse(ms.data)
 
     def test_set_item(self):
-        from ddbmock.database.storage.memory import MemoryStore
+        from ddbmock.database.storage.memory import Store
 
-        ms = MemoryStore(NAME)
+        ms = Store(NAME)
 
         ms[HASH,RANGE1] = DATA1
         self.assertEqual(DATA1, ms.data[HASH][RANGE1])
 
     def test_get_item(self):
-        from ddbmock.database.storage.memory import MemoryStore
+        from ddbmock.database.storage.memory import Store
 
-        ms = MemoryStore(NAME)
+        ms = Store(NAME)
 
         ms.data[HASH][RANGE1] = DATA1
         ms.data[HASH][RANGE2] = DATA2
@@ -53,9 +53,9 @@ class TestMemoryStore(unittest.TestCase):
         self.assertEqual({RANGE1:DATA1, RANGE2:DATA2}, ms[HASH, None])
 
     def test_del_item(self):
-        from ddbmock.database.storage.memory import MemoryStore
+        from ddbmock.database.storage.memory import Store
 
-        ms = MemoryStore(NAME)
+        ms = Store(NAME)
 
         ms.data[HASH][RANGE1] = DATA1
         ms.data[HASH][RANGE2] = DATA2
@@ -71,9 +71,9 @@ class TestMemoryStore(unittest.TestCase):
         self.assertNotIn(RANGE2, ms.data[HASH])
 
     def test_iter(self):
-        from ddbmock.database.storage.memory import MemoryStore
+        from ddbmock.database.storage.memory import Store
 
-        ms = MemoryStore(NAME)
+        ms = Store(NAME)
 
         ms.data[HASH][RANGE1] = DATA1
         ms.data[HASH][RANGE2] = DATA2

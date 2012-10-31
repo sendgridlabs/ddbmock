@@ -16,8 +16,9 @@ Additions
 - full ``Query`` support
 - throughput statistics to help plan real usage
 - datastore API
-- external memory store
-- integrate boto dynamodb integration tests to test suite (disabled unless '--no-skip')
+    - bundle memory store
+    - bundle sqlite store
+    - add config param to switch
 
 Removal
 -------
@@ -39,6 +40,7 @@ Changes
 - pyramid and boto entry points now shares most of the router
 - pre-instanciate DynamoDB as dynamodb
 - UpdateItem failed to save keys properly
+- integrate boto dynamodb integration tests to test suite (disabled unless '--no-skip')
 
 Upgrade
 -------

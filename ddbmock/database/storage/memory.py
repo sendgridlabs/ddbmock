@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 
-class MemoryStore(object):
+class Store(object):
     def __init__(self, name):
         """ Initialize the in-memory store
         :param name: Table name.

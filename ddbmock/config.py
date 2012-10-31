@@ -46,5 +46,7 @@ STAT_TP_AGGREG = 5*60
 
 ### Storage specific settings ###
 
-#SQLite database location
+# Storage engine ro use ('memory' or 'sqlite')
+STORAGE_ENGINE_NAME = 'memory'
+# SQLite database location
 STORAGE_SQLITE_FILE = 'dynamo.db'

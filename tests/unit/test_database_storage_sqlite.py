@@ -44,24 +44,24 @@ class TestSQLiteStore(unittest.TestCase):
         self.conn.commit()
 
     def test_truncate(self):
-        from ddbmock.database.storage.sqlite import SQLiteStore
+        from ddbmock.database.storage.sqlite import Store
 
-        store = SQLiteStore(TABLE_NAME)
+        store = Store(TABLE_NAME)
         store.truncate()
 
         count = self.conn.execute('SELECT Count(*) FROM test_table').fetchone()
         self.assertEqual(0, count[0])
 
     def test_iter(self):
-        from ddbmock.database.storage.sqlite import SQLiteStore
+        from ddbmock.database.storage.sqlite import Store
 
-        store = SQLiteStore(TABLE_NAME)
+        store = Store(TABLE_NAME)
         self.assertEqual([ITEM1, ITEM2, ITEM3, ITEM4], list(store))
 
     def test_get_item(self):
-        from ddbmock.database.storage.sqlite import SQLiteStore
+        from ddbmock.database.storage.sqlite import Store
 
-        store = SQLiteStore(TABLE_NAME)
+        store = Store(TABLE_NAME)
         self.assertEqual(ITEM2, store[(123, 'titi')])
         self.assertEqual(ITEM4, store[(456, 'toto')])
 
@@ -75,9 +75,9 @@ class TestSQLiteStore(unittest.TestCase):
         self.assertRaises(KeyError, store.__getitem__, (132, '404'))
 
     def test_del_item(self):
-        from ddbmock.database.storage.sqlite import SQLiteStore
+        from ddbmock.database.storage.sqlite import Store
 
-        store = SQLiteStore(TABLE_NAME)
+        store = Store(TABLE_NAME)
         del store[123, 'toto']
         del store[123, 'titi']
         del store[404, 'titi']
@@ -87,9 +87,9 @@ class TestSQLiteStore(unittest.TestCase):
         self.assertEqual([ITEM3], list(store))
 
     def test_set_item(self):
-        from ddbmock.database.storage.sqlite import SQLiteStore
+        from ddbmock.database.storage.sqlite import Store
 
-        store = SQLiteStore(TABLE_NAME)
+        store = Store(TABLE_NAME)
 
         store[123, 'titi'] = ITEM5
         store[456, 'titi'] = ITEM6
