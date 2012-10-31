@@ -17,6 +17,7 @@ Additions
 - throughput statistics to help plan real usage
 - datastore API
 - external memory store
+- run boto dynamodb integration tests as part of ddbmock test suite
 
 Removal
 -------
