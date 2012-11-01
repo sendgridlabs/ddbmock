@@ -5,7 +5,7 @@ ddbmock 0.4.0.dev
 This section documents all user visible changes included between ddbmock
 versions 0.3.2 and versions 0.4.0
 
-This iteration is focused on making code leaner with better documentation.
+This iteration wa focused on modularity and statistics.
 
 Additions
 ---------
@@ -19,6 +19,7 @@ Additions
     - bundle memory store
     - bundle sqlite store
     - add config param to switch
+- ``clean_boto_patch`` to restore original ``boto.dynamodb`` behavior
 
 Removal
 -------

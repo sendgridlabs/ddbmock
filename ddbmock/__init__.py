@@ -28,11 +28,35 @@ def connect_boto_network(host='localhost', port=6543):
 
 # Monkey patch magic, required for the Boto entry point
 # Request hijacking Yeah !
+real_boto = {}
+
 def connect_boto_patch():
     """Connect to ddbmock as a library via boto"""
     import boto
+
+    if real_boto:
+        return boto.connect_dynamodb()
+
     from boto.dynamodb.layer1 import Layer1
     from router.boto import boto_router
+
+    # Backup real functions for potential cleanup
+    real_boto['Layer1.make_request'] = Layer1.make_request
+    real_boto['Layer1.__init__'] = Layer1.__init__
+
+    # Bypass network *and* authentication
     Layer1.make_request = boto_router
-    Layer1.__init__ = noop  # bypass authentication
+    Layer1.__init__ = noop
+
+    # Just one more shortcut
     return boto.connect_dynamodb()
+
+def clean_boto_patch():
+    """Restore real boto code"""
+    if real_boto:
+        from boto.dynamodb.layer1 import Layer1
+
+        Layer1.make_request = real_boto['Layer1.make_request']
+        Layer1.__init__ = real_boto['Layer1.__init__']
+
+        real_boto.clear()

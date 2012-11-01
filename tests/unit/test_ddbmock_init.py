@@ -16,7 +16,10 @@ class TestDdbmockInit(unittest.TestCase):
         self.assertEqual(boto_router, db.layer1.make_request.im_func)
 
     def test_connect_boto_patch_network(self):
-        from ddbmock import connect_boto_network
+        from ddbmock import connect_boto_network, clean_boto_patch
+
+        # make sure no patch is active first
+        clean_boto_patch()
 
         db = connect_boto_network(HOST, PORT)
 
