@@ -16,7 +16,6 @@ class TestDB(unittest.TestCase):
     def test_internal_delet_table(self):
         from ddbmock.database import dynamodb
 
-
         # delete a table
         dynamodb._internal_delete_table(TABLE_NAME)
         self.assertNotIn(TABLE_NAME, dynamodb.data)
@@ -27,8 +26,6 @@ class TestDB(unittest.TestCase):
     def test_delete_table(self):
         from ddbmock.database import dynamodb
 
-
         dynamodb.delete_table(TABLE_NAME)
-
         dynamodb.data[TABLE_NAME].delete.assert_called_withassert_called_with(callback=dynamodb._internal_delete_table)
 

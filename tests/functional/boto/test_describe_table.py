@@ -48,7 +48,9 @@ class TestDescribeTables(unittest.TestCase):
 
     def tearDown(self):
         from ddbmock.database.db import dynamodb
+        from ddbmock import clean_boto_patch
         dynamodb.hard_reset()
+        clean_boto_patch()
 
     def test_describe_table(self):
         from ddbmock import connect_boto_patch

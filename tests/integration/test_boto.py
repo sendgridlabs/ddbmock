@@ -4,7 +4,7 @@ import sys
 # Just, skip this unless "--no-skip"
 if '--no-skip' in sys.argv:
     import os, imp, boto, unittest
-    from ddbmock import connect_boto_patch
+    from ddbmock import connect_boto_patch, clean_boto_patch
 
     # Load boto dir
     boto_dir = os.path.realpath(boto.__file__+'/../../')
@@ -25,6 +25,7 @@ if '--no-skip' in sys.argv:
     # clean up
     layer1_file.close()
     layer2_file.close()
+    clean_boto_patch()
 else:
     print "Boto Integration tests are slow hence disabled by default, enable them with '--no-skip'"
 
