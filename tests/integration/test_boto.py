@@ -26,5 +26,5 @@ if '--no-skip' in sys.argv:
     layer1_file.close()
     layer2_file.close()
 else:
-    print "Boto Integration tests are slow hence dusabled by default, enable them with '--no-skip'"
+    print "Boto Integration tests are slow hence disabled by default, enable them with '--no-skip'"
 

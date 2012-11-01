@@ -41,6 +41,7 @@ Changes
 - pre-instanciate DynamoDB as dynamodb
 - UpdateItem failed to save keys properly
 - integrate boto dynamodb integration tests to test suite (disabled unless '--no-skip')
+- do not require (real) user credentials in boto patch version (#5)
 
 Upgrade
 -------

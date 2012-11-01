@@ -3,6 +3,8 @@
 from pyramid.config import Configurator
 from ddbmock.router.pyramid import pyramid_router
 
+def noop(*args, **kwargs): pass
+
 # Pyramid entry point
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -32,4 +34,5 @@ def connect_boto_patch():
     from boto.dynamodb.layer1 import Layer1
     from router.boto import boto_router
     Layer1.make_request = boto_router
+    Layer1.__init__ = noop  # bypass authentication
     return boto.connect_dynamodb()
