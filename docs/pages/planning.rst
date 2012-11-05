@@ -40,6 +40,10 @@ can use a code like this :
     tp_logger.addHandler(logging.StreamHandler())  # to console
 
 
+Depending on how your your application scales, it may be interesting to run a
+representative secnario with multiples users and se how the throughput proportions.
+this will be a very valuable information when going live.
+
 General logging
 ===============
 
