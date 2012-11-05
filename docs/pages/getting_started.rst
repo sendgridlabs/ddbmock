@@ -68,3 +68,6 @@ around with boto DynamoDB API too :)
 
     # Done ! just use it wherever in your project as usual.
     db.list_tables() # get list of tables (empty at this stage)
+
+Note, to clean patches made in ``boto.dynamodb.layer1``, you can call
+``clean_boto_patch()`` from  the same module.

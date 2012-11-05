@@ -22,6 +22,17 @@ Folder structure
             `-- pyramid => just make sure that all methods are supported
 
 
+Get the source Luke
+===================
+
+::
+
+    $ hg clone ssh://hg@bitbucket.org/Ludia/dynamodb-mock
+    $ pip install nose nosexcover coverage mock webtests boto
+    $ python setup.py develop
+    $ nosetests # --no-skip to run boto integration tests too
+
+
 Adding a custom method
 ======================
 

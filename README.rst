@@ -11,14 +11,18 @@ data as well are sets. Each tables must define a ``hash_key`` and may define a
 ``range_key``. All other fields are optional.
 
 **DynamoDB** is really awesome but is terribly slooooow with managment tasks.
-This makes it completly unusable in test environements
+This makes it completly unusable in test environements.
 
-**ddbmock** brings a nice, tiny, in-memory implementation of DynamoDB along with
-much better and detailed error messages. Among its niceties, it features a double
-entry point:
+**ddbmock** brings a nice, tiny, in-memory (optionaly sqlite) implementation of
+DynamoDB along with much better and detailed error messages. Among its niceties,
+it features a double entry point:
 
  - regular network based entry-point with 1:1 correspondance with stock DynamoDB
  - **embeded entry-point** with seamless boto intergration 1, ideal to avoid spinning yet another server.
+
+**ddbmock** does *not* intend to be used in production. It *will* **loose** you
+data. you've been warned! I currently recommend the "boto extension" mode for
+unit-tests and the "server" mode for functional tests.
 
 Installation
 ============
@@ -36,30 +40,28 @@ Developing
     $ hg clone ssh://hg@bitbucket.org/Ludia/dynamodb-mock
     $ pip install nose nosexcover coverage mock webtests boto
     $ python setup.py develop
-    $ nosetests # --no-coverage to run boto integration tests too
+    $ nosetests # --no-skip to run boto integration tests too
 
 
-What is/will ddbmock be useful for ?
-====================================
+What is ddbmock useful for ?
+============================
 
 - running unit test FAST. DONE
 - running functional test FAST. DONE
 - experiment with DynamoDB API. DONE
-- plan Throughput usage. WIP (low/mid level foundation done)
-- plan actual storage space requirements. DONE (describe table returns accurate size !)
-- perform simulations with accurate limitations. Even some undocumented "features" are accurate :)
+- plan throughput usage. DONE
+- plan disk space requirements. DONE (describe table returns accurate size !)
+- perform simulations with accurate limitations.
 
 Current status
 ==============
 
-ddbmock is an experimental project and is currently under heavy development. It
-also may be discontinued at *any* time.
-
+- pass all boto integration tests
 - support full table life-cycle
 - support full item life-cycle
 - support for all item limitations
-- accurate size and date reporting
-- ``Query``, ``Scan``, ``BatchGetItem`` and ``BatchWriteItem`` support is preliminary
+- accurate size, throughput reporting
+- ``Scan``, ``BatchGetItem`` and ``BatchWriteItem`` still lacks ``ExclusiveStartKey``
 - no limits on concurent table operations
 - no limits for request/response size nor item count in those
 
@@ -123,6 +125,8 @@ around with boto DynamoDB API too :)
     # Done ! just use it wherever in your project as usual.
     db.list_tables() # get list of tables (empty at this stage)
 
+Note, to clean patches made in ``boto.dynamodb.layer1``, you can call
+``clean_boto_patch()`` from  the same module.
 
 Requirements
 ============

@@ -2,7 +2,10 @@
 Current Status
 ##############
 
-This documents reflects ddbmock status as of 3/10/12. It may be outdated.
+This documents reflects ddbmock status as of 5/11/2012. It may be outdated.
+
+Some items are marked as "WONTFIX". These are throttling related. The goal of
+ddbmock is to help you with tests and planification. It won't get in your way.
 
 Methods support
 ===============
@@ -15,13 +18,13 @@ Methods support
 - ``PutItem`` DONE
 - ``DeleteItem`` DONE
 - ``UpdateItem`` ALMOST
-- ``BatchGetItem`` WIP
-- ``BatchWriteItem`` WIP
+- ``BatchGetItem`` DONE*
+- ``BatchWriteItem`` DONE*
 - ``Query`` DONE
-- ``Scan`` WIP
+- ``Scan`` DONE*
 
-There is basically no support for ``ExclusiveStartKey``, and their associated
-features at all in ddbmock. This affects all "WIP" functions. ``Query`` is the
+There basically are no support for ``ExclusiveStartKey``, and their associated
+features at all in ddbmock. This affects all "*" operations. ``Query`` is the
 only exception.
 
 ``UpdateItem`` has a different behavior when the target item did not exist prior
@@ -82,8 +85,9 @@ basically, none are supported yet
 Request rate
 ------------
 
-- Throttle read  operations when provisioned throughput exceeded. TODO (?)
-- Throttle write operations when provisioned throughput exceeded. TODO (?)
+- Throttle read  operations when provisioned throughput exceeded. WONTFIX
+- Throttle write operations when provisioned throughput exceeded. WONTFIX
+- Throughput usage logging for planification purpose. DONE
 - Maximum throughput is 10,000. DONE
 - Minimum throughput is 1. DONE
 - Report accurate throughput. DONE
@@ -100,13 +104,12 @@ Table managment
 ---------------
 
 - No more than 256 tables. DONE
-- No more than 10 ``CREATING`` tables. TODO
-- No more than 10 ``DELETING`` tables. TODO
-- No more than 1  ``UPDATING`` table.  TODO
+- No more than 10 ``CREATING`` tables. WONTFIX
+- No more than 10 ``DELETING`` tables. WONTFIX
+- No more than 10 ``UPDATING`` tables. WONTFIX
 
 - No more than 1 Throughput decrease/calendar day. DONE
 - No more than *2 Throughput increase/update. DONE
-- At least 10% change per update. DONE
 
 Types and items Limitations
 ===========================
