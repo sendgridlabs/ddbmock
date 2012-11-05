@@ -1,6 +1,6 @@
-=================
-ddbmock 0.4.0.dev
-=================
+=============
+ddbmock 0.4.0
+=============
 
 This section documents all user visible changes included between ddbmock
 versions 0.3.2 and versions 0.4.0

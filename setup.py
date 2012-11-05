@@ -25,7 +25,7 @@ tests_requires = [
 
 setup(
     d2to1=True,
-    keywords='pyramid dynamodb mock',
+    keywords='pyramid dynamodb mock planification',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
