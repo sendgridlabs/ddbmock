@@ -19,6 +19,9 @@ def dynamodb_api_validate(action, post):
     except (ImportError, AttributeError):
         return post  # Fixme: should log
 
+    # ignore the 'request_id' key but propagate it
+    schema['request_id'] = str
+
     try:
         validate = Schema(schema, required=True)
         return validate(post)

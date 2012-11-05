@@ -14,9 +14,11 @@ def pyramid_router(request):
     target = request.headers.get('x-amz-target')
     action = target.split('.', 2)[1] if target is not None else ""
 
+    post = request.json
+
     # do the job
     try:
-        body = router(action, request.json)
+        body = router(action, post)
         status = '200 OK'
     except DDBError as e:
         body = e.to_dict()
@@ -27,6 +29,7 @@ def pyramid_router(request):
     response.body = json.dumps(body)
     response.status = status
     response.content_type = 'application/x-amz-json-1.0'
+    response.headers['x-amzn-RequestId'] = post['request_id']  # added by router
 
     # done
     return response

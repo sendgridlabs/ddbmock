@@ -9,6 +9,9 @@ tp_stat = {
     'write': {},
 }
 
+req_logger = logging.getLogger("Request logger")
+req_logger.addHandler(logging.NullHandler())
+
 tp_logger = logging.getLogger("Throughput logger")
 tp_logger.addHandler(logging.NullHandler())
 
