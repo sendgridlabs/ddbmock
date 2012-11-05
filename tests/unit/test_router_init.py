@@ -20,7 +20,7 @@ class TestRouterInit(unittest.TestCase):
 
         router(ACTION, POST)
 
-        m_import.assert_called_with("ddbmock.routes.{}".format(ROUTE))
+        m_import.assert_called_with("ddbmock.operations.{}".format(ROUTE))
         m_validate.assert_called_with(ROUTE, POST)
         m_route.assert_called_with(m_validated)
 
@@ -50,6 +50,6 @@ class TestRouterInit(unittest.TestCase):
                                 router,
                                 ACTION, POST)
 
-        m_import.assert_called_with("ddbmock.routes.{}".format(ROUTE))
+        m_import.assert_called_with("ddbmock.operations.{}".format(ROUTE))
         m_validate.assert_called_with(ROUTE, POST)
         m_route.assert_called_with(m_validated)

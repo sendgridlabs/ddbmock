@@ -16,7 +16,7 @@ def router(action, post):
     # Find route
     try:
         target = action_to_route(action)
-        mod = import_module('ddbmock.routes.{}'.format(target))
+        mod = import_module('ddbmock.operations.{}'.format(target))
         func = getattr(mod, target)
     except ImportError:
         raise InternalFailure("Method: {} does not exist".format(action))

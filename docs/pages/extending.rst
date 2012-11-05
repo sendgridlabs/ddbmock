@@ -10,8 +10,8 @@ Folder structure
     DynamoDB-Mock
     +-- ddbmock
     |   +-- database   => the storage enginr
+    |   +-- operations => each DynamoDB operation has a route here
     |   +-- router     => entry-points logic
-    |   +-- routes     => each DynamoDB method has a file here
     |   `-- validators => request syntax validation middleware
     +-- docs
     |   `-- pages

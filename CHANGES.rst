@@ -35,6 +35,7 @@ Changes
 -------
 
 - global refactoring
+- rename ``routes`` module to ``operations`` for consistency with DynamoDB
 - Move from Voluptuous to Onctuous for validations, less code
 - fix server startup with pserver (bad backage name)
 - fix server crash on validation exception (bad serialization)
