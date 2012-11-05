@@ -9,10 +9,11 @@ Folder structure
 
     DynamoDB-Mock
     +-- ddbmock
-    |   +-- database   => the storage enginr
-    |   +-- operations => each DynamoDB operation has a route here
-    |   +-- router     => entry-points logic
-    |   `-- validators => request syntax validation middleware
+    |   +-- database    => request engine
+    |   |   `-- storage => storage backend
+    |   +-- operations  => each DynamoDB operation has a route here
+    |   +-- router      => entry-points logic
+    |   `-- validators  => request syntax validation middleware
     +-- docs
     |   `-- pages
     `-- tests
@@ -33,8 +34,8 @@ Get the source Luke
     $ nosetests # --no-skip to run boto integration tests too
 
 
-Adding a custom method
-======================
+Adding a method
+===============
 
 As long as the method follows DynamoDB request structure, it is mostly a matter of
 adding a file to ``ddbmock/routes`` with the following conventions:
@@ -72,8 +73,8 @@ corresponding table this way:
             'Hello': 'World'
         }
 
-Adding a custom validator
-=========================
+Adding a validator
+==================
 
 Let's say you want to let your new ``HelloWorld`` greet someone in particular,
 you will want to add an argument to the request.
@@ -114,3 +115,71 @@ Example: HelloWorld validator for HelloWorld method:
     }
 
 Done !
+
+Adding a storage backend
+========================
+
+Storage backends lives in 'ddbmock/database/storage'. There are currently two of
+them built-in. Basic "in-memory" (default) and "sqlite" to add persistence.
+
+As for the methods, storage backends follow conventions to keep the code lean
+
+- they must be in ``ddbmock.database.storage`` module
+- they must implement ``Store`` class following this outline
+
+::
+
+    # -*- coding: utf-8 -*-
+
+    # in case you need to load configuration constants
+    from ddbmock import config
+
+    # the name can *not* be changed.
+    class Store(object):
+        def __init__(self, name):
+            """ Initialize the in-memory store
+            :param name: Table name.
+            """
+            # TODO
+
+        def truncate(self):
+            """Perform a full table cleanup. Might be a good idea in tests :)"""
+            # TODO
+
+        def __getitem__(self, (hash_key, range_key)):
+            """Get item at (``hash_key``, ``range_key``) or the dict at ``hash_key`` if
+            ``range_key``  is None.
+
+            :param key: (``hash_key``, ``range_key``) Tuple. If ``range_key`` is None, all keys under ``hash_key`` are returned
+            :return: Item or item dict
+
+            :raise: KeyError
+            """
+            # TODO
+
+        def __setitem__(self, (hash_key, range_key), item):
+            """Set the item at (``hash_key``, ``range_key``). Both keys must be
+            defined and valid. By convention, ``range_key`` may be ``False`` to
+            indicate a ``hash_key`` only key.
+
+            :param key: (``hash_key``, ``range_key``) Tuple.
+            :param item: the actual ``Item`` data structure to store
+            """
+            # TODO
+
+        def __delitem__(self, (hash_key, range_key)):
+            """Delete item at key (``hash_key``, ``range_key``)
+
+            :raises: KeyError if not found
+            """
+            # TODO
+
+        def __iter__(self):
+            """ Iterate all over the table, abstracting the ``hash_key`` and
+            ``range_key`` complexity. Mostly used for ``Scan`` implementation.
+            """
+            # TODO
+
+
+As an example, I recommend to study "memory.py" implementation. It is pretty
+straight-forward and well commented. You get the whole package for only 63 lines :)

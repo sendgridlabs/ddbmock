@@ -24,6 +24,9 @@ it features a double entry point:
 data. you've been warned! I currently recommend the "boto extension" mode for
 unit-tests and the "server" mode for functional tests.
 
+Yes, ddbmock *can persist your data* using the optional "sqlite" backend. Bt still,
+do *not* use it in production.
+
 Installation
 ============
 
