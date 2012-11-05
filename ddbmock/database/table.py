@@ -10,10 +10,6 @@ from ddbmock.errors import ValidationException, LimitExceededException, Resource
 import time, copy, datetime
 
 
-def change_is_less_than_x_percent(current, candidate, threshold):
-    """Return True iff 0% < change < 10%"""
-    return current != candidate and (abs(current-candidate)/float(current))*100 < threshold
-
 # items: array
 # size: ItemSize
 Results = namedtuple('Results', ['items', 'size', 'last_key', 'scanned'])
@@ -58,11 +54,6 @@ class Table(object):
     def update_throughput(self, rt, wt):
         if self.status != "ACTIVE":
             raise ResourceInUseException("Table {} is in {} state. Can not UPDATE.".format(self.name, self.status))
-
-        if change_is_less_than_x_percent(self.rt, rt, config.MIN_TP_CHANGE):
-            raise LimitExceededException('Requested provisioned throughput change is not allowed. The ReadCapacityUnits change must be at least {} percent of current value. Current ReadCapacityUnits provisioned for the table: {}. Requested ReadCapacityUnits: {}.'.format(config.MIN_TP_CHANGE, self.rt, rt))
-        if change_is_less_than_x_percent(self.wt, wt, config.MIN_TP_CHANGE):
-            raise LimitExceededException('Requested provisioned throughput change is not allowed. The WriteCapacityUnits change must be at least {} percent of current value. Current WriteCapacityUnits provisioned for the table: {}. Requested WriteCapacityUnits: {}.'.format(config.MIN_TP_CHANGE, self.wt, wt))
 
         # is decrease ?
         if self.rt > rt or self.wt > wt:

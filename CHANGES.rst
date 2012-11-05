@@ -15,6 +15,7 @@ Additions
 - timer for table status changes
 - full ``Query`` support
 - throughput statistics to help plan real usage
+- pre-instanciate DynamoDB as dynamodb
 - datastore API
     - bundle memory store
     - bundle sqlite store
@@ -28,10 +29,12 @@ Removal
 - legacy ``connect_boto`` and ``connect_ddbmock``
 - ``dynamodb_api_validate`` decorator. It is now called automatically
 - ``wrap_exceptions`` decorator. It is now integrated to the router
+- minimum throughput change of 10 %
 
 Changes
 -------
 
+- global refactoring
 - Move from Voluptuous to Onctuous for validations, less code
 - fix server startup with pserver (bad backage name)
 - fix server crash on validation exception (bad serialization)
@@ -40,7 +43,6 @@ Changes
 - move 'views' to 'routes'
 - remove all pyramid code from 'views'/'routes'
 - pyramid and boto entry points now shares most of the router
-- pre-instanciate DynamoDB as dynamodb
 - UpdateItem failed to save keys properly
 - integrate boto dynamodb integration tests to test suite (disabled unless '--no-skip')
 - do not require (real) user credentials in boto patch version (#5)

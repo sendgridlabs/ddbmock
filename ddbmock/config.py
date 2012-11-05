@@ -21,8 +21,6 @@ MAX_ITEM_SIZE = 64*1024
 MIN_TP = 1
 # value: maximum throughput value
 MAX_TP = 10000
-# percent: min throughput change when increasing/decreasing
-MIN_TP_CHANGE = 10
 # days: min time between 2 throughtput decrease
 MIN_TP_DEC_INTERVAL = 1
 # percent: max throughput increase per single operation

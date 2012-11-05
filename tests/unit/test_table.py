@@ -34,25 +34,6 @@ class TestTable(unittest.TestCase):
         self.assertEqual(RT2, self.table.rt)
         self.assertEqual(WT2, self.table.wt)
 
-    def test_update_throughput_at_lest_10_percent(self):
-        from ddbmock.errors import LimitExceededException
-
-        # Try on RT
-        self.assertRaisesRegexp(LimitExceededException,
-                                "ReadCapacityUnits .* at least 10",
-                                self.table.update_throughput,
-                                RT10, WT)
-        self.assertEqual(RT, self.table.rt)
-        self.assertEqual(WT, self.table.wt)
-
-        # Try on WT
-        self.assertRaisesRegexp(LimitExceededException,
-                                "WriteCapacityUnits .* at least 10",
-                                self.table.update_throughput,
-                                RT, WT10)
-        self.assertEqual(RT, self.table.rt)
-        self.assertEqual(WT, self.table.wt)
-
     def test_increase_throughtput_max_100_percents(self):
         from ddbmock.errors import LimitExceededException
 
