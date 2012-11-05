@@ -10,7 +10,7 @@ tp_stat = {
 }
 
 tp_logger = logging.getLogger("Throughput logger")
-tp_logger.addHandler(logging.StreamHandler())
+tp_logger.addHandler(logging.NullHandler())
 
 def push_read_throughput(table_name, value):
     if table_name not in tp_stat['read']:
