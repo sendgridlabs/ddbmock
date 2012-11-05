@@ -18,6 +18,7 @@ User guide
 
    pages/getting_started
    pages/status
+   pages/planning
    pages/extending
 
    pages/changelog
