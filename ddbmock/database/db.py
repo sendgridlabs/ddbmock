@@ -70,7 +70,7 @@ class DynamoDB(object):
                 if item:
                     units += item.get_size().as_units()
                     items.append(item)
-            push_read_throughput(tablename, 0.5*units)
+            push_read_throughput(tablename, base_capacity*units)
             ret[tablename][u'Items'] = items
             ret[tablename][u'ConsumedCapacityUnits'] = base_capacity*units
 
