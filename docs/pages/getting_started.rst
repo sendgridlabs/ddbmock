@@ -1,5 +1,5 @@
 ##################################
-Getting started with DynamoDB-mock
+Getting started with DynamoDB-Mock
 ##################################
 
 .. include:: ../_include/intro.rst
@@ -71,3 +71,32 @@ around with boto DynamoDB API too :)
 
 Note, to clean patches made in ``boto.dynamodb.layer1``, you can call
 ``clean_boto_patch()`` from  the same module.
+
+
+Advanced usage
+==============
+
+A significant part of ddbmock is now configurable through ``ddbmock.config``
+parameters. This includes the storage backend.
+
+By default, ddbmock has no persitence and stores everything in-memory. Alternatively,
+you can use the ``SQLite`` storage engine but be warned that it will be slower.
+To switch the backend, you will to change a configuration variable *before* creating
+the first table.
+
+::
+
+    from ddbmock import config
+
+    # switch to sqlite backend
+    config.STORAGE_ENGINE_NAME = 'sqlite'
+    # define the database path. defaults to 'dynamo.db'
+    config.STORAGE_SQLITE_FILE = '/tmp/my_database.sqlite'
+
+
+Please note that ddbmock does not persist table metadata currently. As a
+consequence, you will need to create the tables at each restart even with the
+SQLite backend. This is hoped to be improved in future releases.
+
+See https://bitbucket.org/Ludia/dynamodb-mock/src/tip/ddbmock/config.py for a full
+list of parameters.
