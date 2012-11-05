@@ -139,7 +139,7 @@ Additions
 - support for ``DeleteTable`` method
 - support for ``UpdateTable`` method
 - support for ``DescribeTable`` method
-- support for ``GetItem method
+- support for ``GetItem`` method
 - support for ``PutItem`` method
 - support for ``DeleteItem`` method
 - support for ``UpdateItem`` method (small approximations)
@@ -153,7 +153,6 @@ Known bugs - limitations
 ------------------------
 
 - no support for ``BatchWriteItem``
-- no support for "Excusive Start Key", "Reverse" and "Limit" in
-``Query`` and ``Scan``
+- no support for "Excusive Start Key", "Reverse" and "Limit" in ``Query`` and ``Scan``
 - no support for "UnprocessedKeys" in ``BatchGetItem``
 - Web entry-point is untested, fill bugs if necessary :)

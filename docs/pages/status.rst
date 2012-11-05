@@ -109,7 +109,7 @@ Table managment
 - No more than 10 ``UPDATING`` tables. WONTFIX
 
 - No more than 1 Throughput decrease/calendar day. DONE
-- No more than *2 Throughput increase/update. DONE
+- No more than \*2 Throughput increase/update. DONE
 
 Types and items Limitations
 ===========================

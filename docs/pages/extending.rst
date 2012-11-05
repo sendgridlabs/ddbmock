@@ -2,6 +2,17 @@
 Extending DynamoDB-mock
 #######################
 
+
+Get the source Luke
+===================
+
+::
+
+    $ hg clone ssh://hg@bitbucket.org/Ludia/dynamodb-mock
+    $ pip install nose nosexcover coverage mock webtests boto
+    $ python setup.py develop
+    $ nosetests # --no-skip to run boto integration tests too
+
 Folder structure
 ================
 
@@ -22,16 +33,20 @@ Folder structure
             +-- boto    => main/extensive tests
             `-- pyramid => just make sure that all methods are supported
 
+Request flow: the big picture
+=============================
 
-Get the source Luke
-===================
+.. figure::  ../_static/archi.png
+   :align:   center
 
-::
+   Global request flow
 
-    $ hg clone ssh://hg@bitbucket.org/Ludia/dynamodb-mock
-    $ pip install nose nosexcover coverage mock webtests boto
-    $ python setup.py develop
-    $ nosetests # --no-skip to run boto integration tests too
+Just a couple of comments here:
+
+ - The ``router`` relies on introspection to find the validators (if any)
+ - The ``router`` relies on introspection to find the routes
+ - The ``database engine`` relies on introspection to find the configured storage backend
+ - There is a "catch all" in the router that maps to DynamoDB internal server error
 
 
 Adding a method
