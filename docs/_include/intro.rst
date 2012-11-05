@@ -10,6 +10,6 @@ Items operation rates depends on how much you pay and tests will conflict if
 either be run as a stand alone server or as a regular library helping you to
 build lightning fast unit and functional tests :)
 
-**ddbmock** does *not* intend to be used in production. It *will* **loose** you
-data. you've been warned! I currently recommend the "boto extension" mode for
-unit-tests and the "server" mode for functional tests.
+**ddbmock** is **not** intended for production use. It **will lose** your data.
+you've been warned! I currently recommend the "boto extension" mode for unit-tests
+and the "server" mode for functional tests.

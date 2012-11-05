@@ -20,9 +20,9 @@ it features a double entry point:
  - regular network based entry-point with 1:1 correspondance with stock DynamoDB
  - **embeded entry-point** with seamless boto intergration 1, ideal to avoid spinning yet another server.
 
-**ddbmock** does *not* intend to be used in production. It *will* **loose** you
-data. you've been warned! I currently recommend the "boto extension" mode for
-unit-tests and the "server" mode for functional tests.
+**ddbmock** is **not** intended for production use. It **will lose** your data.
+you've been warned! I currently recommend the "boto extension" mode for unit-tests
+and the "server" mode for functional tests.
 
 Yes, ddbmock *can persist your data* using the optional "sqlite" backend. Bt still,
 do *not* use it in production.
