@@ -20,6 +20,7 @@ Additions
     - bundle sqlite store
     - add config param to switch
 - ``clean_boto_patch`` to restore original ``boto.dynamodb`` behavior
+- allow ``ConsistentRead`` on a per-table basis for ``BatchGetItem``
 
 Removal
 -------

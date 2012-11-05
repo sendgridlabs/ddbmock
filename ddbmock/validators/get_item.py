@@ -6,5 +6,5 @@ post = {
     u'TableName': table_name,
     u'Key': get_key_schema,
     Required(u'AttributesToGet', []): attributes_to_get_schema,
-    Required(u'ConsistentRead', False): consistent_read,  #FIXME: handle default
+    Required(u'ConsistentRead', False): consistent_read,
 }

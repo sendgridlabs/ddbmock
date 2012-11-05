@@ -130,3 +130,49 @@ class TestBatchGetItem(unittest.TestCase):
         res = self.app.post_json('/', request, HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+
+    def test_batch_get_item_filter_one_consistent(self):
+        from ddbmock.database.db import dynamodb
+
+        request = {
+            u"RequestItems": {
+                TABLE_NAME1: {
+                    u"Keys": [
+                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}},
+                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}},
+                    ],
+                    u"AttributesToGet": [u"relevant_data"],
+                    u"ConsistentRead": True,
+                },
+                TABLE_NAME2: {
+                    u"Keys": [
+                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE3}},
+                    ],
+                },
+            }
+        }
+
+        expected = {
+            "Responses": {
+                "Table-HR": {
+                    "Items": [
+                        {"relevant_data": {"S": "tata"}},
+                        {"relevant_data": {"S": "tata"}},
+                    ],
+                    "ConsumedCapacityUnits": 2.0
+                },
+                "Table-H": {
+                    "Items": [
+                        {"relevant_data": {"S": "tutu"}, "hash_key": {"N": "789"}, "range_key": {"S": "Waldo-5"}},
+                    ],
+                    "ConsumedCapacityUnits": 0.5
+                }
+            }
+        }
+
+        # Protocol check
+        res = self.app.post_json('/', request, HEADERS, status=200)
+        self.assertEqual(expected, json.loads(res.body))
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+
+

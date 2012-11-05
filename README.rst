@@ -20,6 +20,25 @@ entry point:
  - regular network based entry-point with 1:1 correspondance with stock DynamoDB
  - **embeded entry-point** with seamless boto intergration 1, ideal to avoid spinning yet another server.
 
+Installation
+============
+
+::
+
+    $ pip install ddbmock
+
+
+Developing
+==========
+
+::
+
+    $ hg clone ssh://hg@bitbucket.org/Ludia/dynamodb-mock
+    $ pip install nose nosexcover coverage mock webtests boto
+    $ python setup.py develop
+    $ nosetests # --no-coverage to run boto integration tests too
+
+
 What is/will ddbmock be useful for ?
 ====================================
 

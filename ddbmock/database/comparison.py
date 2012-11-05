@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import sys
 from decimal import Decimal
 
 # Types and syntax are already checked
 # syntax is expected allright cf input validators
+
+# This module is designed to be used reflexively by ``Scan`` and ``Query``
+# implementation through ``getattr``. This helps to keep the code lean in these
+# place while allowing to add new operators easily as Amazon implements new ones.
+# List of valid Operators are specified in Onctuous validators for each API calls.
+
+# Helpers
 
 def _coerce(typename, value):
     if typename == 'S' or typename == 'B':
@@ -19,8 +27,6 @@ def _parse_elem(elem):
     typename, value = elem.items()[0]
     value = _coerce(typename, value)
     return typename, value
-
-#Types restrictions are performed by the input validators
 
 
 # Common comparison operators
@@ -110,5 +116,4 @@ def in_test(target, *rules):
     return target in rules
 
 # workaround to use a function with a built-in name
-import sys
 setattr(sys.modules[__name__], 'in', in_test)

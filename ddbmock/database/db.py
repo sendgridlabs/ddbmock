@@ -59,19 +59,20 @@ class DynamoDB(object):
     def get_batch(self, batch):
         ret = defaultdict(dict)
 
-        for tablename, keys in batch.iteritems():
-            fields = keys[u'AttributesToGet']
+        for tablename, batch in batch.iteritems():
+            base_capacity = 1 if batch[u'ConsistentRead'] else 0.5
+            fields = batch[u'AttributesToGet']
             table = self.get_table(tablename)
             units = ItemSize(0)
             items = []
-            for key in keys[u'Keys']:
+            for key in batch[u'Keys']:
                 item = table.get(key, fields)
                 if item:
                     units += item.get_size().as_units()
                     items.append(item)
             push_read_throughput(tablename, 0.5*units)
             ret[tablename][u'Items'] = items
-            ret[tablename][u'ConsumedCapacityUnits'] = 0.5*units  # eventually consistent read
+            ret[tablename][u'ConsumedCapacityUnits'] = base_capacity*units
 
         return ret
 

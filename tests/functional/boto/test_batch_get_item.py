@@ -24,6 +24,7 @@ RK_VALUE3 = u'Waldo-3'
 RK_VALUE4 = u'Waldo-4'
 RK_VALUE5 = u'Waldo-5'
 
+# TODO: add support for ConsistentRead in tests once Boto supports it
 
 ITEM1 = {
     TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE1},
