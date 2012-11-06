@@ -71,6 +71,17 @@ Current status
 See http://ddbmock.readthedocs.org/en/latest/pages/status.html for detailed
 up-to-date status.
 
+History
+=======
+
+ - v0.4.1 (?): more analytics, schema persistence in sqlite, ...
+ - v0.4.0: sqlite backend + throughput statistics + refactoring, more documentation, more tests
+ - v0.3.2: batchWriteItem support + pass boto integration tests
+ - v0.3.1: accuracy in item/table sizes + full test coverage
+ - v0.3.0: first public release. Full table lifecycle + most items operations
+
+(?) indicates a future release. These are only ideas or "nice to have".
+
 Example usage
 =============
 

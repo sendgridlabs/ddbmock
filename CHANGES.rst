@@ -5,7 +5,7 @@ ddbmock 0.4.0
 This section documents all user visible changes included between ddbmock
 versions 0.3.2 and versions 0.4.0
 
-This iteration wa focused on modularity and statistics.
+This iteration wa focused on modularity and planification.
 
 Additions
 ---------
