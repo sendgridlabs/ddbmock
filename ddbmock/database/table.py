@@ -321,3 +321,18 @@ class Table(object):
             ret[u'KeySchema'][u'RangeKeyElement'] = self.range_key.to_dict()
 
         return ret
+
+    # these 2 functions helps to persist table schema (If store supports it)
+    # please note that only the schema is persisted, not the state
+    def __getstate__(self):
+        return (
+            self.name,
+            self.rt,
+            self.wt,
+            self.hash_key,
+            self.range_key,
+            'ACTIVE',
+        )
+
+    def __setstate__(self, state):
+        self.__init__(*state)  # quick and dirty (tm), but it does the job

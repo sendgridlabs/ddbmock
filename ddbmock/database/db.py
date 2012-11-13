@@ -2,6 +2,7 @@
 
 from .table import Table
 from .item import ItemSize
+from .storage import Store
 from collections import defaultdict
 from ddbmock import config
 from ddbmock.utils import push_write_throughput, push_read_throughput
@@ -14,17 +15,25 @@ from ddbmock.errors import (ResourceNotFoundException,
 
 class DynamoDB(object):
     _shared_data = {
-        'data': {}
+        'data': {},
+        'store': None,
     }
 
     def __init__(self):
         cls = type(self)
         self.__dict__ = cls._shared_data
 
+        # At first instanciation, attempt to reload the database schema
+        if self.store is None:
+            self.store = Store('~*schema*~')
+            for table in self.store:
+                self.data[table.name] = table
+
     def hard_reset(self):
         for table in self.data.values():
             table.store.truncate() # FIXME: should be moved in table
         self.data.clear()
+        self.store.truncate()
 
     def list_tables(self):
         return self.data.keys()
@@ -41,6 +50,7 @@ class DynamoDB(object):
             raise LimitExceededException("Table limit reached. You can have more than {} tables simultaneously".format(config.MAX_TABLES))
 
         self.data[name] = Table.from_dict(data)
+        self.store[name, None] = self.data[name]
         return self.data[name]
 
     def _internal_delete_table(self, name):
@@ -48,6 +58,7 @@ class DynamoDB(object):
         if name in self.data:
             self.data[name].store.truncate()  # FIXME: should be moved in table
             del self.data[name]
+            del self.store[name, None]
 
     def delete_table(self, name):
         if name not in self.data:
