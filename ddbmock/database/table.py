@@ -15,17 +15,6 @@ import time, copy, datetime
 # size: ItemSize
 Results = namedtuple('Results', ['items', 'size', 'last_key', 'scanned'])
 
-def exclusive_operation(f):
-    """Wrap write methods into a mutex and make sure it is always released. This
-    implementation is very specific to ``Table`` class"""
-    def wrapped(self, *args, **kwargs):
-        try:
-            self.write_lock.acquire()
-            return f(self, *args, **kwargs)
-        finally:
-            self.write_lock.release()
-    return wrapped
-
 class Table(object):
     def __init__(self, name, rt, wt, hash_key, range_key, status='CREATING'):
         self.name = name
@@ -97,62 +86,61 @@ class Table(object):
 
         Timer(config.DELAY_UPDATING, self.activate).start()
 
-    @exclusive_operation
     def delete_item(self, key, expected):
         key = Item(key)
         hash_key = key.read_key(self.hash_key, u'HashKeyElement')
         range_key = key.read_key(self.range_key, u'RangeKeyElement')
 
-        try:
-            old = self.store[hash_key, range_key]
-        except KeyError:
-            return Item()
+        with self.write_lock:
+            try:
+                old = self.store[hash_key, range_key]
+            except KeyError:
+                return Item()
 
-        old.assert_match_expected(expected)
-        del self.store[hash_key, range_key]
+            old.assert_match_expected(expected)
+            del self.store[hash_key, range_key]
+
         self.count -= 1
-
         return old
 
-    @exclusive_operation
     def update_item(self, key, actions, expected):
         key = Item(key)
         hash_key = key.read_key(self.hash_key, u'HashKeyElement', max_size=config.MAX_HK_SIZE)
         range_key = key.read_key(self.range_key, u'RangeKeyElement', max_size=config.MAX_RK_SIZE)
 
-        # Need a deep copy as we will *modify* it
-        try:
-            old = self.store[hash_key, range_key]
-            new = copy.deepcopy(old)
-            old.assert_match_expected(expected)
-        except KeyError:
-            # Item was not in the DB yet
-            old = Item()
-            new = Item()
-            self.count += 1
-            # append the keys
-            new[self.hash_key.name] = key['HashKeyElement']
-            if self.range_key is not None:
-                new[self.range_key.name] = key['RangeKeyElement']
+        with self.write_lock:
+            # Need a deep copy as we will *modify* it
+            try:
+                old = self.store[hash_key, range_key]
+                new = copy.deepcopy(old)
+                old.assert_match_expected(expected)
+            except KeyError:
+                # Item was not in the DB yet
+                old = Item()
+                new = Item()
+                self.count += 1
+                # append the keys
+                new[self.hash_key.name] = key['HashKeyElement']
+                if self.range_key is not None:
+                    new[self.range_key.name] = key['RangeKeyElement']
 
 
-        # Make sure we are not altering a key
-        if self.hash_key.name in actions:
-            raise ValidationException("UpdateItem can not alter the hash_key.")
-        if self.range_key is not None and self.range_key.name in actions:
-            raise ValidationException("UpdateItem can not alter the range_key.")
+            # Make sure we are not altering a key
+            if self.hash_key.name in actions:
+                raise ValidationException("UpdateItem can not alter the hash_key.")
+            if self.range_key is not None and self.range_key.name in actions:
+                raise ValidationException("UpdateItem can not alter the range_key.")
 
-        new.apply_actions(actions)
-        self.store[hash_key, range_key] = new
+            new.apply_actions(actions)
+            self.store[hash_key, range_key] = new
 
-        size = new.get_size()
-        if size > config.MAX_ITEM_SIZE:
-            self.store[hash_key, range_key] = old  # roll back
-            raise ValidationException("Items must be smaller than {} bytes. Got {} after applying update".format(config.MAX_ITEM_SIZE, size))
+            size = new.get_size()
+            if size > config.MAX_ITEM_SIZE:
+                self.store[hash_key, range_key] = old  # roll back
+                raise ValidationException("Items must be smaller than {} bytes. Got {} after applying update".format(config.MAX_ITEM_SIZE, size))
 
         return old, new
 
-    @exclusive_operation
     def put(self, item, expected):
         item = Item(item)
 
@@ -162,16 +150,17 @@ class Table(object):
         hash_key = item.read_key(self.hash_key, max_size=config.MAX_HK_SIZE)
         range_key = item.read_key(self.range_key, max_size=config.MAX_RK_SIZE)
 
-        try:
-            old = self.store[hash_key, range_key]
-            old.assert_match_expected(expected)
-        except KeyError:
-            # Item was not in the DB yet
-            self.count += 1
-            old = Item()
+        with self.write_lock:
+            try:
+                old = self.store[hash_key, range_key]
+                old.assert_match_expected(expected)
+            except KeyError:
+                # Item was not in the DB yet
+                self.count += 1
+                old = Item()
 
-        self.store[hash_key, range_key] = item
-        new = copy.deepcopy(item)  # TODO: is the deepcopy really needed ?
+            self.store[hash_key, range_key] = item
+            new = copy.deepcopy(item)
 
         return old, new
 
