@@ -3,18 +3,28 @@
 from .key import Key, PrimaryKey
 from .item import Item, ItemSize
 from .storage import Store
-from ddbmock import config
 from collections import defaultdict, namedtuple
-from threading import Timer
+from threading import Timer, Lock
+from ddbmock import config
 from ddbmock.errors import ValidationException, LimitExceededException, ResourceInUseException
 import time, copy, datetime
 
+# All validations are performed on *incomming* data => already done :)
 
 # items: array
 # size: ItemSize
 Results = namedtuple('Results', ['items', 'size', 'last_key', 'scanned'])
 
-# All validations are performed on *incomming* data => already done :)
+def exclusive_operation(f):
+    """Wrap write methods into a mutex and make sure it is always released. This
+    implementation is very specific to ``Table`` class"""
+    def wrapped(self, *args, **kwargs):
+        try:
+            self.write_lock.acquire()
+            return f(self, *args, **kwargs)
+        finally:
+            self.write_lock.release()
+    return wrapped
 
 class Table(object):
     def __init__(self, name, rt, wt, hash_key, range_key, status='CREATING'):
@@ -26,6 +36,7 @@ class Table(object):
         self.status = status
 
         self.store = Store(name)
+        self.write_lock = Lock()
 
         self.creation_time = time.time()
         self.last_increase_time = 0
@@ -36,8 +47,12 @@ class Table(object):
 
     def delete(self, callback):
         """
-        delete is really done when the timeout is exhausted, so we need a callback
+        Delete is really done when the timeout is exhausted, so we need a callback
         for this
+        In Python, this table is not actually destroyed until all references are
+        dead. So, we shut down the links with the databases but not the table itself
+        until all requests are done. This is the reason why the lock is not acquired
+        here. Indeed, this would probably dead-lock the server !
 
         :ivar callback: real delete function
         """
@@ -82,6 +97,7 @@ class Table(object):
 
         Timer(config.DELAY_UPDATING, self.activate).start()
 
+    @exclusive_operation
     def delete_item(self, key, expected):
         key = Item(key)
         hash_key = key.read_key(self.hash_key, u'HashKeyElement')
@@ -98,6 +114,7 @@ class Table(object):
 
         return old
 
+    @exclusive_operation
     def update_item(self, key, actions, expected):
         key = Item(key)
         hash_key = key.read_key(self.hash_key, u'HashKeyElement', max_size=config.MAX_HK_SIZE)
@@ -135,6 +152,7 @@ class Table(object):
 
         return old, new
 
+    @exclusive_operation
     def put(self, item, expected):
         item = Item(item)
 

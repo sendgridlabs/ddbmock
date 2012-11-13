@@ -5,7 +5,10 @@ ddbmock 0.4.1.dev
 This section documents all user visible changes included between ddbmock
 versions 0.4.0 and versions 0.4.1
 
-(nothing yet)
+Changes
+-------
+
+ - Wrap all write operations in a table scope lock: each individual operation should be atomic
 
 =============
 ddbmock 0.4.0
