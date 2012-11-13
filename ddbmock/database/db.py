@@ -13,13 +13,13 @@ from ddbmock.errors import (ResourceNotFoundException,
 # All validations are performed on *incomming* data => already done :)
 
 class DynamoDB(object):
-    shared_data = {
+    _shared_data = {
         'data': {}
     }
 
     def __init__(self):
         cls = type(self)
-        self.__dict__ = cls.shared_data
+        self.__dict__ = cls._shared_data
 
     def hard_reset(self):
         for table in self.data.values():
