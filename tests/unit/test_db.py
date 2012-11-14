@@ -20,7 +20,7 @@ class TestDB(unittest.TestCase):
         from ddbmock.database import dynamodb
 
         dynamodb.data[TABLE_NAME] = mock.Mock()
-        dynamodb.store[TABLE_NAME, None] = dynamodb.data[TABLE_NAME]
+        dynamodb.store[TABLE_NAME, False] = dynamodb.data[TABLE_NAME]
 
     def test_internal_delete_table(self):
         from ddbmock.database import dynamodb
@@ -57,7 +57,7 @@ class TestDB(unittest.TestCase):
         dynamodb.create_table(TABLE_NAME2, data)
 
         m_store.__setitem__.assert_called_with(
-                                               (TABLE_NAME2,None),
+                                               (TABLE_NAME2, False),
                                                dynamodb.data[TABLE_NAME2],
                                               )
 

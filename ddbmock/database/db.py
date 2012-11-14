@@ -47,10 +47,10 @@ class DynamoDB(object):
         if name in self.data:
             raise ResourceInUseException("Table {} already exists".format(name))
         if len(self.data) >= config.MAX_TABLES:
-            raise LimitExceededException("Table limit reached. You can have more than {} tables simultaneously".format(config.MAX_TABLES))
+            raise LimitExceededException("Table limit reached. You can not have more than {} tables simultaneously".format(config.MAX_TABLES))
 
         self.data[name] = Table.from_dict(data)
-        self.store[name, None] = self.data[name]
+        self.store[name, False] = self.data[name]
         return self.data[name]
 
     def _internal_delete_table(self, name):
@@ -58,7 +58,7 @@ class DynamoDB(object):
         if name in self.data:
             self.data[name].store.truncate()  # FIXME: should be moved in table
             del self.data[name]
-            del self.store[name, None]
+            del self.store[name, False]
 
     def delete_table(self, name):
         if name not in self.data:
