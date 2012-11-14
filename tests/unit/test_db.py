@@ -61,3 +61,25 @@ class TestDB(unittest.TestCase):
                                                dynamodb.data[TABLE_NAME2],
                                               )
 
+    @mock.patch('ddbmock.database.db.Store')
+    def test_init_reloads_schema(self, m_store):
+        from ddbmock.database.db import DynamoDB
+        old_internal_state = DynamoDB._shared_data
+        DynamoDB._shared_data = {'data': {}, 'store': None}
+
+        table1 = mock.Mock()
+        table2 = mock.Mock()
+        table1.name = TABLE_NAME
+        table2.name = TABLE_NAME2
+        m_store.return_value.__iter__.return_value = [table1, table2]
+
+        dynamodb = DynamoDB()
+
+        m_store.assert_called_with('~*schema*~')
+        self.assertIn(TABLE_NAME, dynamodb.data)
+        self.assertIn(TABLE_NAME2, dynamodb.data)
+        self.assertEqual(table1, dynamodb.data[TABLE_NAME])
+        self.assertEqual(table2, dynamodb.data[TABLE_NAME2])
+
+
+        DynamoDB._shared_data = old_internal_state
