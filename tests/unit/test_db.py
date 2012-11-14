@@ -3,17 +3,26 @@
 import unittest, mock
 
 # tests
-# - delete callback (known to be called but not to work :p)
+# - delete callback
+# - create table persist schema
 
 TABLE_NAME = "tabloid"
+TABLE_NAME2 = "razoroid"
+
+TABLE_RT = 45
+TABLE_WT = 123
+
+HASH_KEY = {"AttributeName":"hash_key","AttributeType":"N"}
+RANGE_KEY = {"AttributeName":"range_key","AttributeType":"S"}
 
 class TestDB(unittest.TestCase):
     def setUp(self):
         from ddbmock.database import dynamodb
 
         dynamodb.data[TABLE_NAME] = mock.Mock()
+        dynamodb.store[TABLE_NAME, None] = dynamodb.data[TABLE_NAME]
 
-    def test_internal_delet_table(self):
+    def test_internal_delete_table(self):
         from ddbmock.database import dynamodb
 
         # delete a table
@@ -27,5 +36,28 @@ class TestDB(unittest.TestCase):
         from ddbmock.database import dynamodb
 
         dynamodb.delete_table(TABLE_NAME)
-        dynamodb.data[TABLE_NAME].delete.assert_called_withassert_called_with(callback=dynamodb._internal_delete_table)
+        dynamodb.data[TABLE_NAME].delete.assert_called_with(callback=dynamodb._internal_delete_table)
+
+    @mock.patch('ddbmock.database.db.dynamodb.store')
+    def test_create_table_saves_schema(self, m_store):
+        from ddbmock.database.db import dynamodb
+
+        data = {
+            "TableName": TABLE_NAME2,
+            "KeySchema": {
+                "HashKeyElement": HASH_KEY,
+                "RangeKeyElement": RANGE_KEY,
+            },
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": TABLE_RT,
+                "WriteCapacityUnits": TABLE_WT,
+            }
+        }
+
+        dynamodb.create_table(TABLE_NAME2, data)
+
+        m_store.__setitem__.assert_called_with(
+                                               (TABLE_NAME2,None),
+                                               dynamodb.data[TABLE_NAME2],
+                                              )
 
