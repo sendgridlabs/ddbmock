@@ -53,6 +53,7 @@ class DynamoDB(object):
         self.store[name, False] = self.data[name]
         return self.data[name]
 
+    # FIXME: what if the table ref changed in the mean time ?
     def _internal_delete_table(self, name):
         """This is ran only after the timer is exhausted"""
         if name in self.data:

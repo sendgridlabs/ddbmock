@@ -72,6 +72,103 @@ around with boto DynamoDB API too :)
 Note, to clean patches made in ``boto.dynamodb.layer1``, you can call
 ``clean_boto_patch()`` from  the same module.
 
+Using ddbmock for tests
+=======================
+
+Most tests share the same structure:
+
+ 1. Set the things up
+ 2. Test and validate
+ 3. Clean everything up and start again
+
+If you use ``ddbmock`` as a standalone library (which I recommend for this
+purpose), feel free to access any of the public methods in the ``database`` and
+``table`` to perform direct checks
+
+Here is a template taken from ``GetItem`` functional test using Boto.
+
+::
+
+    # -*- coding: utf-8 -*-
+
+    import unittest
+    import boto
+
+    TABLE_NAME = 'Table-HR'
+    TABLE_RT = 45
+    TABLE_WT = 123
+    TABLE_HK_NAME = u'hash_key'
+    TABLE_HK_TYPE = u'N'
+    TABLE_RK_NAME = u'range_key'
+    TABLE_RK_TYPE = u'S'
+
+    HK_VALUE = u'123'
+    RK_VALUE = u'Decode this data if you are a coder'
+
+
+    ITEM = {
+        TABLE_HK_NAME: {TABLE_HK_TYPE: HK_VALUE},
+        TABLE_RK_NAME: {TABLE_RK_TYPE: RK_VALUE},
+        u'relevant_data': {u'B': u'THVkaWEgaXMgdGhlIGJlc3QgY29tcGFueSBldmVyIQ=='},
+    }
+
+    class TestGetItem(unittest.TestCase):
+        def setUp(self):
+            from ddbmock.database.db import dynamodb
+            from ddbmock.database.table import Table
+            from ddbmock.database.key import PrimaryKey
+
+            # Do a full database wipe
+            dynamodb.hard_reset()
+
+            # Instanciate the keys
+            hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
+            range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
+
+            # Create a test table and register it in ``self`` so that you can use it directly
+            self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
+
+            # Very important: register the table in the DB
+            dynamodb.data[TABLE_NAME]  = self.t1
+
+            # Unconditionally add some data, for example.
+            self.t1.put(ITEM, {})
+
+        def tearDown(self):
+            from ddbmock.database.db import dynamodb
+            from ddbmock import clean_boto_patch
+
+            # Do a full database wipe
+            dynamodb.hard_reset()
+
+            # Remove the patch from Boto code (if any)
+            clean_boto_patch()
+
+        def test_get_hr(self):
+            from ddbmock import connect_boto_patch
+            from ddbmock.database.db import dynamodb
+
+            # Create the database connection ie: patch boto
+            db = connect_boto_patch()
+
+            # Example test
+            expected = {
+                u'ConsumedCapacityUnits': 0.5,
+                u'Item': ITEM,
+            }
+
+            key = {
+                u"HashKeyElement":  {TABLE_HK_TYPE: HK_VALUE},
+                u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE},
+            }
+
+            # Example chech
+            self.assertEquals(expected, db.layer1.get_item(TABLE_NAME, key))
+
+
+If ddbmock is used as a standalone server, restarting it should do the job, unless
+SQLite persistence is used.
+
 
 Advanced usage
 ==============
