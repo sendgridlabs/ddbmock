@@ -126,6 +126,7 @@ field_value = simple_field_value.copy()
 field_value.update(set_field_value)
 
 single_str_num_bin_list = All(Length(min=1, max=1), [simple_field_value])
+double_str_num_bin_list = All(Length(min=2, max=2), [simple_field_value])
 single_str_bin_list = All(Length(min=1, max=1), [{
     Optional(u'S'): field_string_value,
     Optional(u'B'): field_binary_value,
@@ -164,22 +165,28 @@ attribute_update_schema = {
     field_name: update_action_schema
 }
 
-# Conditions shared by query and scan
+# Conditions supported by Query
 range_key_condition = Any(
     {
-        u"ComparisonOperator": Any(u"EQ", u"GT", u"GE", u"LT", u"LE", u"BETWEEN"),
+        u"ComparisonOperator": Any(u"EQ", u"GT", u"GE", u"LT", u"LE"),
         u"AttributeValueList": single_str_num_bin_list,
+    },{
+        u"ComparisonOperator": u"BETWEEN",
+        u"AttributeValueList": double_str_num_bin_list,
     },{
         u"ComparisonOperator": u"BEGINS_WITH",
         u"AttributeValueList": single_str_bin_list,
     },
 )
 
-# Conditions only implemented in scan
+# Conditions supported by Scan
 scan_condition = Any(
     {
-        u"ComparisonOperator": Any(u"EQ", u"GT", u"GE", u"LT", u"LE", u"BETWEEN"),
+        u"ComparisonOperator": Any(u"EQ", u"GT", u"GE", u"LT", u"LE"),
         u"AttributeValueList": single_str_num_bin_list,
+    },{
+        u"ComparisonOperator": u"BETWEEN",
+        u"AttributeValueList": double_str_num_bin_list,
     },{
         u"ComparisonOperator": u"BEGINS_WITH",
         u"AttributeValueList": single_str_bin_list,
