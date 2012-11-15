@@ -9,6 +9,8 @@ Changes
 -------
 
  - Wrap all write operations in a table scope lock: each individual operation should be atomic
+ - Addressed Thread safety issues
+ - Add option to disable status update timers
 
 =============
 ddbmock 0.4.0
