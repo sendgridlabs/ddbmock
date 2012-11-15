@@ -25,7 +25,7 @@ def scan(post, table):
         "ConsumedCapacityUnits": capacity,
     }
 
-    if results.last_key is not None:
+    if results.last_key:
         ret['LastEvaluatedKey'] = results.last_key
 
     if not post[u'Count']:

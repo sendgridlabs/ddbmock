@@ -254,16 +254,18 @@ class Table(object):
 
         size = ItemSize(0)
         scanned = 0
-        lek = None
+        lek = {}
         results = []
         skip = start is not None
+        hk_name = self.hash_key.name
+        rk_name = self.range_key.name if self.range_key else None
 
         for item in self.store:
             # first, skip all items before start
             if skip:
-                if start['HashKeyElement'] != item[self.hash_key.name]:
+                if start['HashKeyElement'] != item[hk_name]:
                     continue
-                if self.range_key and start['RangeKeyElement'] == item[self.range_key.name]:
+                if rk_name and start['RangeKeyElement'] != item[rk_name]:
                     continue
                 skip = False
                 continue
@@ -278,10 +280,9 @@ class Table(object):
 
             # quit ?
             if scanned == limit:
-                lek = {
-                    u'HashKeyElement': hash_key,
-                    u'RangeKeyElement': item[rk_name],
-                }
+                lek[u'HashKeyElement'] = item[hk_name]
+                if rk_name:
+                    lek[u'RangeKeyElement'] = item[rk_name]
                 break
 
         return Results(results, size, lek, scanned)

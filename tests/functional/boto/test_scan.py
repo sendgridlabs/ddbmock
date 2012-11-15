@@ -102,6 +102,37 @@ class TestScan(unittest.TestCase):
         ret = db.layer1.scan(TABLE_NAME, None)
         self.assertEqual(expected, ret)
 
+    def test_scan_paged(self):
+        from ddbmock import connect_boto_patch
+        from ddbmock.database.db import dynamodb
+        from boto.dynamodb.exceptions import DynamoDBValidationError
+
+        esk = {
+            u'HashKeyElement': {u'N': u'789'},
+            u'RangeKeyElement': {u'S': u'Waldo-5'},
+        }
+
+        expected1 = {
+            u"Count": 4,
+            u"ScannedCount": 4,
+            u"Items": [ITEM2, ITEM1, ITEM6, ITEM5],
+            u"ConsumedCapacityUnits": 1.5,
+            u'LastEvaluatedKey': esk,
+        }
+        expected2 = {
+            u"Count": 2,
+            u"ScannedCount": 2,
+            u"Items": [ITEM4, ITEM3],
+            u"ConsumedCapacityUnits": 0.5,
+        }
+
+        db = connect_boto_patch()
+
+        ret = db.layer1.scan(TABLE_NAME, limit=4)
+        self.assertEqual(expected1, ret)
+        ret = db.layer1.scan(TABLE_NAME, exclusive_start_key=esk)
+        self.assertEqual(expected2, ret)
+
     def test_scan_all_filter_fields(self):
         from ddbmock import connect_boto_patch
         from ddbmock.database.db import dynamodb
