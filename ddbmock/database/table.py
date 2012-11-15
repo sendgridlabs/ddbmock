@@ -249,23 +249,42 @@ class Table(object):
         """
         #FIXME: naive implementation (too)
         #TODO:
-        # - reverse
         # - esk
-        # - limit
         # - size limit
-        # - last evaluated key
 
         size = ItemSize(0)
         scanned = 0
+        lek = None
         results = []
+        skip = start is not None
 
         for item in self.store:
-            size += item.get_size()
-            scanned += 1
+            # first, skip all items before start
+            if skip:
+                if start['HashKeyElement'] != item[self.hash_key.name]:
+                    continue
+                if self.range_key and start['RangeKeyElement'] == item[self.range_key.name]:
+                    continue
+                skip = False
+                continue
+
+            # match filters ?
             if item.match(scan_conditions):
                 results.append(item.filter(fields))
 
-        return Results(results, size, None, scanned)
+            # update stats
+            size += item.get_size()
+            scanned += 1
+
+            # quit ?
+            if scanned == limit:
+                lek = {
+                    u'HashKeyElement': hash_key,
+                    u'RangeKeyElement': item[rk_name],
+                }
+                break
+
+        return Results(results, size, lek, scanned)
 
     @classmethod
     def from_dict(cls, data):

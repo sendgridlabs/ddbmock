@@ -23,8 +23,10 @@ def scan(post, table):
         "Count": len(results.items),
         "ScannedCount": results.scanned,
         "ConsumedCapacityUnits": capacity,
-        #TODO: last evaluated key where applicable
     }
+
+    if results.last_key is not None:
+        ret['LastEvaluatedKey'] = results.last_key
 
     if not post[u'Count']:
         ret[u'Items'] = results.items

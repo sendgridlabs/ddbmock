@@ -18,14 +18,15 @@ Methods support
 - ``PutItem`` DONE
 - ``DeleteItem`` DONE
 - ``UpdateItem`` ALMOST
-- ``BatchGetItem`` DONE*
-- ``BatchWriteItem`` DONE*
+- ``BatchGetItem`` DONE
+- ``BatchWriteItem`` DONE
 - ``Query`` DONE
-- ``Scan`` DONE*
+- ``Scan`` DONE
 
-There basically are no support for ``ExclusiveStartKey``, and their associated
-features at all in ddbmock. This affects all "*" operations. ``Query`` is the
-only exception.
+All "Bulk" actions will handle the whole batch in a single pass, unless instructed
+to otherwise through ``limit`` parameter. Beware that real dynamoDB will most
+likely split bigger one. If you rely on high level libraries such as Boto, don't
+worry about this.
 
 ``UpdateItem`` has a different behavior when the target item did not exist prior
 the update operation. In particular, the ``ADD`` operator will always behave as

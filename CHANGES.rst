@@ -5,12 +5,19 @@ ddbmock 0.4.1.dev
 This section documents all user visible changes included between ddbmock
 versions 0.4.0 and versions 0.4.1
 
+Additions
+---------
+
+ - Add support for ``ExclusiveStartKey``, ``LastEvaluatedKey`` and ``Limit`` for ``Scan``
+
 Changes
 -------
 
  - Wrap all write operations in a table scope lock: each individual operation should be atomic
  - Addressed Thread safety issues
- - Add option to disable status update timers
+ - Add option to disable status update timers (#8)
+ - Fix BETWEEN bug (#7)
+
 
 =============
 ddbmock 0.4.0
