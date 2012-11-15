@@ -3,8 +3,40 @@
 import unittest, mock
 
 LOGGER = 'unit-stat-test'
+DELAY = 12
 
-class TestStat(unittest.TestCase):
+class TestUtils(unittest.TestCase):
+    @mock.patch('ddbmock.utils.Timer')
+    def test_schedule_action_enable(self, m_timer):
+        from ddbmock.utils import schedule_action
+        from ddbmock import config
+
+        old_delay_param = config.ENABLE_DELAYS
+        config.ENABLE_DELAYS = True
+
+        m_cb = mock.Mock()
+
+        schedule_action(DELAY, m_cb, ["args"], {'kwargs':'kwargs'})
+        m_timer.assert_called_with(DELAY, m_cb, ["args"], {'kwargs':'kwargs'})
+        m_timer.return_value.start.assert_called_with()
+
+        config.ENABLE_DELAYS = old_delay_param
+
+    @mock.patch('ddbmock.utils.Timer')
+    def test_schedule_action_disable(self, m_timer):
+        from ddbmock.utils import schedule_action
+        from ddbmock import config
+
+        old_delay_param = config.ENABLE_DELAYS
+        config.ENABLE_DELAYS = False
+
+        m_cb = mock.Mock()
+
+        schedule_action(DELAY, m_cb, ["args"], {'kwargs':'kwargs'})
+        m_cb.assert_called_with("args", kwargs='kwargs')
+
+        config.ENABLE_DELAYS = old_delay_param
+
     def test_average(self):
         from ddbmock.utils.stat import average
 

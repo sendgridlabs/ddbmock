@@ -4,9 +4,10 @@ from .key import Key, PrimaryKey
 from .item import Item, ItemSize
 from .storage import Store
 from collections import defaultdict, namedtuple
-from threading import Timer, Lock
+from threading import Lock
 from ddbmock import config
 from ddbmock.errors import ValidationException, LimitExceededException, ResourceInUseException
+from ddbmock.utils import schedule_action
 import time, copy, datetime
 
 # All validations are performed on *incomming* data => already done :)
@@ -32,7 +33,7 @@ class Table(object):
         self.last_decrease_time = 0
         self.count = 0
 
-        Timer(config.DELAY_CREATING, self.activate).start()
+        schedule_action(config.DELAY_CREATING, self.activate)
 
     def delete(self, callback):
         """
@@ -50,7 +51,7 @@ class Table(object):
 
         self.status = "DELETING"
 
-        Timer(config.DELAY_DELETING, callback, [self]).start()
+        schedule_action(config.DELAY_DELETING, callback, [self])
 
     def activate(self):
         self.status = "ACTIVE"
@@ -84,7 +85,7 @@ class Table(object):
         self.rt = rt
         self.wt = wt
 
-        Timer(config.DELAY_UPDATING, self.activate).start()
+        schedule_action(config.DELAY_UPDATING, self.activate)
 
     def delete_item(self, key, expected):
         key = Item(key)

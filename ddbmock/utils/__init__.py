@@ -2,6 +2,7 @@
 
 from .stat import Stat
 from ddbmock import config
+from threading import Timer
 import logging
 
 tp_stat = {
@@ -30,3 +31,12 @@ def push_write_throughput(table_name, value):
                                                 config.STAT_TP_AGGREG,
                                                 tp_logger)
     tp_stat['write'][table_name].push(value)
+
+def schedule_action(delay, callback, args=[], kwargs={}):
+    """Unless delays are explicitely disabled, start ``callback`` once ``delay``
+    has expired. Otherwise, call it immediately.
+    """
+    if config.ENABLE_DELAYS:
+        Timer(delay, callback, args, kwargs).start()
+    else:
+        callback(*args, **kwargs)

@@ -28,6 +28,8 @@ MAX_TP_INC_CHANGE = 100
 
 ### slowness simulation ###
 
+# boolean: enable timers ?
+ENABLE_DELAYS = True
 # seconds: simulate table creation delay. It will still be available immediately
 DELAY_CREATING = 1000
 # seconds: simulate table update delay. It will still be available immediately
