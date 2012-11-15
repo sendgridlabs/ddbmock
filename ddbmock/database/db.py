@@ -54,9 +54,14 @@ class DynamoDB(object):
         return self.data[name]
 
     # FIXME: what if the table ref changed in the mean time ?
-    def _internal_delete_table(self, name):
-        """This is ran only after the timer is exhausted"""
-        if name in self.data:
+    def _internal_delete_table(self, table):
+        """This is ran only after the timer is exhausted.
+        Important note: this function is idempotent. If another table with the
+        same name has been created in the mean time, it won't be overwrittem.
+        This is the kind of special cases you might encounter in testing
+        environenment"""
+        name = table.name
+        if name in self.data and self.data[name] is table:
             self.data[name].store.truncate()  # FIXME: should be moved in table
             del self.data[name]
             del self.store[name, False]

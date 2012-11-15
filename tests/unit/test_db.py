@@ -19,18 +19,25 @@ class TestDB(unittest.TestCase):
     def setUp(self):
         from ddbmock.database import dynamodb
 
-        dynamodb.data[TABLE_NAME] = mock.Mock()
+        self.t1 = mock.Mock()
+        self.t1.name = TABLE_NAME
+
+        dynamodb.data[TABLE_NAME] = self.t1
         dynamodb.store[TABLE_NAME, False] = dynamodb.data[TABLE_NAME]
 
     def test_internal_delete_table(self):
         from ddbmock.database import dynamodb
 
+        # make sure that deleting another table with the same name does nothing
+        t2 = mock.Mock()
+        t2.name = TABLE_NAME
+
         # delete a table
-        dynamodb._internal_delete_table(TABLE_NAME)
-        self.assertNotIn(TABLE_NAME, dynamodb.data)
+        dynamodb._internal_delete_table(t2)
+        self.assertIn(TABLE_NAME, dynamodb.data)
 
         # make sure deleting already deleted table does not harm
-        dynamodb._internal_delete_table(TABLE_NAME)
+        dynamodb._internal_delete_table(self.t1)
 
     def test_delete_table(self):
         from ddbmock.database import dynamodb
