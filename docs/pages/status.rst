@@ -62,9 +62,11 @@ Specific to ``Scan``
 - ``NOT_CONTAINS`` DONE
 - ``IN`` DONE
 
-``IN`` operator is the only that can not be imported directly as it overlaps
-builtin ``in`` keyword. If you need it, either import it with ``getattr`` on the
-module or as ``in_test`` which, anyway, is its internal name.
+.. note::
+
+    ``IN`` operator is the only that can not be imported directly as it overlaps
+    with builtin ``in`` keyword. If you need it, either import it with ``getattr``
+    on the module or as ``in_test`` which, anyway, is its internal name.
 
 Return value specifications
 ---------------------------
@@ -75,13 +77,13 @@ Return value specifications
 - ``UPDATED_OLD`` DONE
 - ``UPDATED_NEW`` DONE
 
-Please note that only ``UpdateItem`` supports the 5. Other compatible nethods
-understands only the 2 first.
+.. note::
+
+    Only ``UpdateItem`` recognize them all. Others does only the 2 first
+
 
 Rates and size limitations
 ==========================
-
-basically, none are supported yet
 
 Request rate
 ------------
@@ -135,4 +137,4 @@ Table description
 
 Dates are represented as float timestamps using scientific notation by DynamoDB
 but we only send them as plain number, not caring about the representation. Most
-parsers won't do any difference anyway.
+parsers won't spot any difference anyway.

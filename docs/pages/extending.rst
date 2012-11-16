@@ -49,8 +49,8 @@ Just a couple of comments here:
  - There is a "catch all" in the router that maps to DynamoDB internal server error
 
 
-Adding a method
-===============
+Adding a custom action
+======================
 
 As long as the method follows DynamoDB request structure, it is mostly a matter of
 adding a file to ``ddbmock/routes`` with the following conventions:

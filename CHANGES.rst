@@ -1,9 +1,11 @@
-=================
-ddbmock 0.4.1.dev
-=================
+==========================
+ddbmock 0.4.1 aka 1.0.0 RC
+==========================
 
 This section documents all user visible changes included between ddbmock
 versions 0.4.0 and versions 0.4.1
+
+This iteration was mostly focused on polishing and brings last missing bits.
 
 Additions
 ---------

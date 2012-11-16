@@ -1,14 +1,19 @@
 `DynamoDB <http://aws.amazon.com/dynamodb/>`_ is a minimalistic NoSQL engine
 provided by Amazon as a part of their AWS product.
 
-**DynamoDB** is great in production environement but sucks when testing your
-application. Tables needs roughtly 1 min to be created, deleted or updated.
-Items operation rates depends on how much you pay and tests will conflict if
-2 developers run them at the same time.
+**DynamoDB** allows you to store documents composed of unicode, number or binary
+data as well are sets. Each tables must define a ``hash_key`` and may define a
+``range_key``. All other fields are optional.
 
-**ddbmock** brings a tiny in-memory(tm) implementation of DynamoDB API. It can
-either be run as a stand alone server or as a regular library helping you to
-build lightning fast unit and functional tests :)
+**DynamoDB** is really awesome but is terribly slooooow with managment tasks.
+This makes it completly unusable in test environements.
+
+**ddbmock** brings a nice, tiny, in-memory or sqlite implementation of
+DynamoDB along with much better and detailed error messages. Among its niceties,
+it features a double entry point:
+
+ - regular network based entry-point with 1:1 correspondance with stock DynamoDB
+ - **embeded entry-point** with seamless boto intergration 1, ideal to avoid spinning yet another server.
 
 **ddbmock** is **not** intended for production use. It **will lose** your data.
 you've been warned! I currently recommend the "boto extension" mode for unit-tests

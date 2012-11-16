@@ -13,7 +13,7 @@ data as well are sets. Each tables must define a ``hash_key`` and may define a
 **DynamoDB** is really awesome but is terribly slooooow with managment tasks.
 This makes it completly unusable in test environements.
 
-**ddbmock** brings a nice, tiny, in-memory (optionaly sqlite) implementation of
+**ddbmock** brings a nice, tiny, in-memory or sqlite implementation of
 DynamoDB along with much better and detailed error messages. Among its niceties,
 it features a double entry point:
 
@@ -23,9 +23,6 @@ it features a double entry point:
 **ddbmock** is **not** intended for production use. It **will lose** your data.
 you've been warned! I currently recommend the "boto extension" mode for unit-tests
 and the "server" mode for functional tests.
-
-Yes, ddbmock *can persist your data* using the optional "sqlite" backend. Bt still,
-do *not* use it in production.
 
 Installation
 ============
@@ -46,15 +43,26 @@ Developing
     $ nosetests # --no-skip to run boto integration tests too
 
 
+What is ddbmock *not* useful for ?
+==================================
+
+Do *not* use it in production or as a cheap DynamoDB replacement. I'll never
+stress it enough.
+
+All the focus was on simplicity/hackability and simulation quality. Nothing else.
+
 What is ddbmock useful for ?
 ============================
 
-- running unit test FAST. DONE
-- running functional test FAST. DONE
-- experiment with DynamoDB API. DONE
-- plan throughput usage. DONE
-- plan disk space requirements. DONE (describe table returns accurate size !)
-- perform simulations with accurate limitations.
+- FAST and RELIABLE unit testing
+- FAST and RELIABLE functional testing
+- experiment with DynamoDB API.
+- RELIABLE throughput planification
+- RELIABLE disk space planification
+- almost any DynamoDB simulation !
+
+ddbmock can also persist your data in SQLITE. This open another vast range of
+possibilities :)
 
 Current status
 ==============
@@ -64,9 +72,8 @@ Current status
 - support full item life-cycle
 - support for all item limitations
 - accurate size, throughput reporting
-- ``Scan``, ``BatchGetItem`` and ``BatchWriteItem`` still lacks ``ExclusiveStartKey``
 - no limits on concurent table operations
-- no limits for request/response size nor item count in those
+- no limits for request/response size nor item count in these
 
 See http://ddbmock.readthedocs.org/en/latest/pages/status.html for detailed
 up-to-date status.
@@ -74,7 +81,8 @@ up-to-date status.
 History
 =======
 
- - v0.4.1 (?): more analytics, schema persistence in sqlite, ...
+ - v1.0.0 (*): full documentation and bugfixes
+ - v0.4.1: schema persistence + thread safety, bugfixes
  - v0.4.0: sqlite backend + throughput statistics + refactoring, more documentation, more tests
  - v0.3.2: batchWriteItem support + pass boto integration tests
  - v0.3.1: accuracy in item/table sizes + full test coverage
