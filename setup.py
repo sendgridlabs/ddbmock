@@ -3,19 +3,13 @@
 from setuptools import setup, find_packages
 
 install_requires = [
-    # d2to1 bootstrap
-    'd2to1',
-
     'pyramid',
-    'waitress',
     'onctuous >= 0.5.1',
-
-    'setuptools >= 0.6b1',
 ]
 
-tests_requires = [
+setup_requires = [
+    'd2to1',
     'boto',
-
     'nose',
     'nosexcover',
     'coverage',
@@ -30,9 +24,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=install_requires,
-    tests_require=tests_requires,
-    test_suite="tests",
-    entry_points = """\
+    setup_requires=setup_requires,
+    test_suite='nose.collector',
+    entry_points="""\
     [paste.app_factory]
     main = ddbmock:main
     """,
