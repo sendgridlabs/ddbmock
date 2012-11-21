@@ -5,7 +5,7 @@ from .item import ItemSize
 from .storage import Store
 from collections import defaultdict
 from ddbmock import config
-from ddbmock.utils import push_write_throughput, push_read_throughput
+from ddbmock.utils import push_write_throughput, push_read_throughput, schedule_action
 from ddbmock.errors import (ResourceNotFoundException,
                             ResourceInUseException,
                             LimitExceededException,
@@ -67,11 +67,27 @@ class DynamoDB(object):
             del self.store[name, False]
 
     def delete_table(self, name):
+        """
+        Triggers internal "realistic" table deletion. This implies changing
+        the status to ``DELETING``. Once :py:const:ddbmock.config.DELAY_DELETING
+        has expired :py:meth:_internal_delete_table is called and the table
+        is de-referenced from :py:attr:data.
+
+        Since :py:attr:data only holds a reference, the table object might still
+        exist at that moment and possibly still handle pending requests. This also
+        allows to safely return a handle to the table object.
+
+        :param name: Table name
+        :return: The :py:class:ddbmock.database.table.Table object referenced by ``name``
+        """
         if name not in self.data:
             raise ResourceNotFoundException("Table {} does not exist".format(name))
-        self.data[name].delete(callback=self._internal_delete_table)
 
-        return self.data[name]
+        table = self.data[name]
+        table.delete()
+        schedule_action(config.DELAY_DELETING, self._internal_delete_table, [table])
+
+        return table
 
     def get_batch(self, batch):
         ret = defaultdict(dict)

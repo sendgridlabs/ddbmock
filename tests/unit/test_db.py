@@ -39,11 +39,14 @@ class TestDB(unittest.TestCase):
         # make sure deleting already deleted table does not harm
         dynamodb._internal_delete_table(self.t1)
 
-    def test_delete_table(self):
+    @mock.patch('ddbmock.database.db.schedule_action')
+    def test_delete_table(self, m_schedule):
+        from ddbmock import config
         from ddbmock.database import dynamodb
 
         dynamodb.delete_table(TABLE_NAME)
-        dynamodb.data[TABLE_NAME].delete.assert_called_with(callback=dynamodb._internal_delete_table)
+        dynamodb.data[TABLE_NAME].delete.assert_called_with()
+        m_schedule.assert_called_with(config.DELAY_DELETING, dynamodb._internal_delete_table, [dynamodb.data[TABLE_NAME]])
 
     @mock.patch('ddbmock.database.db.dynamodb.store')
     def test_create_table_saves_schema(self, m_store):

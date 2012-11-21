@@ -17,7 +17,29 @@ import time, copy, datetime
 Results = namedtuple('Results', ['items', 'size', 'last_key', 'scanned'])
 
 class Table(object):
+    """
+    Table abstraction. Actual :py:class:`ddbmock.database.item.Item` are stored
+    in :py:attr:`store`.
+    """
     def __init__(self, name, rt, wt, hash_key, range_key, status='CREATING'):
+        """
+        Create a new ``Table``. When manually creating a table, make sure you
+        registered it in :py:class:`ddbmock.database.db.DynamoDB` with a something
+        like ``dynamodb.data[name] = Table(name, "...")``.
+
+        Even though there are :py:const:`DELAY_CREATING` seconds before the status
+        is updated to ``ACTIVE``, the table is immediately available. This is a
+        slight difference with real DynamooDB to ease unit and functionnal tests.
+
+        :param name: Valid table name. No checks are performed.
+        :param rt: Provisioned read throughput.
+        :param wt: Provisioned write throughput.
+        :param hash_key: :py:class:`ddbmock.database.key.Key` instance describe the ``hash_key``
+        :param hash_key: :py:class:`ddbmock.database.key.Key` instance describe the ``range_key`` or ``None`` if table has no ``range_key``
+        :param status: (optional) Valid initial table status. If Table needd to be avaible immediately, use ``ACTIVE``, otherwise, leave default value.
+
+        .. note:: ``rt`` and ``wt`` are only used by ``DescribeTable`` and ``UpdateTable``. No throttling is nor will ever be done.
+        """
         self.name = name
         self.rt = rt
         self.wt = wt
@@ -35,28 +57,49 @@ class Table(object):
 
         schedule_action(config.DELAY_CREATING, self.activate)
 
-    def delete(self, callback):
+    def delete(self):
         """
-        Delete is really done when the timeout is exhausted, so we need a callback
-        for this
-        In Python, this table is not actually destroyed until all references are
-        dead. So, we shut down the links with the databases but not the table itself
-        until all requests are done. This is the reason why the lock is not acquired
-        here. Indeed, this would probably dead-lock the server !
+        If the table was ``ACTIVE``, update its state to ``DELETING``. This is
+        not a destructor, only a sate updater and the Table instance will still
+        be valid afterward. In all othercases, raise :py:exc:`ddbmock.errors.ResourceInUseException.`
 
-        :ivar callback: real delete function
+        If you want to perform the full table delete cycle, please use
+        :py:meth:`ddbmock.database.db.DynamoDB.delete_table()` instead
+
+        :raises: :py:exc:`ddbmock.errors.ResourceInUseException` is the table was not in ``Active`` state
         """
         if self.status != "ACTIVE":
-            raise ResourceInUseException("Table {} is in {} state. Can not UPDATE.".format(self.name, self.status))
+            raise ResourceInUseException("Table {} is in {} state. Can not DELETE.".format(self.name, self.status))
 
         self.status = "DELETING"
 
-        schedule_action(config.DELAY_DELETING, callback, [self])
-
     def activate(self):
+        """
+        Unconditionnaly set Table status to ``ACTIVE``. This method is automatically
+        called by the constructor once :py:const:`DELAY_CREATING` is over.
+        """
         self.status = "ACTIVE"
 
     def update_throughput(self, rt, wt):
+        """
+        Update table throughput. Same conditions and limitations as real DynamoDB
+        applies:
+
+        - No more that 1 decrease operation per UTC day.
+        - No more than doubling throughput at once.
+        - Table must be in ``ACTIVE`` state.
+
+        Table status is then set to ``UPDATING`` until :py:const:`DELAY_UPDATING`
+        delay is over. Like real DynamoDB, the Table can still be used during
+        this period
+
+        :param rt: New read throughput
+        :param wt: New write throughput
+
+        :raises: :py:exc:`ddbmock.errors.ResourceInUseException` if table was not in ``ACTIVE`` state
+        :raises: :py:exc:`ddbmock.errors.LimitExceededException` if the other above conditions are not met.
+
+        """
         if self.status != "ACTIVE":
             raise ResourceInUseException("Table {} is in {} state. Can not UPDATE.".format(self.name, self.status))
 
@@ -88,13 +131,26 @@ class Table(object):
         schedule_action(config.DELAY_UPDATING, self.activate)
 
     def delete_item(self, key, expected):
+        """
+        Delete item at ``key`` from the databse provided that it matches ``expected``
+        values.
+
+        This operation is atomic and blocks all other pending write operations.
+
+        :param key: Raw DynamoDB request hash and range key dict.
+        :param expected: Raw DynamoDB request conditions.
+
+        :return: deepcopy of :py:class:`ddbmock.database.item.Item` as it was before deletion.
+
+        :raises: :py:exc:`ddbmock.errors.ConditionalCheckFailedException` if conditions are not met.
+        """
         key = Item(key)
         hash_key = key.read_key(self.hash_key, u'HashKeyElement')
         range_key = key.read_key(self.range_key, u'RangeKeyElement')
 
         with self.write_lock:
             try:
-                old = self.store[hash_key, range_key]
+                old = copy.deepcopy(self.store[hash_key, range_key])
             except KeyError:
                 return Item()
 
@@ -105,6 +161,20 @@ class Table(object):
         return old
 
     def update_item(self, key, actions, expected):
+        """
+        Apply ``actions`` to item at ``key`` provided that it matches ``expected``.
+
+        This operation is atomic and blocks all other pending write operations.
+
+        :param key: Raw DynamoDB request hash and range key dict.
+        :param actions: Raw DynamoDB request actions.
+        :param expected: Raw DynamoDB request conditions.
+
+        :return: both deepcopies of :py:class:`ddbmock.database.item.Item` as it was (before, after) the update.
+
+        :raises: :py:exc:`ddbmock.errors.ConditionalCheckFailedException` if conditions are not met.
+        :raises: :py:exc:`ddbmock.errors.ValidationException` if ``actions`` attempted to modify the key or the resulting Item is biggere than :py:const:`config.MAX_ITEM_SIZE`
+        """
         key = Item(key)
         hash_key = key.read_key(self.hash_key, u'HashKeyElement', max_size=config.MAX_HK_SIZE)
         range_key = key.read_key(self.range_key, u'RangeKeyElement', max_size=config.MAX_RK_SIZE)
@@ -143,6 +213,22 @@ class Table(object):
         return old, new
 
     def put(self, item, expected):
+        """
+        Save ``item`` in the database provided that ``expected`` matches. Even
+        though DynamoDB ``UpdateItem`` operation only supports returning ``ALL_OLD``
+        or ``NONE``, this method returns both ``old`` and ``new`` values as the
+        throughput, computed in the view, takes the maximum of both size into
+        account.
+
+        This operation is atomic and blocks all other pending write operations.
+
+        :param item: Raw DynamoDB request item.
+        :param expected: Raw DynamoDB request conditions.
+
+        :return: both deepcopies of :py:class:`ddbmock.database.item.Item` as it was (before, after) the update or empty item if not found.
+
+        :raises: :py:exc:`ddbmock.errors.ConditionalCheckFailedException` if conditions are not met.
+        """
         item = Item(item)
 
         if item.get_size() > config.MAX_ITEM_SIZE:
@@ -166,6 +252,16 @@ class Table(object):
         return old, new
 
     def get(self, key, fields):
+        """
+        Get ``fields`` from :py:class:`ddbmock.database.item.Item` at ``key``.
+
+        :param key: Raw DynamoDB request key.
+        :param fields: Raw DynamoDB request array of field names to return. Empty to return all.
+
+        :return: reference to :py:class:`ddbmock.database.item.Item` at ``key`` or ``None`` when not found
+
+        :raises: :py:exc:`ddbmock.errors.ValidationException` if a ``range_key`` was provided while table has none.
+        """
         key = Item(key)
         hash_key = key.read_key(self.hash_key, u'HashKeyElement')
         range_key = key.read_key(self.range_key, u'RangeKeyElement')
@@ -181,19 +277,23 @@ class Table(object):
             return None
 
     def query(self, hash_key, rk_condition, fields, start, reverse, limit):
-        """Scans all items at hash_key and return matches as well as last
-        evaluated key if more than 1MB was scanned.
+        """
+        Return ``fields`` of all items with provided ``hash_key`` whose ``range_key``
+        matches ``rk_condition``.
 
-        :ivar hash_key: Element describing the hash_key, no type checkeing performed
-        :ivar rk_condition: Condition which must be matched by the range_key. If None, all is returned.
-        :ivar fields: return only these fields is applicable
-        :ivar start: key structure. where to start iteration
-        :ivar reverse: wether to scan the collection backward
-        :ivar limit: max number of items to parse in this batch
+        :param hash_key: Raw DynamoDB request hash_key.
+        :param rk_condition: Raw DynamoDB request ``range_key`` condition.
+        :param fields: Raw DynamoDB request array of field names to return. Empty to return all.
+        :param start: Raw DynamoDB request key of the first item to scan. Empty array to indicate first item.
+        :param reverse: Set to ``True`` to parse the range keys backward.
+        :param limit: Maximum number of items to return in this batch. Set to 0 or less for no maximum.
+
         :return: Results(results, cumulated_size, last_key)
+
+        :raises: :py:exc:`ddbmock.errors.ValidationException` if ``start['HashKeyElement']`` is not ``hash_key``
         """
         #FIXME: naive implementation
-        #FIXME: what is an item disappears during the operation ?
+        #FIXME: what if an item disappears during the operation ?
         #TODO:
         # - size limit
 
@@ -237,15 +337,17 @@ class Table(object):
         return Results(results, size, lek, -1)
 
     def scan(self, scan_conditions, fields, start, limit):
-        """Scans a whole table, no matter the structure, and return matches as
-        well as the the last_evaluated key if applicable and the actually scanned
-        item count.
+        """
+        Return ``fields`` of all items matching ``scan_conditions``. No matter the
+        ``start`` key, ``scan`` allways starts from teh beginning so that it might
+        be quite slow.
 
-        :ivar scan_conditions: Dict of key:conditions to match items against. If None, all is returned.
-        :ivar fields: return only these fields is applicable
-        :ivar start: key structure. where to start iteration
-        :ivar limit: max number of items to parse in this batch
-        :return: results, cumulated_scanned_size, last_key
+        :param scan_conditions: Raw DynamoDB request conditions.
+        :param fields: Raw DynamoDB request array of field names to return. Empty to return all.
+        :param start: Raw DynamoDB request key of the first item to scan. Empty array to indicate first item.
+        :param limit: Maximum number of items to return in this batch. Set to 0 or less for no maximum.
+
+        :return: Results(results, cumulated_size, last_key, scanned_count)
         """
         #FIXME: naive implementation (too)
         #TODO:
@@ -289,6 +391,16 @@ class Table(object):
 
     @classmethod
     def from_dict(cls, data):
+        """
+        Alternate constructor which deciphers raw DynamoDB request data before
+        ultimately calling regular ``__init__`` method.
+
+        See :py:meth:`__init__` for more insight.
+
+        :param data: raw DynamoDB request data
+
+        :return: fully initialized :py:class:`Table` instance
+        """
         hash_key = PrimaryKey.from_dict(data[u'KeySchema'][u'HashKeyElement'])
         range_key = None
         if u'RangeKeyElement' in data[u'KeySchema']:
@@ -302,6 +414,15 @@ class Table(object):
                   )
 
     def get_size(self):
+        """
+        Compute the whole table size using the same rules as the real DynamoDB.
+        Actual memory usage in ddbmock will be much higher due to dict and Python
+        overheadd.
+
+        .. note:: Real DynamoDB updates this result every 6 hours or so while this is an "on demand" call.
+
+        :return: cumulated size of all items following DynamoDB size computation.
+        """
         # TODO: update size only every 6 hours
         size = 0
 
@@ -311,9 +432,17 @@ class Table(object):
         return size
 
     def to_dict(self, verbose=True):
-        """Serialize table metadata for the describe table method. ItemCount and
-        TableSizeBytes are accurate but highly depends on CPython > 2.6. Do not
-        rely on it to project the actual size on a real DynamoDB implementation.
+        """
+        Serialize this table to DynamoDB compatible format. Every fields are
+        realistic, including the ``TableSizeBytes`` which relies on
+        :py:meth:`get_size.`
+
+        Some DynamoDB requests only send a minimal version of Table metadata. to
+        reproduce this behavior, just set ``verbose`` to ``False``.
+
+        :param verbose: Set to ``False`` to skip table size computation.
+
+        :return: Serialized version of table metadata compatible with DynamoDB API syntax.
         """
 
         ret = {
@@ -343,7 +472,7 @@ class Table(object):
 
         return ret
 
-    # these 2 functions helps to persist table schema (If store supports it)
+    # these 2 functions helps to pickle table schema (If store supports it)
     # please note that only the schema is persisted, not the state
     def __getstate__(self):
         return (

@@ -56,6 +56,18 @@ User guide
 
    pages/changelog
 
+Database API
+------------
+
+Describe internal database structures. Should be extremely useful for tests.
+
+.. toctree::
+   :maxdepth: 4
+   :glob:
+
+   api/database/*
+
+
 Indices and tables
 ------------------
 
