@@ -2,11 +2,6 @@
 
 from setuptools import setup, find_packages
 
-install_requires = [
-    'pyramid',
-    'onctuous >= 0.5.1',
-]
-
 setup_requires = [
     'd2to1',
     'boto',
@@ -15,6 +10,7 @@ setup_requires = [
     'coverage',
     'mock',
     'webtest',
+    'Sphinx',
 ]
 
 setup(
@@ -23,7 +19,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=install_requires,
     setup_requires=setup_requires,
     test_suite='nose.collector',
     entry_points="""\
