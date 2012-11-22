@@ -8,23 +8,50 @@ from . import comparison
 
 
 def _decode_field(field):
+    """
+    Read a field's type and value
+
+    :param field: Raw DynamoDB request field of the form ``{'typename':'value'}``
+
+    :return: (typename, value) string tuple
+    """
     return field.items()[0]
 
 class ItemSize(int):
+    """
+    Utility class to represent an :py:class:`Item` size as bytes or capacity units
+    """
     def __add__(self, value):
+        """
+        Transparently allow addition of ``ItemSize`` values. This is useful for
+        all batch requests as ``Scan``, ``Query``, ``BatchWriteItem`` and
+        ``BatchReadItem``
+
+        :param value: foreign int compatible value to add
+
+        :return: new :py:class:`ItemSize` value
+
+        :raises: ``TypeError`` if ``value`` is not int compatible
+        """
         return ItemSize(int.__add__(self, value))
 
     def as_units(self):
-        """Get item size in terms of capacity units. This does *not* include the
-        index overhead. Units can *not* be bellow 1 ie: a "delete" on a non
+        """
+        Get item size in terms of capacity units. This does *not* include the
+        index overhead. Units can *not* be bellow 1 ie: a ``DeleteItem`` on a non
         existing item is *not* free
+
+        :return: number of capacity unit consummed by any operation on this ``ItemSize``
         """
         return max(1, int(ceil((self) / 1024.0)))
 
     def with_indexing_overhead(self):
-        """Take the indexing overhead into account. this is especially usefull
+        """
+        Take the indexing overhead into account. this is especially usefull
         to compute the table disk size as DynamoDB would but it's not included
         in the capacity unit calculation.
+
+        :return: ``ItemSize`` + :py:const:`ddbmock.config.INDEX_OVERHEAD`
         """
         return self + config.INDEX_OVERHEAD
 

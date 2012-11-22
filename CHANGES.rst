@@ -10,6 +10,8 @@ Additions
 
  - Add documentation for ``Table`` internal API
  - Add documentation for ``DynamoDB`` (database) internal API
+ - Add documentation for ``Key`` internal API
+ - Add documentation for ``Item`` and ``ItemSize`` internal API
 
 Changes
 -------
