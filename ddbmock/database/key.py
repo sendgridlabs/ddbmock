@@ -6,7 +6,7 @@ from ddbmock.errors import ValidationException
 
 class Key(object):
     """
-    Abstraction layer over DynamoDB Keys in :py:class:`ddbmock.databas.item.Item`
+    Abstraction layer over DynamoDB Keys in :py:class:`ddbmock.database.item.Item`
     """
     def __init__(self, name, typename):
         """
@@ -26,6 +26,9 @@ class Key(object):
         :param key: Raw DynamoDB request key.
 
         :return: the value of the key
+
+        :raises: :py:exc:`ddbmock.errors.ValidationException` if field types does not match
+
         """
         typename, value = key.items()[0]
         if self.typename != typename:
