@@ -114,6 +114,7 @@ Here is a template taken from ``GetItem`` functional test using Boto.
 
     class TestGetItem(unittest.TestCase):
         def setUp(self):
+            from ddbmock import connect_boto_patch
             from ddbmock.database.db import dynamodb
             from ddbmock.database.table import Table
             from ddbmock.database.key import PrimaryKey
@@ -134,6 +135,9 @@ Here is a template taken from ``GetItem`` functional test using Boto.
             # Unconditionally add some data, for example.
             self.t1.put(ITEM, {})
 
+            # Create the database connection ie: patch boto
+            self.db = connect_boto_patch()
+
         def tearDown(self):
             from ddbmock.database.db import dynamodb
             from ddbmock import clean_boto_patch
@@ -145,11 +149,7 @@ Here is a template taken from ``GetItem`` functional test using Boto.
             clean_boto_patch()
 
         def test_get_hr(self):
-            from ddbmock import connect_boto_patch
             from ddbmock.database.db import dynamodb
-
-            # Create the database connection ie: patch boto
-            db = connect_boto_patch()
 
             # Example test
             expected = {
@@ -163,7 +163,7 @@ Here is a template taken from ``GetItem`` functional test using Boto.
             }
 
             # Example chech
-            self.assertEquals(expected, db.layer1.get_item(TABLE_NAME, key))
+            self.assertEquals(expected, self.db.layer1.get_item(TABLE_NAME, key))
 
 
 If ddbmock is used as a standalone server, restarting it should do the job, unless
