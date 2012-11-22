@@ -31,7 +31,7 @@ class Table(object):
         is updated to ``ACTIVE``, the table is immediately available. This is a
         slight difference with real DynamooDB to ease unit and functionnal tests.
 
-        :param name: Valid table name. No checks are performed.
+        :param name: Valid table name. No further checks are performed.
         :param rt: Provisioned read throughput.
         :param wt: Provisioned write throughput.
         :param hash_key: :py:class:`ddbmock.database.key.Key` instance describe the ``hash_key``
@@ -56,6 +56,13 @@ class Table(object):
         self.count = 0
 
         schedule_action(config.DELAY_CREATING, self.activate)
+
+    def truncate(self):
+        """
+        Remove all Items from this table. This is like a reset. Might be very
+        usefull in unit and functional tests.
+        """
+        self.store.truncate()
 
     def delete(self):
         """
@@ -397,7 +404,7 @@ class Table(object):
 
         See :py:meth:`__init__` for more insight.
 
-        :param data: raw DynamoDB request data
+        :param data: raw DynamoDB request data.
 
         :return: fully initialized :py:class:`Table` instance
         """

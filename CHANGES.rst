@@ -1,3 +1,22 @@
+=================
+ddbmock 1.0.0.dev
+=================
+
+This section documents all user visible changes included between ddbmock
+versions 0.4.1 and versions 1.0.0
+
+Additions
+---------
+
+ - Add documentation for ``Table`` internal API
+ - Add documentation for ``DynamoDB`` (database) internal API
+
+Changes
+-------
+
+  - Add a ``truncate`` method to the tables
+
+
 ==========================
 ddbmock 0.4.1 aka 1.0.0 RC
 ==========================

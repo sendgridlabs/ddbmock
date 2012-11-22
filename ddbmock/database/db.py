@@ -14,12 +14,27 @@ from ddbmock.errors import (ResourceNotFoundException,
 # All validations are performed on *incomming* data => already done :)
 
 class DynamoDB(object):
+    """
+    Main database, behaves as a singleton in the sense that all instances share
+    the same data.
+
+    If underlying store supports it, all tables schema are persisted at creation
+    time to a special table ``~*schema*~`` which is an invalid DynamoDB table name
+    so no collisions are to be expected.
+    """
     _shared_data = {
         'data': {},
         'store': None,
     }
 
     def __init__(self):
+        """
+        When first instanciated, ``__init__`` checks the underlying store for
+        potentially persisted tables. If any, it reloads there schema to make
+        them available to the application.
+
+        In all other cases, ``__init__`` simply loads the shared state.
+        """
         cls = type(self)
         self.__dict__ = cls._shared_data
 
@@ -30,20 +45,50 @@ class DynamoDB(object):
                 self.data[table.name] = table
 
     def hard_reset(self):
+        """
+        Reset and drop all tables. If any data was persisted, it will be completely
+        lost after a call to this method. I do use in ``tearDown`` of all ddbmock
+        tests to avaid any side effect.
+        """
         for table in self.data.values():
-            table.store.truncate() # FIXME: should be moved in table
+            table.truncate()
+
         self.data.clear()
         self.store.truncate()
 
     def list_tables(self):
+        """
+        Get a list of all table names.
+        """
         return self.data.keys()
 
     def get_table(self, name):
+        """
+        Get a handle to :py:class:`ddbmock.database.table.Table` '``name``' is it exists.
+
+        :param name: Name of the table to load.
+
+        :return: :py:class:`ddbmock.database.table.Table` with name '``name``'
+
+        :raises: :py:exc:`ddbmock.errors.ResourceNotFoundException` if the table does not exist.
+        """
         if name in self.data:
             return self.data[name]
         raise ResourceNotFoundException("Table {} does not exist".format(name))
 
     def create_table(self, name, data):
+        """
+        Create a :py:class:`ddbmock.database.table.Table` named '``name``'' using
+        parameters provided in ``data`` if it does not yet exist.
+
+        :param name: Valid table name. No further checks are performed.
+        :param data: raw DynamoDB request data.
+
+        :return: A reference to the newly created :py:class:`ddbmock.database.table.Table`
+
+        :raises: :py:exc:`ddbmock.errors.ResourceInUseException` if the table already exists.
+        :raises: :py:exc:`ddbmock.errors.LimitExceededException` if more than :py:const:`ddbmock.config.MAX_TABLES` already exist.
+        """
         if name in self.data:
             raise ResourceInUseException("Table {} already exists".format(name))
         if len(self.data) >= config.MAX_TABLES:
@@ -53,7 +98,6 @@ class DynamoDB(object):
         self.store[name, False] = self.data[name]
         return self.data[name]
 
-    # FIXME: what if the table ref changed in the mean time ?
     def _internal_delete_table(self, table):
         """This is ran only after the timer is exhausted.
         Important note: this function is idempotent. If another table with the
@@ -77,8 +121,9 @@ class DynamoDB(object):
         exist at that moment and possibly still handle pending requests. This also
         allows to safely return a handle to the table object.
 
-        :param name: Table name
-        :return: The :py:class:ddbmock.database.table.Table object referenced by ``name``
+        :param name: Valid table name.
+
+        :return: A reference to :py:class:`ddbmock.database.table.Table` named ``name``
         """
         if name not in self.data:
             raise ResourceNotFoundException("Table {} does not exist".format(name))
@@ -90,6 +135,17 @@ class DynamoDB(object):
         return table
 
     def get_batch(self, batch):
+        """
+        Batch processor. Dispatches call to appropriate :py:class:`ddbmock.database.table.Table`
+        methods. This is the only low_level API that directly pushes throughput usage.
+
+        :param batch: raw DynamoDB request batch.
+
+        :returns: dict compatible with DynamoDB API
+
+        :raises: :py:exc:`ddbmock.errors.ValidationException` if a ``range_key`` was provided while table has none.
+        :raises: :py:exc:`ddbmock.errors.ResourceNotFoundException` if a table does not exist.
+        """
         ret = defaultdict(dict)
 
         for tablename, batch in batch.iteritems():
@@ -110,6 +166,17 @@ class DynamoDB(object):
         return ret
 
     def write_batch(self, batch):
+        """
+        Batch processor. Dispatches call to appropriate :py:class:`ddbmock.database.table.Table`
+        methods. This is the only low_level API that directly pushes throughput usage.
+
+        :param batch: raw DynamoDB request batch.
+
+        :returns: dict compatible with DynamoDB API
+
+        :raises: :py:exc:`ddbmock.errors.ValidationException` if a ``range_key`` was provided while table has none.
+        :raises: :py:exc:`ddbmock.errors.ResourceNotFoundException` if a table does not exist.
+        """
         ret = defaultdict(dict)
 
         for tablename, operations in batch.iteritems():
@@ -127,5 +194,5 @@ class DynamoDB(object):
 
         return ret
 
-# reference instance
 dynamodb = DynamoDB()
+"""Reference :py:class:`DynamoDB` instance. You should use it directly"""
