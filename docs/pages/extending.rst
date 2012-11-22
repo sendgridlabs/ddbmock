@@ -80,7 +80,7 @@ corresponding table this way:
     # -*- coding: utf-8 -*-
     # module: ddbmock.routes.hello_world.py
 
-    from ddbmock.utils import load_table()
+    from ddbmock.utils import load_table
 
     @load_table
     def hello_world(post):
@@ -103,7 +103,7 @@ Example: simplest way to add support for an argument:
 
     def hello_world(post):
         return {
-            'Hello': 'World (and "{you}" too!)'.format(you=post['Name']
+            'Hello': 'World (and "{you}" too!)'.format(you=post['Name'])
         }
 
 Wanna test it?
