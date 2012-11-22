@@ -11,7 +11,8 @@ conn = sqlite3.connect(config.STORAGE_SQLITE_FILE)
 
 class Store(object):
     def __init__(self, name):
-        """ Initialize the sqlite store
+        """
+        Initialize the sqlite store
 
         By contract, we know the table name will only contain alphanum chars,
         '_', '.' or '-' so that this is ~ safe
@@ -29,7 +30,9 @@ class Store(object):
         self.name = name
 
     def truncate(self):
-        """Perform a full table cleanup. Might be a good idea in tests :)"""
+        """
+        Perform a full table cleanup. Might be a good idea in tests :)
+        """
         conn.execute('DELETE FROM `{}`'.format(self.name))
         conn.commit()
 
@@ -55,7 +58,8 @@ class Store(object):
         return ret
 
     def __getitem__(self, (hash_key, range_key)):
-        """Get item at (``hash_key``, ``range_key``) or the dict at ``hash_key`` if
+        """
+        Get item at (``hash_key``, ``range_key``) or the dict at ``hash_key`` if
         ``range_key``  is None.
 
         :param key: (``hash_key``, ``range_key``) Tuple. If ``range_key`` is None, all keys under ``hash_key`` are returned
@@ -69,7 +73,8 @@ class Store(object):
         return self._get_by_hash_range(hash_key, range_key)
 
     def __setitem__(self, (hash_key, range_key), item):
-        """Set the item at (``hash_key``, ``range_key``). Both keys must be
+        """
+        Set the item at (``hash_key``, ``range_key``). Both keys must be
         defined and valid. By convention, ``range_key`` may be ``False`` to
         indicate a ``hash_key`` only key.
 
@@ -83,7 +88,8 @@ class Store(object):
         conn.commit()
 
     def __delitem__(self, (hash_key, range_key)):
-        """Delete item at key (``hash_key``, ``range_key``)
+        """
+        Delete item at key (``hash_key``, ``range_key``)
 
         :raises: KeyError if not found
         """
@@ -91,7 +97,8 @@ class Store(object):
                           .format(self.name), (hash_key, range_key))
 
     def __iter__(self):
-        """ Iterate all over the table, abstracting the ``hash_key`` and
+        """
+        Iterate all over the table, abstracting the ``hash_key`` and
         ``range_key`` complexity. Mostly used for ``Scan`` implementation.
         """
         items = conn.execute('SELECT `data` FROM `{}`'.format(self.name))

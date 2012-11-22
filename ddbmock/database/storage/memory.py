@@ -4,7 +4,9 @@ from collections import defaultdict
 
 class Store(object):
     def __init__(self, name):
-        """ Initialize the in-memory store
+        """
+        Initialize the in-memory store
+
         :param name: Table name.
         """
         self.name = name
@@ -15,7 +17,8 @@ class Store(object):
         self.data = defaultdict(dict)
 
     def __getitem__(self, (hash_key, range_key)):
-        """Get item at (``hash_key``, ``range_key``) or the dict at ``hash_key`` if
+        """
+        Get item at (``hash_key``, ``range_key``) or the dict at ``hash_key`` if
         ``range_key``  is None.
 
         :param key: (``hash_key``, ``range_key``) Tuple. If ``range_key`` is None, all keys under ``hash_key`` are returned
@@ -33,7 +36,8 @@ class Store(object):
         return self.data[hash_key][range_key]
 
     def __setitem__(self, (hash_key, range_key), item):
-        """Set the item at (``hash_key``, ``range_key``). Both keys must be
+        """
+        Set the item at (``hash_key``, ``range_key``). Both keys must be
         defined and valid. By convention, ``range_key`` may be ``False`` to
         indicate a ``hash_key`` only key.
 
@@ -44,7 +48,8 @@ class Store(object):
         self.data[hash_key][range_key] = item
 
     def __delitem__(self, (hash_key, range_key)):
-        """Delete item at key (``hash_key``, ``range_key``)
+        """
+        Delete item at key (``hash_key``, ``range_key``)
 
         :raises: KeyError if not found
         """
@@ -53,7 +58,8 @@ class Store(object):
         del self.data[hash_key][range_key]
 
     def __iter__(self):
-        """ Iterate all over the table, abstracting the ``hash_key`` and
+        """
+        Iterate all over the table, abstracting the ``hash_key`` and
         ``range_key`` complexity. Mostly used for ``Scan`` implementation.
         """
 
