@@ -314,7 +314,11 @@ class Table(object):
         if start and start['HashKeyElement'] != hash_key:
             raise ValidationException("'HashKeyElement' element of 'ExclusiveStartKey' must be the same as the hash_key. Expected {}, got {}".format(hash_key, start['HashKeyElement']))
 
-        data = self.store[hash_value, None]
+        try:
+            data = self.store[hash_value, None]
+        except KeyError:
+            # fix #9: return empty result set if first key does not exist
+            return Results(results, size, lek, -1)
 
         keys = sorted(data.keys())
 
