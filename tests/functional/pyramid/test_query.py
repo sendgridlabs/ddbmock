@@ -18,6 +18,7 @@ TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
 HK_VALUE = u'123'
+HK_VALUE_404 = u'404'
 RK_VALUE1 = u'Waldo-1'
 RK_VALUE2 = u'Waldo-2'
 RK_VALUE3 = u'Waldo-3'
@@ -127,6 +128,27 @@ class TestQuery(unittest.TestCase):
         expected = {
             u'__type': u'com.amazonaws.dynamodb.v20111205#ValidationException',
             u'message': u'Can filter fields when only count is requested'
+        }
+
+        # Protocol check
+        res = self.app.post_json('/', request, HEADERS, status=400)
+        self.assertEqual(expected, json.loads(res.body))
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+
+    # Regression test for #9
+    def test_query_all_404(self):
+        from ddbmock import connect_boto_patch
+        from ddbmock.database.db import dynamodb
+
+        request = {
+            "TableName": TABLE_NAME,
+            "HashKeyValue": {TABLE_HK_TYPE: HK_VALUE_404},
+        }
+
+        expected = {
+            u"Count": 0,
+            u'Items': [],
+            u"ConsumedCapacityUnits": 0.5,
         }
 
         # Protocol check
