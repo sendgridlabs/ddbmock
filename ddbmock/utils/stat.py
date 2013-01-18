@@ -40,12 +40,14 @@ class Stat(object):
         points = self.current_point_list
 
         interval = (self.current_point_time - self.last_aggregation_time) / 60.0
-        self.log.info("%s: interval=%s min=%s max=%s average=%s",
-                       self.name,
-                       round(interval),
-                       min(points),
-                       max(points),
-                       average(points))
+
+        if points:
+            self.log.info("%s: interval=%s min=%s max=%s average=%s",
+                        self.name,
+                        round(interval),
+                        min(points),
+                        max(points),
+                        average(points))
 
         #reset
         self.current_point_list = []
