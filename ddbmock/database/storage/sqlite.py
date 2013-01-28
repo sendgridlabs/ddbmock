@@ -7,7 +7,7 @@ import sqlite3, cPickle as pickle
 # I know, using global "variable" for this kind of state *is* bad. But it helps
 # keeping execution times to a sane value. In particular, this allows to use
 # in-memory version of sqlite
-conn = sqlite3.connect(config.STORAGE_SQLITE_FILE)
+conn = sqlite3.connect(config.STORAGE_SQLITE_FILE, check_same_thread=False)
 
 class Store(object):
     def __init__(self, name):
