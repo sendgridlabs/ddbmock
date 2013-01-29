@@ -53,6 +53,12 @@ class TestSQLiteStore(unittest.TestCase):
         """
         NUM_PROCS = 10
 
+        #: credit where credit is due:
+        #:  http://stackoverflow.com/a/5792404/1611953
+        #:
+        #: the two functions below allow us to target a non-module level
+        #: function with subprocesses
+        #:
         def spawn(f):
             def fun(pipe, x):
                 pipe.send(f(x))
