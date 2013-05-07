@@ -17,7 +17,7 @@ class Stat(object):
         """
 
         # Keep a reference to global function to avoid it going out of scope in atexit
-        self.time = time
+        self._time = time
 
         # Load params
         self.name=name
@@ -26,7 +26,7 @@ class Stat(object):
         self.log = logger
 
         # Set internal state
-        self.current_point_time = int(self.time())
+        self.current_point_time = int(self._time())
         self.current_point_list = []
         self.current_point_value = 0
         self.last_aggregation_time = self.current_point_time
@@ -37,7 +37,7 @@ class Stat(object):
     def _macro_aggregate(self):
         """Perform aggregation every aggregation_interval"""
         def average(data):
-            return sum(data)/len(data)
+            return sum(data) / len(data)
 
         # aggregate
         points = self.current_point_list
@@ -54,7 +54,7 @@ class Stat(object):
 
         #reset
         self.current_point_list = []
-        self.last_aggregation_time = int(self.time())
+        self.last_aggregation_time = int(self._time())
 
     def _aggregate(self):
         """Trigger aggregation and reset current data"""
@@ -63,7 +63,7 @@ class Stat(object):
 
         # reset
         self.current_point_value = 0
-        self.current_point_time = int(self.time())
+        self.current_point_time = int(self._time())
 
 
     def push(self, value):
@@ -71,7 +71,7 @@ class Stat(object):
 
         :param value: value to push
         """
-        current_time = int(self.time())
+        current_time = int(self._time())
 
         # aggregate ?
         if self.current_point_time + self.current_point_time <= current_time:
