@@ -8,9 +8,6 @@ null_logger = logging.getLogger(__name__)
 null_logger.addHandler(logging.NullHandler())
 
 
-def average(data):
-    return sum(data)/len(data)
-
 class Stat(object):
     def __init__(self, name, resolution_interval=1, aggregation_interval=5*60, logger=null_logger):
         """
@@ -19,6 +16,9 @@ class Stat(object):
         :param aggregation_interval: aggregates data on this period. Must be bigger than ``resolution_interval``
         """
 
+        # Keep a reference to global function to avoid it going out of scope in atexit
+        self.time = time
+
         # Load params
         self.name=name
         self.resolution_interval = resolution_interval
@@ -26,7 +26,7 @@ class Stat(object):
         self.log = logger
 
         # Set internal state
-        self.current_point_time = int(time())
+        self.current_point_time = int(self.time())
         self.current_point_list = []
         self.current_point_value = 0
         self.last_aggregation_time = self.current_point_time
@@ -36,6 +36,9 @@ class Stat(object):
 
     def _macro_aggregate(self):
         """Perform aggregation every aggregation_interval"""
+        def average(data):
+            return sum(data)/len(data)
+
         # aggregate
         points = self.current_point_list
 
@@ -51,7 +54,7 @@ class Stat(object):
 
         #reset
         self.current_point_list = []
-        self.last_aggregation_time = int(time())
+        self.last_aggregation_time = int(self.time())
 
     def _aggregate(self):
         """Trigger aggregation and reset current data"""
@@ -60,7 +63,7 @@ class Stat(object):
 
         # reset
         self.current_point_value = 0
-        self.current_point_time = int(time())
+        self.current_point_time = int(self.time())
 
 
     def push(self, value):
@@ -68,7 +71,7 @@ class Stat(object):
 
         :param value: value to push
         """
-        current_time = int(time())
+        current_time = int(self.time())
 
         # aggregate ?
         if self.current_point_time + self.current_point_time <= current_time:
