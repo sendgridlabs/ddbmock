@@ -69,7 +69,7 @@ class TestUpdateItem(unittest.TestCase):
         expected = {"ConsumedCapacityUnits": 1}
 
         # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
 
