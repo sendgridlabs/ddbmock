@@ -182,7 +182,7 @@ range_key_condition = Any(
 # Conditions supported by Scan
 scan_condition = Any(
     {
-        u"ComparisonOperator": Any(u"EQ", u"GT", u"GE", u"LT", u"LE"),
+        u"ComparisonOperator": Any(u"EQ", u"NE", u"GT", u"GE", u"LT", u"LE"),
         u"AttributeValueList": single_str_num_bin_list,
     },{
         u"ComparisonOperator": u"BETWEEN",
