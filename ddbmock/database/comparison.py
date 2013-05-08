@@ -43,7 +43,8 @@ def eq(target, rule):
     return ivalue == rvalue
 
 def ne(target, rule):
-    if target is None: return False
+    # None (missing attr) considered not equal to anything.
+    if target is None: return True
     itype, ivalue = _parse_elem(target)
     rtype, rvalue = _parse_elem(rule)
     if itype != rtype: raise TypeError(TYPEMSG2.format(itype, rtype, __name__))

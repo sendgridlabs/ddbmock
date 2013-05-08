@@ -11,6 +11,13 @@ class TestItemFieldComparison(unittest.TestCase):
         self.assertFalse(eq({u'S': u'waldo'}, {u'S': u'on-time'}))
         self.assertFalse(eq(None, {u'S': u'on-time'}))
 
+    def test_ne(self):
+        from ddbmock.database.comparison import ne
+
+        self.assertFalse(ne({u'S': u'waldo'}, {u'S': u'waldo'}))
+        self.assertTrue(ne({u'S': u'waldo'}, {u'S': u'on-time'}))
+        self.assertTrue(ne(None, {u'S': u'on-time'}))
+
     def test_le(self):
         from ddbmock.database.comparison import le
 
