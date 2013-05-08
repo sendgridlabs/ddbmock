@@ -8,6 +8,10 @@ null_logger = logging.getLogger(__name__)
 null_logger.addHandler(logging.NullHandler())
 
 
+def average(data):
+    return sum(data) / len(data)
+
+
 class Stat(object):
     def __init__(self, name, resolution_interval=1, aggregation_interval=5*60, logger=null_logger):
         """
@@ -16,8 +20,10 @@ class Stat(object):
         :param aggregation_interval: aggregates data on this period. Must be bigger than ``resolution_interval``
         """
 
-        # Keep a reference to global function to avoid it going out of scope in atexit
+        # Keep a reference to global functions to avoid them going out of scope
+        # in atexit.
         self._time = time
+        self._average = average
 
         # Load params
         self.name=name
@@ -36,9 +42,6 @@ class Stat(object):
 
     def _macro_aggregate(self):
         """Perform aggregation every aggregation_interval"""
-        def average(data):
-            return sum(data) / len(data)
-
         # aggregate
         points = self.current_point_list
 
@@ -50,7 +53,7 @@ class Stat(object):
                         round(interval),
                         min(points),
                         max(points),
-                        average(points))
+                        self._average(points))
 
         #reset
         self.current_point_list = []
