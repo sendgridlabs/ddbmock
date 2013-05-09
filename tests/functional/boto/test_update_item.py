@@ -429,7 +429,7 @@ class TestUpdateItem(unittest.TestCase):
         }
 
         # PUT explicite, existing field
-        self.assertRaisesRegexp(DynamoDBValidationError, 'Items.*smaller.*update',
+        self.assertRaisesRegexp(DynamoDBValidationError, 'Item size.*exceeded',
         db.layer1.update_item, TABLE_NAME2, key, {
             'relevant_data': {'Value': RELEVANT_HUGE_FIELD},
         })

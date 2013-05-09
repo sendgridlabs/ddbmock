@@ -215,7 +215,8 @@ class Table(object):
             size = new.get_size()
             if size > config.MAX_ITEM_SIZE:
                 self.store[hash_key, range_key] = old  # roll back
-                raise ValidationException("Items must be smaller than {} bytes. Got {} after applying update".format(config.MAX_ITEM_SIZE, size))
+                raise ValidationException(
+                    "Item size has exceeded the maximum allowed size of {}".format(config.MAX_ITEM_SIZE))
 
         return old, new
 
@@ -239,7 +240,8 @@ class Table(object):
         item = Item(item)
 
         if item.get_size() > config.MAX_ITEM_SIZE:
-            raise ValidationException("Items must be smaller than {} bytes. Got {}".format(config.MAX_ITEM_SIZE, item.get_size()))
+            raise ValidationException(
+                "Item size has exceeded the maximum allowed size of {}".format(config.MAX_ITEM_SIZE))
 
         hash_key = item.read_key(self.hash_key, max_size=config.MAX_HK_SIZE)
         range_key = item.read_key(self.range_key, max_size=config.MAX_RK_SIZE)
