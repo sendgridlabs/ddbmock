@@ -316,7 +316,7 @@ class TestPutItem(unittest.TestCase):
 
         db = connect_boto_patch()
 
-        self.assertRaisesRegexp(DynamoDBValidationError, 'Items.*smaller',
+        self.assertRaisesRegexp(DynamoDBValidationError, 'Item size.*exceeded',
             db.layer1.put_item,
             TABLE_NAME2, ITEM_HUGE)
 

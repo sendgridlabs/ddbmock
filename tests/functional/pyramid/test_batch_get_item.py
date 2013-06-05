@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import json
 import unittest
-
 
 TABLE_NAME1 = 'Table-HR'
 TABLE_NAME2 = 'Table-H'

@@ -9,7 +9,8 @@ null_logger.addHandler(logging.NullHandler())
 
 
 def average(data):
-    return sum(data)/len(data)
+    return sum(data) / len(data)
+
 
 class Stat(object):
     def __init__(self, name, resolution_interval=1, aggregation_interval=5*60, logger=null_logger):
@@ -19,6 +20,11 @@ class Stat(object):
         :param aggregation_interval: aggregates data on this period. Must be bigger than ``resolution_interval``
         """
 
+        # Keep a reference to global functions to avoid them going out of scope
+        # in atexit.
+        self._time = time
+        self._average = average
+
         # Load params
         self.name=name
         self.resolution_interval = resolution_interval
@@ -26,7 +32,7 @@ class Stat(object):
         self.log = logger
 
         # Set internal state
-        self.current_point_time = int(time())
+        self.current_point_time = int(self._time())
         self.current_point_list = []
         self.current_point_value = 0
         self.last_aggregation_time = self.current_point_time
@@ -40,16 +46,18 @@ class Stat(object):
         points = self.current_point_list
 
         interval = (self.current_point_time - self.last_aggregation_time) / 60.0
-        self.log.info("%s: interval=%s min=%s max=%s average=%s",
-                       self.name,
-                       round(interval),
-                       min(points),
-                       max(points),
-                       average(points))
+
+        if points:
+            self.log.info("%s: interval=%s min=%s max=%s average=%s",
+                        self.name,
+                        round(interval),
+                        min(points),
+                        max(points),
+                        self._average(points))
 
         #reset
         self.current_point_list = []
-        self.last_aggregation_time = int(time())
+        self.last_aggregation_time = int(self._time())
 
     def _aggregate(self):
         """Trigger aggregation and reset current data"""
@@ -58,7 +66,7 @@ class Stat(object):
 
         # reset
         self.current_point_value = 0
-        self.current_point_time = int(time())
+        self.current_point_time = int(self._time())
 
 
     def push(self, value):
@@ -66,7 +74,7 @@ class Stat(object):
 
         :param value: value to push
         """
-        current_time = int(time())
+        current_time = int(self._time())
 
         # aggregate ?
         if self.current_point_time + self.current_point_time <= current_time:

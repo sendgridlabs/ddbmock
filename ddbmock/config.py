@@ -31,11 +31,11 @@ MAX_TP_INC_CHANGE = 100
 # boolean: enable timers ?
 ENABLE_DELAYS = True
 # seconds: simulate table creation delay. It will still be available immediately
-DELAY_CREATING = 1000
+DELAY_CREATING = 60
 # seconds: simulate table update delay. It will still be available immediately
-DELAY_UPDATING = 1000
+DELAY_UPDATING = 60
 # seconds: simulate table deletion delay. It will still be available until time is exhauted
-DELAY_DELETING = 1000
+DELAY_DELETING = 60
 
 ### Throughput statistics ###
 

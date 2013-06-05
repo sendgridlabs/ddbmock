@@ -1,4 +1,18 @@
 =============
+ddbmock 1.0.2
+=============
+
+This section documents all user visible changes included between ddbmock
+version 1.0.0 and version 1.0.2.
+
+Fixes
+-----
+
+- Fixed issues #10, #11, #13 and #15. Thanks to Lance Linder, Michael Hart
+and James O'Beirne for the pull requests.
+
+
+=============
 ddbmock 1.0.0
 =============
 

@@ -15,6 +15,7 @@ TABLE_RK_NAME = u'range_key'
 TABLE_RK_TYPE = u'S'
 
 HK_VALUE = u'123'
+HK_VALUE_404 = u'404'
 RK_VALUE1 = u'Waldo-1'
 RK_VALUE2 = u'Waldo-2'
 RK_VALUE3 = u'Waldo-3'
@@ -89,6 +90,22 @@ class TestQuery(unittest.TestCase):
         db = connect_boto_patch()
 
         ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE})
+        self.assertEqual(expected, ret)
+
+    # Regression test for #9
+    def test_query_all_404(self):
+        from ddbmock import connect_boto_patch
+        from ddbmock.database.db import dynamodb
+
+        expected = {
+            u"Count": 0,
+            u'Items': [],
+            u"ConsumedCapacityUnits": 0.5,
+        }
+
+        db = connect_boto_patch()
+
+        ret = db.layer1.query(TABLE_NAME, {TABLE_HK_TYPE: HK_VALUE_404})
         self.assertEqual(expected, ret)
 
     def test_query_2_first(self):

@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 
-import unittest, mock
-import sqlite3, cPickle as pickle
+import unittest
+import cPickle as pickle
+import multiprocessing
+from itertools import izip
 from ddbmock import config
 
 config.STORAGE_SQLITE_FILE = ':memory:'
 TABLE_NAME = 'test_table'
 
-ITEM1 = {"key":"value 1"}
-ITEM2 = {"key":"value 2"}
-ITEM3 = {"key":"value 3"}
-ITEM4 = {"key":"value 4"}
+ITEM1 = {"key": "value 1"}
+ITEM2 = {"key": "value 2"}
+ITEM3 = {"key": "value 3"}
+ITEM4 = {"key": "value 4"}
 
-ITEM5 = {"key":"value 5"}
-ITEM6 = {"key":"value 6"}
+ITEM5 = {"key": "value 5"}
+ITEM6 = {"key": "value 6"}
+
 
 class TestSQLiteStore(unittest.TestCase):
     def setUp(self):
@@ -42,6 +45,46 @@ class TestSQLiteStore(unittest.TestCase):
     def tearDown(self):
         self.conn.execute('DROP TABLE `test_table`')
         self.conn.commit()
+
+    def test_multiprocessing(self):
+        """
+        Test that multiple processes can bang on sqlite without issue.
+
+        """
+        NUM_PROCS = 10
+
+        #: credit where credit is due:
+        #:  http://stackoverflow.com/a/5792404/1611953
+        #:
+        #: the two functions below allow us to target a non-module level
+        #: function with subprocesses
+        #:
+        def spawn(f):
+            def fun(pipe, x):
+                pipe.send(f(x))
+                pipe.close()
+            return fun
+
+        def parmap(f, X):
+            pipe = [multiprocessing.Pipe() for x in X]
+            proc = [multiprocessing.Process(target=spawn(f), args=(c, x))
+                    for x, (p, c) in izip(X, pipe)]
+            [p.start() for p in proc]
+            [p.join() for p in proc]
+            return [p.recv() for (p, c) in pipe]
+
+        def insert(pnum):
+            tup = (pnum + 100, ("process_%d" % pnum), 'val')
+            return self.conn.execute('INSERT INTO `test_table` VALUES '
+                                     '(?, ?, ?)', tup)
+
+        parmap(insert, range(NUM_PROCS))
+
+        # check that all rows have been added
+        for pnum in range(NUM_PROCS):
+            assert self.conn.execute('SELECT * from `test_table` '
+                                     'WHERE `hash_key`=?',
+                                     (pnum + 100,))
 
     def test_truncate(self):
         from ddbmock.database.storage.sqlite import Store
