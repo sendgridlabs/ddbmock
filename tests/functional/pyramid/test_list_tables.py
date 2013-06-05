@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
-import unittest, json
+import json
+import unittest
 
 TABLE_NAME1 = 'Table-1'
 TABLE_NAME2 = 'Table-2'
@@ -9,6 +8,7 @@ HEADERS = {
     'x-amz-target': 'dynamodb_20111205.ListTables',
     'content-type': 'application/x-amz-json-1.0',
 }
+
 
 class TestListTables(unittest.TestCase):
     def setUp(self):
@@ -38,7 +38,7 @@ class TestListTables(unittest.TestCase):
 
     def test_list_tables(self):
         from ddbmock import connect_boto_patch
-        db = connect_boto_patch()
+        connect_boto_patch()
 
         request = {}
 
@@ -46,7 +46,7 @@ class TestListTables(unittest.TestCase):
             "TableNames": [TABLE_NAME1, TABLE_NAME2],
         }
 
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
-
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])

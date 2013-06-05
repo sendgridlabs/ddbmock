@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+import json
+import unittest
 
-import unittest, json
 
 TABLE_NAME1 = 'Table-HR'
 TABLE_NAME2 = 'Table-H'
@@ -55,6 +56,7 @@ HEADERS = {
     'content-type': 'application/x-amz-json-1.0',
 }
 
+
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestBatchGetItem(unittest.TestCase):
     def setUp(self):
@@ -75,8 +77,8 @@ class TestBatchGetItem(unittest.TestCase):
         self.t1 = Table(TABLE_NAME1, TABLE_RT, TABLE_WT, hash_key, range_key)
         self.t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, None)
 
-        dynamodb.data[TABLE_NAME1]  = self.t1
-        dynamodb.data[TABLE_NAME2]  = self.t2
+        dynamodb.data[TABLE_NAME1] = self.t1
+        dynamodb.data[TABLE_NAME2] = self.t2
 
         self.t1.put(ITEM1, {})
         self.t1.put(ITEM2, {})
@@ -89,24 +91,26 @@ class TestBatchGetItem(unittest.TestCase):
         dynamodb.hard_reset()
 
     def test_batch_get_item_filter_one(self):
-        from ddbmock.database.db import dynamodb
-
         request = {
             u"RequestItems": {
                 TABLE_NAME1: {
                     u"Keys": [
-                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}},
-                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}},
-                    ],
+                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1},
+                         u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1},
+                         },
+                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1},
+                         u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}
+                         },
+                        ],
                     u"AttributesToGet": [u"relevant_data"],
-                },
+                    },
                 TABLE_NAME2: {
                     u"Keys": [
                         {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE3}},
-                    ],
-                },
+                        ],
+                    },
+                }
             }
-        }
 
         expected = {
             "Responses": {
@@ -119,7 +123,10 @@ class TestBatchGetItem(unittest.TestCase):
                 },
                 "Table-H": {
                     "Items": [
-                        {"relevant_data": {"S": "tutu"}, "hash_key": {"N": "789"}, "range_key": {"S": "Waldo-5"}},
+                        {"relevant_data": {"S": "tutu"},
+                         "hash_key": {"N": "789"},
+                         "range_key": {"S": "Waldo-5"}
+                         },
                     ],
                     "ConsumedCapacityUnits": 0.5
                 }
@@ -127,20 +134,24 @@ class TestBatchGetItem(unittest.TestCase):
         }
 
         # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=200)
+
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])
 
     def test_batch_get_item_filter_one_consistent(self):
-        from ddbmock.database.db import dynamodb
-
         request = {
             u"RequestItems": {
                 TABLE_NAME1: {
                     u"Keys": [
-                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}},
-                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1}, u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}},
-                    ],
+                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1},
+                         u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}
+                         },
+                        {u"HashKeyElement": {TABLE_HK_TYPE: HK_VALUE1},
+                         u"RangeKeyElement": {TABLE_RK_TYPE: RK_VALUE1}
+                         },
+                        ],
                     u"AttributesToGet": [u"relevant_data"],
                     u"ConsistentRead": True,
                 },
@@ -163,7 +174,10 @@ class TestBatchGetItem(unittest.TestCase):
                 },
                 "Table-H": {
                     "Items": [
-                        {"relevant_data": {"S": "tutu"}, "hash_key": {"N": "789"}, "range_key": {"S": "Waldo-5"}},
+                        {"relevant_data": {"S": "tutu"},
+                         "hash_key": {"N": "789"},
+                         "range_key": {"S": "Waldo-5"}
+                         },
                     ],
                     "ConsumedCapacityUnits": 0.5
                 }
@@ -171,8 +185,7 @@ class TestBatchGetItem(unittest.TestCase):
         }
 
         # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
-
-
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])

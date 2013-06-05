@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
-import unittest, json
+import json
+import unittest
 
 TABLE_NAME = 'Table-HR'
 TABLE_NAME_404 = 'Waldo'
@@ -28,6 +27,7 @@ HEADERS = {
     'content-type': 'application/x-amz-json-1.0',
 }
 
+
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestTODO(unittest.TestCase):
     def setUp(self):
@@ -45,15 +45,13 @@ class TestTODO(unittest.TestCase):
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
-        dynamodb.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME] = self.t1
 
     def tearDown(self):
         from ddbmock.database.db import dynamodb
         dynamodb.hard_reset()
 
     def test_put_hr(self):
-        from ddbmock.database.db import dynamodb
-
         request = {
             "TableName": TABLE_NAME,
             "Item": ITEM,
@@ -62,10 +60,10 @@ class TestTODO(unittest.TestCase):
         expected = {u'ConsumedCapacityUnits': 1}
 
         # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])
 
         # Live data check
         self.assertEqual(ITEM, self.t1.store[HK_VALUE, RK_VALUE])
-

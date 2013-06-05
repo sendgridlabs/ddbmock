@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
-import unittest, json
+import json
+import unittest
 
 TABLE_NAME1 = 'Table-HR'
 TABLE_NAME2 = 'Table-H'
@@ -55,6 +54,7 @@ HEADERS = {
     'content-type': 'application/x-amz-json-1.0',
 }
 
+
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestBatchWriteItem(unittest.TestCase):
     def setUp(self):
@@ -75,8 +75,8 @@ class TestBatchWriteItem(unittest.TestCase):
         self.t1 = Table(TABLE_NAME1, TABLE_RT, TABLE_WT, hash_key, range_key)
         self.t2 = Table(TABLE_NAME2, TABLE_RT, TABLE_WT, hash_key, None)
 
-        dynamodb.data[TABLE_NAME1]  = self.t1
-        dynamodb.data[TABLE_NAME2]  = self.t2
+        dynamodb.data[TABLE_NAME1] = self.t1
+        dynamodb.data[TABLE_NAME2] = self.t2
 
         self.t1.put(ITEM1, {})
         self.t2.put(ITEM4, {})
@@ -86,8 +86,6 @@ class TestBatchWriteItem(unittest.TestCase):
         dynamodb.hard_reset()
 
     def test_batch_write_item(self):
-        from ddbmock.database.db import dynamodb
-
         request = {
             u"RequestItems": {
                 TABLE_NAME1: [
@@ -127,6 +125,7 @@ class TestBatchWriteItem(unittest.TestCase):
         }
 
         # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])

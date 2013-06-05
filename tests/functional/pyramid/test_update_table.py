@@ -1,9 +1,11 @@
-# -*- coding: utf-8 -*-
+import json
+import time
+import unittest
 
-import unittest, mock, json, time
+import mock
 
 NOW = time.time()
-NOW2 = time.time() + 42*1000
+NOW2 = time.time() + 42 * 1000
 
 TABLE_NAME = 'Table-1'
 TABLE_RT = 45
@@ -19,6 +21,7 @@ HEADERS = {
     'x-amz-target': 'dynamodb_20111205.UpdateTable',
     'content-type': 'application/x-amz-json-1.0',
 }
+
 
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestUpdateTable(unittest.TestCase):
@@ -39,9 +42,9 @@ class TestUpdateTable(unittest.TestCase):
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
-        t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key, status="ACTIVE")
+        t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key,
+                   status="ACTIVE")
         dynamodb.data[TABLE_NAME] = t1
-
 
     def tearDown(self):
         from ddbmock.database.db import dynamodb
@@ -68,8 +71,14 @@ class TestUpdateTable(unittest.TestCase):
                 u'CreationDateTime': NOW,
                 u'ItemCount': 0,
                 u'KeySchema': {
-                    u'HashKeyElement': {u'AttributeName': u'hash_key', u'AttributeType': u'N'},
-                    u'RangeKeyElement': {u'AttributeName': u'range_key', u'AttributeType': u'S'},
+                    u'HashKeyElement': {
+                        u'AttributeName': u'hash_key',
+                        u'AttributeType': u'N',
+                        },
+                    u'RangeKeyElement': {
+                        u'AttributeName': u'range_key',
+                        u'AttributeType': u'S',
+                        },
                 },
                 u'ProvisionedThroughput': {
                     u'LastDecreaseDateTime': NOW2,
@@ -83,9 +92,10 @@ class TestUpdateTable(unittest.TestCase):
         }
 
         # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])
 
         # Live data check
         data = dynamodb.data

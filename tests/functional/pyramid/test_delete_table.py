@@ -1,6 +1,8 @@
-# -*- coding: utf-8 -*-
+import json
+import time
+import unittest
 
-import unittest, mock, json, time
+import mock
 
 NOW = time.time()
 
@@ -16,6 +18,7 @@ HEADERS = {
     'x-amz-target': 'dynamodb_20111205.DeleteTable',
     'content-type': 'application/x-amz-json-1.0',
 }
+
 
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestDeleteTable(unittest.TestCase):
@@ -36,7 +39,8 @@ class TestDeleteTable(unittest.TestCase):
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
         range_key = PrimaryKey(TABLE_RK_NAME, TABLE_RK_TYPE)
-        t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key, status='ACTIVE')
+        t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key,
+                   status='ACTIVE')
         dynamodb.data[TABLE_NAME] = t1
 
     def tearDown(self):
@@ -44,8 +48,6 @@ class TestDeleteTable(unittest.TestCase):
         dynamodb.hard_reset()
 
     def test_delete_table(self):
-        from ddbmock.database.db import dynamodb
-
         request = {"TableName": TABLE_NAME}
 
         expected = {
@@ -70,7 +72,7 @@ class TestDeleteTable(unittest.TestCase):
             }
         }
 
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
-
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
-import unittest, json
+import json
+import unittest
 
 TABLE_NAME1 = 'Table-1'
 
@@ -58,6 +57,7 @@ HEADERS = {
     'content-type': 'application/x-amz-json-1.0',
 }
 
+
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestScan(unittest.TestCase):
     def setUp(self):
@@ -65,7 +65,6 @@ class TestScan(unittest.TestCase):
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        from ddbmock.database.db import dynamodb
         from ddbmock import main
         app = main({})
         from webtest import TestApp
@@ -78,7 +77,7 @@ class TestScan(unittest.TestCase):
 
         self.t1 = Table(TABLE_NAME, TABLE_RT, TABLE_WT, hash_key, range_key)
 
-        dynamodb.data[TABLE_NAME]  = self.t1
+        dynamodb.data[TABLE_NAME] = self.t1
 
         self.t1.put(ITEM1, {})
         self.t1.put(ITEM2, {})
@@ -91,13 +90,15 @@ class TestScan(unittest.TestCase):
         dynamodb.hard_reset()
 
     def test_scan_condition_filter_fields(self):
-        from ddbmock.database.db import dynamodb
-
         request = {
             "TableName": TABLE_NAME,
             "ScanFilter": {
                 "relevant_data": {
-                    "AttributeValueList": [{"S":"toto"},{"S":"titi"},{"S":"tata"}],
+                    "AttributeValueList": [
+                        {"S":"toto"},
+                        {"S":"titi"},
+                        {"S":"tata"},
+                        ],
                     "ComparisonOperator": "IN",
                 },
             },
@@ -116,18 +117,21 @@ class TestScan(unittest.TestCase):
         }
 
         # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])
 
     def test_scan_count_and_attrs_to_get_fails(self):
-        from ddbmock.database.db import dynamodb
-
         request = {
             "TableName": TABLE_NAME,
             "ScanFilter": {
                 "relevant_data": {
-                    "AttributeValueList": [{"S":"toto"},{"S":"titi"},{"S":"tata"}],
+                    "AttributeValueList": [
+                        {"S":"toto"},
+                        {"S":"titi"},
+                        {"S":"tata"},
+                        ],
                     "ComparisonOperator": "IN",
                 },
             },
@@ -141,6 +145,7 @@ class TestScan(unittest.TestCase):
         }
 
         # Protocol check
-        res = self.app.post_json('/', request, HEADERS, status=400)
+        res = self.app.post_json('/', request, headers=HEADERS, status=400)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])

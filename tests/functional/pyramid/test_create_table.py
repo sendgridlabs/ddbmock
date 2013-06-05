@@ -1,6 +1,8 @@
-# -*- coding: utf-8 -*-
+import json
+import time
+import unittest
 
-import unittest, mock, json, time
+import mock
 
 NOW = time.time()
 
@@ -9,13 +11,14 @@ TABLE_NAME1 = 'Table-1'
 TABLE_RT = 45
 TABLE_WT = 123
 
-HASH_KEY = {"AttributeName":"hash_key","AttributeType":"N"}
-RANGE_KEY = {"AttributeName":"range_key","AttributeType":"S"}
+HASH_KEY = {"AttributeName": "hash_key", "AttributeType": "N"}
+RANGE_KEY = {"AttributeName": "range_key", "AttributeType": "S"}
 
 HEADERS = {
     'x-amz-target': 'dynamodb_20111205.CreateTable',
     'content-type': 'application/x-amz-json-1.0',
 }
+
 
 # Goal here is not to test the full API, this is done by the Boto tests
 class TestCreateTable(unittest.TestCase):
@@ -65,9 +68,10 @@ class TestCreateTable(unittest.TestCase):
             }
         }
 
-        res = self.app.post_json('/', request, HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
         self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])
 
         data = dynamodb.data
         assert TABLE_NAME1 in data
@@ -82,11 +86,10 @@ class TestCreateTable(unittest.TestCase):
         self.assertEqual(HASH_KEY['AttributeType'], table.hash_key.typename)
         self.assertEqual(RANGE_KEY['AttributeType'], table.range_key.typename)
 
-    # The real goal of this test is to validate the error view. The tested behavior
+    # The real goal of this test is to validate the error view.
+    # The tested behavior
     # is already known to work thanks the boto tests
     def test_create_table_twice_fails(self):
-        from ddbmock.database.db import dynamodb
-
         request = {
             "TableName": TABLE_NAME1,
             "KeySchema": {
@@ -100,12 +103,13 @@ class TestCreateTable(unittest.TestCase):
         }
 
         expected = {
-            u'__type': u'com.amazonaws.dynamodb.v20111205#ResourceInUseException',
+            u'__type': 'com.amazonaws.dynamodb.'
+                       'v20111205#ResourceInUseException',
             u'message': u'Table {} already exists'.format(TABLE_NAME1),
         }
 
-
-        res = self.app.post_json('/', request, HEADERS, status=200)
-        res = self.app.post_json('/', request, HEADERS, status=400)
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+        res = self.app.post_json('/', request, headers=HEADERS, status=200)
+        res = self.app.post_json('/', request, headers=HEADERS, status=400)
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])
         self.assertEqual(expected, json.loads(res.body))
