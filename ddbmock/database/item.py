@@ -148,8 +148,8 @@ class Item(dict):
                 else:
                     raise ValidationException(u"Only N, NS, SS and BS types supports ADD operation. Got {}".format(ftypename))
             else:
-                if typename not in [u"N", u"NS"]:
-                    raise ValidationException(u"When performing ADD operation on new field, only Numbers or Numbers set are allowed. Got {} of type {}".format(value, typename))
+                if typename not in [u"N", u"NS", u"SS"]:
+                    raise ValidationException(u"When performing ADD operation on new field, only Numbers or Sets are allowed. Got {} of type {}".format(value, typename))
                 self[fieldname] = action[u'Value']
 
     def apply_actions(self, actions):

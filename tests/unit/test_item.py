@@ -92,6 +92,10 @@ class TestItem(unittest.TestCase):
         item._apply_action(FIELDNAME, {"Action": "ADD", "Value": VALUE_NS})
         self.assertEqual([(FIELDNAME, VALUE_NS)], item.items())
 
+        # add string set to non existing field
+        item = Item({})
+        item._apply_action(FIELDNAME, {"Action": "ADD", "Value": VALUE_SS})
+        self.assertEqual([(FIELDNAME, VALUE_SS)], item.items())
 
     def test_action_type_mismatch(self):
         from ddbmock.database.item import Item
@@ -139,6 +143,7 @@ class TestItem(unittest.TestCase):
                           item._apply_action,
                           FIELDNAME, {"Action": "ADD", "Value": VALUE_S})
         self.assertEqual([], item.items())
+
 
     def test_expected_field_does_not_exist(self):
         from ddbmock.database.item import Item
