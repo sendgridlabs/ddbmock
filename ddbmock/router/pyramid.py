@@ -4,9 +4,12 @@
 from __future__ import absolute_import
 
 from ..router import router
-from ..errors import DDBError
+from ..errors import DDBError, AccessDeniedException, MissingAuthenticationTokenException
+from ..config import config
 from pyramid.response import Response
 import json
+
+default_config = config["_default"]
 
 # wrap routing logic
 def pyramid_router(request):
@@ -18,7 +21,18 @@ def pyramid_router(request):
 
     # do the job
     try:
-        body = router(action, post)
+        auth = request.headers["Authorization"]
+        if not auth.startswith("AWS4-HMAC-SHA256"):
+            raise MissingAuthenticationTokenException
+        auth = auth[len("AWS4-HMAC-SHA256 "):]
+        auth = auth.split(", ")
+        auth = dict([x.split("=",2) for x in auth])
+        access_key = auth["Credential"].split("/")[0]
+        if access_key not in config.keys():
+            raise AccessDeniedException, "Can't find %s in users" % access_key
+        user = default_config.copy()
+        user.update(config[access_key])
+        body = router(action, post, user)
         status = '200 OK'
     except DDBError as e:
         body = e.to_dict()
@@ -29,7 +43,8 @@ def pyramid_router(request):
     response.body = json.dumps(body)
     response.status = status
     response.content_type = 'application/x-amz-json-1.0'
-    response.headers['x-amzn-RequestId'] = post['request_id']  # added by router
+    if post.has_key("request_id"): # might not be present if user auth failed
+        response.headers['x-amzn-RequestId'] = post['request_id']  # added by router
 
     # done
     return response
