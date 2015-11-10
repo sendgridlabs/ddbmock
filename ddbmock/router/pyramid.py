@@ -3,8 +3,8 @@
 # pyramid entry point: semantic name
 from __future__ import absolute_import
 
-from ddbmock.router import router
-from ddbmock.errors import DDBError
+from ..router import router
+from ..errors import DDBError
 from pyramid.response import Response
 import json
 

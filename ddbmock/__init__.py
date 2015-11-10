@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pyramid.config import Configurator
-from ddbmock.router.pyramid import pyramid_router
+from .router.pyramid import pyramid_router
 
 def noop(*args, **kwargs): pass
 
