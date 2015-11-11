@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from ..router import router
 from ..errors import DDBError, AccessDeniedException, MissingAuthenticationTokenException
 from ..config import config
+from ..utils import req_logger
 from pyramid.response import Response
 import json
 
@@ -29,6 +30,7 @@ def pyramid_router(request):
         auth = dict([x.split("=",2) for x in auth])
         access_key = auth["Credential"].split("/")[0]
         if access_key not in config.keys():
+            req_logger.error("Access denied for %s", access_key)
             raise AccessDeniedException, "Can't find %s in users" % access_key
         user = default_config.copy()
         user.update(config[access_key])
