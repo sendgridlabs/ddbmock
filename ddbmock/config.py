@@ -37,7 +37,8 @@ config = {"_default":
 		"DELAY_UPDATING": 60,
 		# seconds: simulate table deletion delay. It will still be available until time is exhauted
 		"DELAY_DELETING": 60
-	}
+	},
+	"admin": {}
 }
 
 ### Throughput statistics ###
