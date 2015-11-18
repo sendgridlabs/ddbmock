@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .stat import Stat
-from ddbmock import config
+from .. import config
 from threading import Timer
 import logging
 

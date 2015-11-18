@@ -2,7 +2,7 @@
 
 from onctuous import Schema, Invalid
 from importlib import import_module
-from ddbmock.errors import ValidationException
+from ..errors import ValidationException
 
 def dynamodb_api_validate(action, post):
     """ Find validator for ``action`` and run it on ``post``. If no validator

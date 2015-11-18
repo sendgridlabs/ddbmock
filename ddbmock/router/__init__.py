@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from importlib import import_module
-from ddbmock.utils import req_logger
-from ddbmock.errors import InternalFailure
-from ddbmock.validators import dynamodb_api_validate
+from ..utils import req_logger
+from ..errors import InternalFailure
+from ..validators import dynamodb_api_validate
 import re, itertools
 
 request_counter = itertools.count()  # atomic counter
