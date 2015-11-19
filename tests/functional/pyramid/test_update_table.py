@@ -1,3 +1,4 @@
+
 import json
 import time
 import unittest
@@ -31,10 +32,8 @@ class TestUpdateTable(unittest.TestCase):
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        from ddbmock import main
-        app = main({})
-        from webtest import TestApp
-        self.app = TestApp(app)
+        import helpers
+        self.app = helpers.makeTestApp()
 
         m_time.time.return_value = NOW
 

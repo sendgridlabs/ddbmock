@@ -63,10 +63,8 @@ class TestQuery(unittest.TestCase):
         from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
-        from ddbmock import main
-        app = main({})
-        from webtest import TestApp
-        self.app = TestApp(app)
+        import helpers
+        self.app = helpers.makeTestApp()
 
         dynamodb.hard_reset()
 
