@@ -12,3 +12,5 @@ nosetests.xml
 .coverage
 .noseids
 tests/dynamo.db
+
+ENV
