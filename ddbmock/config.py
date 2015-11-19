@@ -36,9 +36,15 @@ config = {"_default":
 		# seconds: simulate table update delay. It will still be available immediately
 		"DELAY_UPDATING": 60,
 		# seconds: simulate table deletion delay. It will still be available until time is exhauted
-		"DELAY_DELETING": 60
+		"DELAY_DELETING": 60,
+
+		# boolean: read-only access to tables
+		"READ_ONLY": False
 	},
-	"admin": {}
+	"admin": {},
+	"read_only": {
+		"READ_ONLY": True
+	}
 }
 
 def config_for_user(access_key = None):
