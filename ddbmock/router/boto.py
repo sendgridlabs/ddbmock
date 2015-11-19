@@ -13,6 +13,7 @@ from ddbmock.errors import ValidationException, ConditionalCheckFailedException,
 from boto.exception import DynamoDBResponseError
 from boto.dynamodb.exceptions import (DynamoDBValidationError as DDBValidationErr,
                                       DynamoDBConditionalCheckFailedError)
+from ddbmock.config import config_for_user
 
 # DDB to Boto exception
 def _ddbmock_exception_to_boto_exception(err):
@@ -34,7 +35,7 @@ def boto_router(self, action, body='', object_hook=None):
     post = json.loads(body)
 
     try:
-        ret = router(action, post)
+        ret = router(action, post, config_for_user(self.aws_access_key_id))
     except DDBError as e:
         raise _ddbmock_exception_to_boto_exception(e)
     finally:

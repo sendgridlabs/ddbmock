@@ -4,6 +4,7 @@ from importlib import import_module
 from ..utils import req_logger
 from ..errors import InternalFailure
 from ..validators import dynamodb_api_validate
+from ..config import config_for_user
 import re, itertools, sys, traceback
 
 request_counter = itertools.count()  # atomic counter
@@ -16,7 +17,9 @@ def action_to_route(name):
     s1 = first_cap_re.sub(r'\1_\2', name)
     return all_cap_re.sub(r'\1_\2', s1).lower()
 
-def router(action, post, user):
+def router(action, post, user = None):
+    if user == None:
+        user = config_for_user()
     request_id = str(request_counter.next())  # register the id in the post for it to be accessible in case of exception
     post['request_id'] = request_id
     req_logger.debug("request_id=%s action=%s body=%s", request_id, action, post)

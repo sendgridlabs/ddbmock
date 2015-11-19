@@ -41,6 +41,24 @@ config = {"_default":
 	"admin": {}
 }
 
+def config_for_user(access_key = None):
+	if access_key == None:
+		return config["_default"]
+	else:
+		user = config["_default"].copy()
+		if access_key not in config:
+			raise Exception, "No such user '%s'"%access_key
+		user.update(config[access_key])
+		return user
+
+def setup(access_key = None):
+	user = config_for_user(access_key)
+	g = globals()
+	for k in user.keys():
+		g[k] = user[k]
+
+setup()
+
 ### Throughput statistics ###
 
 # seconds: datapoint duration
