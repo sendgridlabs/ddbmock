@@ -38,9 +38,10 @@ def boto_router(self, action, body='', object_hook=None):
     except DDBError as e:
         raise _ddbmock_exception_to_boto_exception(e)
     finally:
-        boto.log.debug('RequestId: %s', post['request_id'])
-        elapsed = (time.time() - start) * 1000
-        boto.perflog.info('dynamodb %s: id=%s time=%sms', target, post['request_id'], int(elapsed))
+        if post.has_key("request_id"): # doesn't if there's an error
+            boto.log.debug('RequestId: %s', post['request_id'])
+            elapsed = (time.time() - start) * 1000
+            boto.perflog.info('dynamodb %s: id=%s time=%sms', target, post['request_id'], int(elapsed))
 
     # FIXME: dump followed by load... can be better...
     ret = json.dumps(ret)
