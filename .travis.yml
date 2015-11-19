@@ -1,0 +1,7 @@
+language: python
+install:
+  - pip install .
+  - pip install -r requirements-test.txt
+  - python setup.py develop
+
+script: python setup.py test

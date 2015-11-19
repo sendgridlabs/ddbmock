@@ -1,0 +1,16 @@
+*.pyc
+*.egg*
+.coverage
+
+build
+_build
+dist
+
+# Test related data
+coverage.xml
+nosetests.xml
+.coverage
+.noseids
+tests/dynamo.db
+
+ENV
