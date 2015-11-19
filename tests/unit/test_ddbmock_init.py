@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import socket
 
 HOST = 'samaritain'
 PORT = -12321
@@ -31,6 +32,11 @@ class TestDdbmockInit(unittest.TestCase):
         self.assertNotEqual(real_boto['Layer1.__init__'], noop)
 
     def test_connect_boto_patch_network(self):
+        try:
+            socket.gethostbyname(HOST)
+        except Exception:
+            self.skipTest("Can't connect to test host: %s" % HOST)
+
         from ddbmock import connect_boto_network, clean_boto_patch
 
         clean_boto_patch()
