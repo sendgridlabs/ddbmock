@@ -54,6 +54,9 @@ config = {"_default":
 	"slow_user": {
 		"DELAY_OPERATIONS": 5
 	},
+	"always_fail": {
+		"FAIL_EVERY_N": 0,
+	},
 	"always_fail_and_slow": {
 		"FAIL_EVERY_N": 0,
 		"DELAY_OPERATIONS": 5
