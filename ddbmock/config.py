@@ -37,6 +37,8 @@ config = {"_default":
 		"DELAY_UPDATING": 60,
 		# seconds: simulate table deletion delay. It will still be available until time is exhauted
 		"DELAY_DELETING": 60,
+		# seconds: delay returning from all operations
+		"DELAY_OPERATIONS": 0,
 
 		# boolean: read-only access to tables
 		"READ_ONLY": False
@@ -44,6 +46,9 @@ config = {"_default":
 	"admin": {},
 	"read_only": {
 		"READ_ONLY": True
+	},
+	"slow_user": {
+		"DELAY_OPERATIONS": 5
 	}
 }
 

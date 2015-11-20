@@ -9,6 +9,7 @@ from ..config import config, config_for_user
 from ..utils import req_logger
 from pyramid.response import Response
 import json
+from time import sleep
 
 default_config = config["_default"]
 
@@ -38,6 +39,7 @@ def pyramid_router(request):
     except DDBError as e:
         body = e.to_dict()
         status = '{} {}'.format(e.status, e.status_str)
+        user = None
 
     # prepare output
     response = Response()
@@ -46,6 +48,9 @@ def pyramid_router(request):
     response.content_type = 'application/x-amz-json-1.0'
     if post.has_key("request_id"): # might not be present if user auth failed
         response.headers['x-amzn-RequestId'] = post['request_id']  # added by router
+
+    if user != None:
+        sleep(user["DELAY_OPERATIONS"])
 
     # done
     return response
