@@ -47,3 +47,23 @@ class TestAuthUsers(unittest.TestCase):
         self.assertEqual(expected, json.loads(res.body))
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
                          res.headers['Content-Type'])
+
+    def test_readonly_user_cant_write(self):
+        self.app = helpers.makeTestApp(user = "read_only")
+        from ddbmock import connect_boto_patch
+        connect_boto_patch()
+        expected = {
+            u'message': u"User: read_only is not authorized to perform: dynamodb:create_table on resource: *",
+            u'__type': u'com.amazonaws.dynamodb.v20111205#AccessDeniedException'
+        }
+        request = {}
+
+        HEADERS = {
+            'x-amz-target': 'dynamodb_20111205.CreateTable',
+            'content-type': 'application/x-amz-json-1.0',
+        }
+
+        res = self.app.post_json('/', request, headers=HEADERS, status=400)
+        self.assertEqual(expected, json.loads(res.body))
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])

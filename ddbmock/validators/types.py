@@ -205,3 +205,7 @@ scan_condition = Any(
 scan_filter = {
     field_name: scan_condition,
 }
+
+# Permissions
+
+WRITE_PERMISSION = "write"

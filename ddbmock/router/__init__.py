@@ -35,7 +35,7 @@ def router(action, post, user = None):
 
     # Validate the input
     try:
-        post = dynamodb_api_validate(target, post)
+        post = dynamodb_api_validate(target, post, user)
     except Exception as e:
         req_logger.error('request_id=%s action=%s exception=%s body=%s', request_id, action, type(e).__name__, str(e.args))
         raise

@@ -55,6 +55,7 @@ def config_for_user(access_key = None):
 		if access_key not in config:
 			raise Exception, "No such user '%s'"%access_key
 		user.update(config[access_key])
+		user["name"] = access_key
 		return user
 
 def setup(access_key = None):
