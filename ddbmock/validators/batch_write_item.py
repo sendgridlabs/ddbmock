@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .types import table_name, item_schema, get_key_schema, Any
+from .types import table_name, item_schema, get_key_schema, Any, WRITE_PERMISSION
 
 post = {
     u"RequestItems": {
@@ -17,3 +17,5 @@ post = {
         )],
     },
 }
+
+permissions = WRITE_PERMISSION

@@ -1,6 +1,7 @@
 import json
 import unittest
 import helpers
+from nose_parameterized import parameterized
 
 class TestAuthUsers(unittest.TestCase):
     def setUp(self):
@@ -48,18 +49,27 @@ class TestAuthUsers(unittest.TestCase):
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
                          res.headers['Content-Type'])
 
-    def test_readonly_user_cant_write(self):
+    @parameterized.expand([
+        "create_table",
+        "batch_write_item",
+        "delete_item",
+        "delete_table",
+        "put_item",
+        "update_item",
+        "update_table"
+    ], testcase_func_name=lambda funcname,_,param:"%s_%s" %( funcname.__name__, param[0][0]))
+    def test_readonly_user_cant(self, name):
         self.app = helpers.makeTestApp(user = "read_only")
         from ddbmock import connect_boto_patch
         connect_boto_patch()
         expected = {
-            u'message': u"User: read_only is not authorized to perform: dynamodb:create_table on resource: *",
+            u'message': u"User: read_only is not authorized to perform: dynamodb:%s on resource: *" % name,
             u'__type': u'com.amazonaws.dynamodb.v20111205#AccessDeniedException'
         }
         request = {}
 
         HEADERS = {
-            'x-amz-target': 'dynamodb_20111205.CreateTable',
+            'x-amz-target': 'dynamodb_20111205.%s' % name,
             'content-type': 'application/x-amz-json-1.0',
         }
 

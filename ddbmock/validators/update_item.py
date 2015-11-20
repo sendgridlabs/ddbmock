@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .types import (table_name, get_key_schema, return_values_all,
-                    expected_schema, attribute_update_schema, Required)
+                    expected_schema, attribute_update_schema, Required, WRITE_PERMISSION)
 
 post = {
     u'TableName': table_name,
@@ -10,3 +10,5 @@ post = {
     Required(u'Expected', {}): expected_schema,
     Required(u'ReturnValues', u'NONE'): return_values_all,
 }
+
+permissions = WRITE_PERMISSION
