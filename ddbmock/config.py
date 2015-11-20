@@ -54,6 +54,10 @@ config = {"_default":
 	"slow_user": {
 		"DELAY_OPERATIONS": 5
 	},
+	"always_fail_and_slow": {
+		"FAIL_EVERY_N": 0,
+		"DELAY_OPERATIONS": 5
+	},
 	"intermittent_failure": {
 		"FAIL_EVERY_N": 1 # means 1 success, then 1 failure, etc
 	}

@@ -34,7 +34,7 @@ def pyramid_router(request):
             req_logger.error("Access denied for %s", access_key)
             raise AccessDeniedException, "Can't find %s in users" % access_key
         user = config_for_user(access_key)
-
+        sleep(user["DELAY_OPERATIONS"])
         fail_every = user["FAIL_EVERY_N"]
         if fail_every != None and fail_every + 1 == user[FAIL_KEY]: # hit the fail time
             reset_fail(access_key)
@@ -54,9 +54,6 @@ def pyramid_router(request):
     response.content_type = 'application/x-amz-json-1.0'
     if post.has_key("request_id"): # might not be present if user auth failed
         response.headers['x-amzn-RequestId'] = post['request_id']  # added by router
-
-    if user != None:
-        sleep(user["DELAY_OPERATIONS"])
 
     # done
     return response

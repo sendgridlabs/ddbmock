@@ -141,3 +141,29 @@ class TestAuthUsers(unittest.TestCase):
             self.assertEqual(expected, json.loads(res.body))
             self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
                              res.headers['Content-Type'])
+
+    def test_always_fails_and_slow(self):
+        self.app = helpers.makeTestApp(user = "always_fail_and_slow")
+        from ddbmock import connect_boto_patch, config
+        delay = 1
+        config.config["always_fail_and_slow"]["DELAY_OPERATIONS"] = delay
+        connect_boto_patch()
+        expected = {
+            u'message': u"The server encountered an internal error trying to fulfill the request",
+            u'__type': u'com.amazonaws.dynamodb.v20111205#InternalServerError'
+        }
+        request = {}
+
+        HEADERS = {
+            'x-amz-target': 'dynamodb_20111205.list_tables',
+            'content-type': 'application/x-amz-json-1.0',
+        }
+
+        start = time()
+        res = self.app.post_json('/', request, headers=HEADERS, status=500)
+        end = time()
+        self.assertEqual(expected, json.loads(res.body))
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                         res.headers['Content-Type'])
+
+        self.assertAlmostEqual(delay, end-start, delta = 0.1)
