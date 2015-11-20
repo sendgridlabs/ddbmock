@@ -30,24 +30,32 @@ class TestAuthUsers(unittest.TestCase):
         self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
                          res.headers['Content-Type'])
 
-    def test_readonly_user_can_list(self):
+    @parameterized.expand([
+        "batch_get_item",
+        "describe_table",
+        "get_item",
+        "list_tables",
+        "query",
+        "scan"
+    ], testcase_func_name=lambda funcname,_,param:"%s_%s" %( funcname.__name__, param[0][0]))
+    def test_readonly_user_can(self, name):
         self.app = helpers.makeTestApp(user = "read_only")
         from ddbmock import connect_boto_patch
         connect_boto_patch()
-        expected = {
-            "TableNames": [],
-        }
-        request = {}
-
         HEADERS = {
-            'x-amz-target': 'dynamodb_20111205.ListTables',
+            'x-amz-target': 'dynamodb_20111205.%s'% name,
             'content-type': 'application/x-amz-json-1.0',
         }
 
-        res = self.app.post_json('/', request, headers=HEADERS, status=200)
-        self.assertEqual(expected, json.loads(res.body))
-        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
-                         res.headers['Content-Type'])
+        res = self.app.post_json('/', {}, headers=HEADERS, status=[200,400])
+        ret = json.loads(res.body)
+        self.assertEqual('application/x-amz-json-1.0; charset=UTF-8', res.headers['Content-Type'])
+
+        # Because no arguments, we either get a 200 for things that require no args, or a 400 for things that need args
+        if res.status_code == 200:
+            return
+        self.assertIn("__type", ret)
+        self.assertEqual(u'com.amazonaws.dynamodb.v20111205#ValidationException', ret["__type"])
 
     @parameterized.expand([
         "create_table",
