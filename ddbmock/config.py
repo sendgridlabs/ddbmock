@@ -41,7 +41,11 @@ config = {"_default":
 		"DELAY_OPERATIONS": 0,
 
 		# boolean: read-only access to tables
-		"READ_ONLY": False
+		"READ_ONLY": False,
+
+		# value: Fail every nth operation. So, N successes then 1 failure, repeat.
+		# None means "don't". 0 means every.
+		"FAIL_EVERY_N": None
 	},
 	"admin": {},
 	"read_only": {
@@ -49,8 +53,16 @@ config = {"_default":
 	},
 	"slow_user": {
 		"DELAY_OPERATIONS": 5
+	},
+	"intermittent_failure": {
+		"FAIL_EVERY_N": 1 # means 1 success, then 1 failure, etc
 	}
 }
+
+FAIL_KEY = "fail_count"
+
+def reset_fail(access_key):
+	config[access_key][FAIL_KEY] = 0
 
 def config_for_user(access_key = None):
 	if access_key == None:
@@ -59,6 +71,10 @@ def config_for_user(access_key = None):
 		user = config["_default"].copy()
 		if access_key not in config:
 			raise Exception, "No such user '%s'"%access_key
+		if FAIL_KEY not in config[access_key]:
+			config[access_key][FAIL_KEY] = 1
+		else:
+			config[access_key][FAIL_KEY] +=1
 		user.update(config[access_key])
 		user["name"] = access_key
 		return user

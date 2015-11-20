@@ -4,8 +4,8 @@
 from __future__ import absolute_import
 
 from ..router import router
-from ..errors import DDBError, AccessDeniedException, MissingAuthenticationTokenException
-from ..config import config, config_for_user
+from ..errors import DDBError, AccessDeniedException, MissingAuthenticationTokenException, InternalServerError
+from ..config import config, config_for_user, FAIL_KEY, reset_fail
 from ..utils import req_logger
 from pyramid.response import Response
 import json
@@ -34,6 +34,12 @@ def pyramid_router(request):
             req_logger.error("Access denied for %s", access_key)
             raise AccessDeniedException, "Can't find %s in users" % access_key
         user = config_for_user(access_key)
+
+        fail_every = user["FAIL_EVERY_N"]
+        if fail_every != None and fail_every + 1 == user[FAIL_KEY]: # hit the fail time
+            reset_fail(access_key)
+            raise InternalServerError("The server encountered an internal error trying to fulfill the request")
+
         body = router(action, post, user)
         status = '200 OK'
     except DDBError as e:

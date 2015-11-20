@@ -111,3 +111,33 @@ class TestAuthUsers(unittest.TestCase):
                          res.headers['Content-Type'])
 
         self.assertAlmostEqual(delay, end-start, delta = 0.1)
+
+    def test_intermittent_failure(self):
+        self.app = helpers.makeTestApp(user = "intermittent_failure")
+        from ddbmock import connect_boto_patch, config
+        connect_boto_patch()
+        request = {}
+
+        HEADERS = {
+            'x-amz-target': 'dynamodb_20111205.list_tables',
+            'content-type': 'application/x-amz-json-1.0',
+        }
+
+        for _ in range(3):
+            expected = {
+                u'TableNames': []
+            }
+
+            res = self.app.post_json('/', request, headers=HEADERS, status=200)
+            self.assertEqual(expected, json.loads(res.body))
+            self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                             res.headers['Content-Type'])
+
+            expected = {
+                u'message': u"The server encountered an internal error trying to fulfill the request",
+                u'__type': u'com.amazonaws.dynamodb.v20111205#InternalServerError'
+            }
+            res = self.app.post_json('/', request, headers=HEADERS, status=500)
+            self.assertEqual(expected, json.loads(res.body))
+            self.assertEqual('application/x-amz-json-1.0; charset=UTF-8',
+                             res.headers['Content-Type'])
