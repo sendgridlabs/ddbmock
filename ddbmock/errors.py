@@ -6,7 +6,7 @@ class DDBError(Exception):
         msg = self.args[0] if self.args else ""
 
         return {
-            "__type": "com.amazonaws.dynamodb.v20111205#{}".format(name),
+            "__type": "com.amazonaws.dynamodb.v20120810#{}".format(name),
             "message": msg,
         }
 

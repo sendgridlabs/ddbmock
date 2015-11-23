@@ -125,7 +125,7 @@ class TestQuery(unittest.TestCase):
         }
 
         expected = {
-            u'__type': u'com.amazonaws.dynamodb.v20111205#ValidationException',
+            u'__type': u'com.amazonaws.dynamodb.v20120810#ValidationException',
             u'message': u'Can filter fields when only count is requested'
         }
 
