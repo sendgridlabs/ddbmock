@@ -210,4 +210,5 @@ scan_filter = {
 
 # Permissions
 
+READ_PERMISSION = "read"
 WRITE_PERMISSION = "write"
