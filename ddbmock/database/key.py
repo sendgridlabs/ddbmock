@@ -45,7 +45,7 @@ class Key(object):
         """
         return {
             "AttributeName": self.name,
-            "AttributeType": self.typename,
+            "KeyType": self.typename,
         }
 
     @classmethod
@@ -60,7 +60,7 @@ class Key(object):
 
         :return: fully initialized :py:class:`Key` instance
         """
-        return cls(data[u'AttributeName'], data[u'AttributeType'])
+        return cls(data[u'AttributeName'], data[u'KeyType'])
 
 class PrimaryKey(Key):
     """Special marker to provide distinction between regulat Keys and PrimaryKey"""

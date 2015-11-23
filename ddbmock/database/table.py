@@ -414,10 +414,14 @@ class Table(object):
 
         :return: fully initialized :py:class:`Table` instance
         """
-        hash_key = PrimaryKey.from_dict(data[u'KeySchema'][u'HashKeyElement'])
+
+        hash_key = None
         range_key = None
-        if u'RangeKeyElement' in data[u'KeySchema']:
-            range_key = PrimaryKey.from_dict(data[u'KeySchema'][u'RangeKeyElement'])
+        key = PrimaryKey.from_dict(data[u'KeySchema'][0])
+        if key.typename == "HASH":
+            hash_key = key
+        else:
+            range_key = key
 
         return cls( data[u'TableName'],
                     data[u'ProvisionedThroughput'][u'ReadCapacityUnits'],
