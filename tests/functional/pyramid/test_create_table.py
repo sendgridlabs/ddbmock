@@ -104,7 +104,7 @@ class TestCreateTable(unittest.TestCase):
 
         expected = {
             u'__type': 'com.amazonaws.dynamodb.'
-                       'v20111205#ResourceInUseException',
+                       'v20120810#ResourceInUseException',
             u'message': u'Table {} already exists'.format(TABLE_NAME1),
         }
 
