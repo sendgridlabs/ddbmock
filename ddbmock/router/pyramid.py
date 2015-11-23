@@ -36,9 +36,10 @@ def pyramid_router(request):
         user = config_for_user(access_key)
         sleep(user["DELAY_OPERATIONS"])
         fail_every = user["FAIL_EVERY_N"]
-        if fail_every != None and fail_every + 1 == user[FAIL_KEY]: # hit the fail time
-            reset_fail(access_key)
-            raise InternalServerError("The server encountered an internal error trying to fulfill the request")
+        if fail_every != None:
+            if fail_every + 1 == user[FAIL_KEY]: # hit the fail time
+                reset_fail(access_key)
+                raise InternalServerError("The server encountered an internal error trying to fulfill the request")
 
         body = router(action, post, user)
         status = '200 OK'
