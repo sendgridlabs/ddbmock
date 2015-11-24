@@ -23,7 +23,7 @@ class TestAuthUsers(unittest.TestCase):
 
         expected = {
             u'message': u"Can't find invalid_user in users",
-            u'__type': u'com.amazonaws.dynamodb.v20111205#AccessDeniedException'
+            u'__type': u'com.amazonaws.dynamodb.v20120810#AccessDeniedException'
         }
 
         res = self.app.post_json('/', {}, headers={}, status=400)
@@ -56,7 +56,7 @@ class TestAuthUsers(unittest.TestCase):
         if res.status_code == 200:
             return
         self.assertIn("__type", ret)
-        self.assertEqual(u'com.amazonaws.dynamodb.v20111205#ValidationException', ret["__type"])
+        self.assertEqual(u'com.amazonaws.dynamodb.v20120810#ValidationException', ret["__type"])
 
     @parameterized.expand([
         "create_table",
@@ -73,7 +73,7 @@ class TestAuthUsers(unittest.TestCase):
         connect_boto_patch()
         expected = {
             u'message': u"User: read_only is not authorized to perform: dynamodb:%s on resource: *" % name,
-            u'__type': u'com.amazonaws.dynamodb.v20111205#AccessDeniedException'
+            u'__type': u'com.amazonaws.dynamodb.v20120810#AccessDeniedException'
         }
         request = {}
 
@@ -135,7 +135,7 @@ class TestAuthUsers(unittest.TestCase):
 
             expected = {
                 u'message': u"The server encountered an internal error trying to fulfill the request",
-                u'__type': u'com.amazonaws.dynamodb.v20111205#InternalServerError'
+                u'__type': u'com.amazonaws.dynamodb.v20120810#InternalServerError'
             }
             res = self.app.post_json('/', request, headers=HEADERS, status=500)
             self.assertEqual(expected, json.loads(res.body))
@@ -150,7 +150,7 @@ class TestAuthUsers(unittest.TestCase):
         connect_boto_patch()
         expected = {
             u'message': u"The server encountered an internal error trying to fulfill the request",
-            u'__type': u'com.amazonaws.dynamodb.v20111205#InternalServerError'
+            u'__type': u'com.amazonaws.dynamodb.v20120810#InternalServerError'
         }
         request = {}
 
