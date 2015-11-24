@@ -6,7 +6,7 @@ ACTION = "CreateTable"
 ACTION_404 = "!~I bet this route won't ever exist~!"
 ROUTE = "create_table"
 POST = {"toto":"titi"}
-USER = {}
+USER = {"name": None}
 
 class TestRouterInit(unittest.TestCase):
     @mock.patch("ddbmock.router.import_module")
