@@ -72,10 +72,9 @@ def reset_fail(access_key):
 	config[access_key][FAIL_KEY] = 0
 
 def config_for_user(access_key = None):
-	if access_key == None:
-		return config["_default"]
-	else:
-		user = config["_default"].copy()
+	user = config["_default"].copy()
+	user["name"] = access_key
+	if access_key != None:
 		if access_key not in config:
 			raise Exception, "No such user '%s'"%access_key
 		if FAIL_KEY not in config[access_key]:
@@ -83,8 +82,7 @@ def config_for_user(access_key = None):
 		else:
 			config[access_key][FAIL_KEY] +=1
 		user.update(config[access_key])
-		user["name"] = access_key
-		return user
+	return user
 
 def setup(access_key = None):
 	user = config_for_user(access_key)
