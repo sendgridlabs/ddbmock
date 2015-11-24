@@ -4,7 +4,7 @@ from importlib import import_module
 from ddbmock.utils import req_logger
 from ddbmock.errors import InternalFailure
 from ddbmock.validators import dynamodb_api_validate
-import re, itertools
+import re, itertools, sys, traceback
 
 request_counter = itertools.count()  # atomic counter
 
@@ -34,7 +34,7 @@ def router(action, post):
     try:
         post = dynamodb_api_validate(target, post)
     except Exception as e:
-        req_logger.error('request_id=%s action=%s exception=%s body=%s', request_id, action, type(e).__name__, str(e.args))
+        req_logger.error('request_id=%s action=%s exception=%s body=%s stack=%s', request_id, action, type(e).__name__, str(e.args), traceback.format_exc(sys.exc_info()[2]))
         raise
 
     # Run request and translate engine errors to DynamoDB errors
@@ -43,5 +43,5 @@ def router(action, post):
         #req_logger.debug("request_id=%s action=%s answer=%s", post['request_id'], action, answer)
         return answer
     except (TypeError, ValueError, KeyError) as e:
-        req_logger.error('request_id=%s action=%s exception=%s body=%s', request_id, action, type(e).__name__, str(e.args))
+        req_logger.error('request_id=%s action=%s exception=%s body=%s stack=%s', request_id, action, type(e).__name__, str(e.args), traceback.format_exc(sys.exc_info()[2]))
         raise InternalFailure("{}: {}".format(type(e).__name__, str(e.args)))

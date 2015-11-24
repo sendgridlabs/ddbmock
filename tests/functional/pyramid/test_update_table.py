@@ -7,7 +7,7 @@ import mock
 NOW = time.time()
 NOW2 = time.time() + 42 * 1000
 
-TABLE_NAME = 'Table-1'
+TABLE_NAME = u'Table-1'
 TABLE_RT = 45
 TABLE_WT = 123
 TABLE_RT2 = 10
@@ -70,16 +70,16 @@ class TestUpdateTable(unittest.TestCase):
             u'TableDescription': {
                 u'CreationDateTime': NOW,
                 u'ItemCount': 0,
-                u'KeySchema': {
-                    u'HashKeyElement': {
+                u'KeySchema': [
+                    {
                         u'AttributeName': u'hash_key',
-                        u'AttributeType': u'N',
-                        },
-                    u'RangeKeyElement': {
+                        u'KeyType': u'N',
+                    },
+                    {
                         u'AttributeName': u'range_key',
-                        u'AttributeType': u'S',
-                        },
-                },
+                        u'KeyType': u'S',
+                    }
+                ],
                 u'ProvisionedThroughput': {
                     u'LastDecreaseDateTime': NOW2,
                     u'ReadCapacityUnits': TABLE_RT2,

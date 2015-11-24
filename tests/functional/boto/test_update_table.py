@@ -3,7 +3,7 @@
 import unittest
 import boto
 
-TABLE_NAME = 'Table-1'
+TABLE_NAME = u'Table-1'
 TABLE_NAME2 = 'Table-2'
 TABLE_NAME_404 = 'Waldo'
 TABLE_RT = 45
@@ -92,4 +92,3 @@ class TestUpdateTables(unittest.TestCase):
                           {'ReadCapacityUnits': TABLE_RT3,
                            'WriteCapacityUnits': TABLE_WT3},
                          )
-
