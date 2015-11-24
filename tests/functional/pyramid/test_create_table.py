@@ -11,8 +11,7 @@ TABLE_NAME1 = 'Table-1'
 TABLE_RT = 45
 TABLE_WT = 123
 
-HASH_KEY = {"AttributeName": "hash_key", "AttributeType": "N"}
-RANGE_KEY = {"AttributeName": "range_key", "AttributeType": "S"}
+HASH_KEY = {"AttributeName": "hash_key", "KeyType": "HASH"}
 
 HEADERS = {
     'x-amz-target': 'dynamodb_20111205.CreateTable',
@@ -40,10 +39,7 @@ class TestCreateTable(unittest.TestCase):
 
         request = {
             "TableName": TABLE_NAME1,
-            "KeySchema": {
-                "HashKeyElement": HASH_KEY,
-                "RangeKeyElement": RANGE_KEY,
-            },
+            "KeySchema": [HASH_KEY],
             "ProvisionedThroughput": {
                 "ReadCapacityUnits": TABLE_RT,
                 "WriteCapacityUnits": TABLE_WT,
@@ -53,10 +49,7 @@ class TestCreateTable(unittest.TestCase):
         expected = {
             u'TableDescription': {
                 u'CreationDateTime': NOW,
-                u'KeySchema': {
-                    u'HashKeyElement': HASH_KEY,
-                    u'RangeKeyElement': RANGE_KEY,
-                },
+                "KeySchema": [HASH_KEY],
                 u'ProvisionedThroughput': {
                     u'ReadCapacityUnits': TABLE_RT,
                     u'WriteCapacityUnits': TABLE_WT,
@@ -80,9 +73,7 @@ class TestCreateTable(unittest.TestCase):
         self.assertEqual(TABLE_WT, table.wt)
         self.assertEqual(NOW, table.creation_time)
         self.assertEqual(HASH_KEY['AttributeName'], table.hash_key.name)
-        self.assertEqual(RANGE_KEY['AttributeName'], table.range_key.name)
-        self.assertEqual(HASH_KEY['AttributeType'], table.hash_key.typename)
-        self.assertEqual(RANGE_KEY['AttributeType'], table.range_key.typename)
+        self.assertEqual(HASH_KEY['KeyType'], table.hash_key.typename)
 
     # The real goal of this test is to validate the error view.
     # The tested behavior
@@ -90,10 +81,7 @@ class TestCreateTable(unittest.TestCase):
     def test_create_table_twice_fails(self):
         request = {
             "TableName": TABLE_NAME1,
-            "KeySchema": {
-                "HashKeyElement": HASH_KEY,
-                "RangeKeyElement": RANGE_KEY,
-            },
+            "KeySchema": [HASH_KEY],
             "ProvisionedThroughput": {
                 "ReadCapacityUnits": TABLE_RT,
                 "WriteCapacityUnits": TABLE_WT,

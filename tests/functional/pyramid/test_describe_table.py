@@ -51,16 +51,16 @@ class TestDescribeTable(unittest.TestCase):
             u'Table': {
                 u'CreationDateTime': NOW,
                 u'ItemCount': 0,
-                u'KeySchema': {
-                    u'HashKeyElement': {
+                u'KeySchema': [
+                    {
                         u'AttributeName': TABLE_HK_NAME,
-                        u'AttributeType': TABLE_HK_TYPE,
+                        u'KeyType': TABLE_HK_TYPE,
                     },
-                    u'RangeKeyElement': {
+                    {
                         u'AttributeName': TABLE_RK_NAME,
-                        u'AttributeType': TABLE_RK_TYPE,
+                        u'KeyType': TABLE_RK_TYPE,
                     },
-                },
+                ],
                 u'ProvisionedThroughput': {
                     u'ReadCapacityUnits': TABLE_RT,
                     u'WriteCapacityUnits': TABLE_WT,

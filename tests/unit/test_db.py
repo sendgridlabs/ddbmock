@@ -12,8 +12,7 @@ TABLE_NAME2 = "razoroid"
 TABLE_RT = 45
 TABLE_WT = 123
 
-HASH_KEY = {"AttributeName":"hash_key","AttributeType":"N"}
-RANGE_KEY = {"AttributeName":"range_key","AttributeType":"S"}
+HASH_KEY = {"AttributeName":"hash_key","KeyType":"N"}
 
 class TestDB(unittest.TestCase):
     def setUp(self):
@@ -54,10 +53,7 @@ class TestDB(unittest.TestCase):
 
         data = {
             "TableName": TABLE_NAME2,
-            "KeySchema": {
-                "HashKeyElement": HASH_KEY,
-                "RangeKeyElement": RANGE_KEY,
-            },
+            "KeySchema": [HASH_KEY],
             "ProvisionedThroughput": {
                 "ReadCapacityUnits": TABLE_RT,
                 "WriteCapacityUnits": TABLE_WT,

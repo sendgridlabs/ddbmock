@@ -2,6 +2,7 @@
 
 import unittest
 import boto
+unittest.TestCase.maxDiff = None
 
 TABLE_NAME = 'Table-1'
 TABLE_NAME_404= 'Waldo'
@@ -63,10 +64,10 @@ class TestDescribeTables(unittest.TestCase):
         self.assertEqual(TABLE_RT, table.read_units)
         self.assertEqual(TABLE_WT, table.write_units)
         self.assertEqual(u'ACTIVE', table.status)
-        self.assertEqual(TABLE_HK_NAME, table.schema.hash_key_name)
-        self.assertEqual(TABLE_HK_TYPE, table.schema.hash_key_type)
-        self.assertEqual(TABLE_RK_NAME, table.schema.range_key_name)
-        self.assertEqual(TABLE_RK_TYPE, table.schema.range_key_type)
+        self.assertEqual(TABLE_HK_NAME, table.schema.dict[0]["AttributeName"])
+        self.assertEqual(TABLE_HK_TYPE, table.schema.dict[0]["KeyType"])
+        self.assertEqual(TABLE_RK_NAME, table.schema.dict[1]["AttributeName"])
+        self.assertEqual(TABLE_RK_TYPE, table.schema.dict[1]["KeyType"])
 
     def describe_table_404(self):
         from ddbmock import connect_boto_patch
@@ -75,4 +76,3 @@ class TestDescribeTables(unittest.TestCase):
         self.assertRaises(DDBValidationErr, db.get_table,
             TABLE_NAME_404,
         )
-

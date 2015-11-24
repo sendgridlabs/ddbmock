@@ -464,9 +464,7 @@ class Table(object):
 
         ret = {
             "CreationDateTime": self.creation_time,
-            "KeySchema": {
-                "HashKeyElement": self.hash_key.to_dict(),
-            },
+            "KeySchema": [self.hash_key.to_dict()],
             "ProvisionedThroughput": {
                 "ReadCapacityUnits": self.rt,
                 "WriteCapacityUnits": self.wt,
@@ -485,7 +483,7 @@ class Table(object):
             ret[u'ProvisionedThroughput'][u'LastDecreaseDateTime'] = self.last_decrease_time
 
         if self.range_key is not None:
-            ret[u'KeySchema'][u'RangeKeyElement'] = self.range_key.to_dict()
+            ret[u'KeySchema'].append(self.range_key.to_dict())
 
         return ret
 
