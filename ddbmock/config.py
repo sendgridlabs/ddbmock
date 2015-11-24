@@ -52,14 +52,14 @@ config = {"_default":
 		"READ_ONLY": True
 	},
 	"slow_user": {
-		"DELAY_OPERATIONS": 5
+		"DELAY_OPERATIONS": 4
 	},
 	"always_fail": {
 		"FAIL_EVERY_N": 0,
 	},
 	"always_fail_and_slow": {
 		"FAIL_EVERY_N": 0,
-		"DELAY_OPERATIONS": 5
+		"DELAY_OPERATIONS": 4
 	},
 	"intermittent_failure": {
 		"FAIL_EVERY_N": 1 # means 1 success, then 1 failure, etc
