@@ -138,11 +138,6 @@ item_schema = {
     Required(field_name): field_value,
 }
 
-get_key_schema = {
-    u'HashKeyElement': key_field_value,
-    Optional(u'RangeKeyElement'): key_field_value,
-}
-
 attributes_to_get_schema = All(
     [field_name],
 )

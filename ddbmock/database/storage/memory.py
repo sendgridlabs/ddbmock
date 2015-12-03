@@ -16,46 +16,42 @@ class Store(object):
         """Perform a full table cleanup. Might be a good idea in tests :)"""
         self.data = defaultdict(dict)
 
-    def __getitem__(self, (hash_key, range_key)):
+    def __getitem__(self, keys):
         """
-        Get item at (``hash_key``, ``range_key``) or the dict at ``hash_key`` if
-        ``range_key``  is None.
+        Get item at ``keys``.
 
-        :param key: (``hash_key``, ``range_key``) Tuple. If ``range_key`` is None, all keys under ``hash_key`` are returned
+        :param key: ``keys`` List
         :return: Item or item dict
 
         :raise: KeyError
         """
 
-        if hash_key not in self.data:
-            raise KeyError('hash_key={} not found'.format(hash_key))
-        if range_key is None:
-            return self.data[hash_key]
-        if range_key not in self.data[hash_key]:
-            raise KeyError('range_key={} not found'.format(range_key))
-        return self.data[hash_key][range_key]
+        keys = tuple(keys)
+        if keys not in self.data:
+            raise KeyError('keys={} not found'.format(keys))
+        return self.data[keys]
 
-    def __setitem__(self, (hash_key, range_key), item):
+    def __setitem__(self, keys, item):
         """
-        Set the item at (``hash_key``, ``range_key``). Both keys must be
-        defined and valid. By convention, ``range_key`` may be ``False`` to
-        indicate a ``hash_key`` only key.
+        Set the item at ``keys``.
 
         :param key: (``hash_key``, ``range_key``) Tuple.
         :param item: the actual ``Item`` data structure to store
         """
 
-        self.data[hash_key][range_key] = item
+        keys = tuple(keys)
+        self.data[keys] = item
 
-    def __delitem__(self, (hash_key, range_key)):
+    def __delitem__(self, keys):
         """
-        Delete item at key (``hash_key``, ``range_key``)
+        Delete item at key ``keys``
 
         :raises: KeyError if not found
         """
 
+        keys = tuple(keys)
         # Let this line throw KeyError if needed. Checks needs to be performed by the caller
-        del self.data[hash_key][range_key]
+        del self.data[keys]
 
     def __iter__(self):
         """

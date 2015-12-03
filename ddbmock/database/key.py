@@ -31,10 +31,10 @@ class Key(object):
 
         """
         typename, value = key.items()[0]
-        if self.typename != typename:
-            raise ValidationException('Expected key type = {} for field {}. Got {}'.format(
-                self.typename, self.name, typename))
-
+        # FIXME: Not doing check anymore
+        #if self.typename != typename:
+        #    raise ValidationException('Expected key type = {} for field {}. Got {}'.format(
+        #        self.typename, self.name, typename))
         return value
 
     def to_dict(self):
@@ -63,5 +63,5 @@ class Key(object):
         return cls(data[u'AttributeName'], data[u'KeyType'])
 
 class PrimaryKey(Key):
-    """Special marker to provide distinction between regulat Keys and PrimaryKey"""
+    """Special marker to provide distinction between regular Keys and PrimaryKey"""
     pass
