@@ -108,6 +108,8 @@ key_schema = {
     u'KeyType': Any(u'HASH', u'RANGE', msg="value may only be one of 'HASH' or 'RANGE'")
 }
 
+attribute_definitions = All([primary_key])
+
 table_key_schema = All(Length(min=1, max=2), [key_schema])
 
 # Fixme: max 1 item
@@ -202,6 +204,8 @@ scan_condition = Any(
 scan_filter = {
     field_name: scan_condition,
 }
+
+consumed_capacity = Any(u'INDEXES', u'TOTAL', u'NONE', msg="value may only be one of 'INDEXES', 'TOTAL' or 'NONE'")
 
 # Permissions
 
