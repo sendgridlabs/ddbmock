@@ -32,7 +32,7 @@ def pyramid_router(request):
             raise MissingAuthenticationTokenException
         auth = auth[len("AWS4-HMAC-SHA256 "):]
         auth = auth.split(", ")
-        auth = dict([x.split("=",2) for x in auth])
+        auth = dict([x.split("=",1) for x in auth])
         access_key = auth["Credential"].split("/")[0]
         if access_key not in config.keys():
             req_logger.error("Access denied for %s", access_key)
