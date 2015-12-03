@@ -27,10 +27,8 @@ class TestDescribeTable(unittest.TestCase):
         from ddbmock.database.db import dynamodb
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
-        from ddbmock import main
-        app = main({})
-        from webtest import TestApp
-        self.app = TestApp(app)
+        import helpers
+        self.app = helpers.makeTestApp()
 
         m_time.time.return_value = NOW
 
@@ -53,16 +51,16 @@ class TestDescribeTable(unittest.TestCase):
             u'Table': {
                 u'CreationDateTime': NOW,
                 u'ItemCount': 0,
-                u'KeySchema': {
-                    u'HashKeyElement': {
+                u'KeySchema': [
+                    {
                         u'AttributeName': TABLE_HK_NAME,
-                        u'AttributeType': TABLE_HK_TYPE,
+                        u'KeyType': TABLE_HK_TYPE,
                     },
-                    u'RangeKeyElement': {
+                    {
                         u'AttributeName': TABLE_RK_NAME,
-                        u'AttributeType': TABLE_RK_TYPE,
+                        u'KeyType': TABLE_RK_TYPE,
                     },
-                },
+                ],
                 u'ProvisionedThroughput': {
                     u'ReadCapacityUnits': TABLE_RT,
                     u'WriteCapacityUnits': TABLE_WT,

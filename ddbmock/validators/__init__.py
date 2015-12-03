@@ -2,9 +2,13 @@
 
 from onctuous import Schema, Invalid
 from importlib import import_module
-from ddbmock.errors import ValidationException
+from ..errors import ValidationException, AccessDeniedException
+from logging import getLogger
+from types import WRITE_PERMISSION
 
-def dynamodb_api_validate(action, post):
+log = getLogger(__name__)
+
+def dynamodb_api_validate(action, post, user = None):
     """ Find validator for ``action`` and run it on ``post``. If no validator
         are found, return False.
 
@@ -18,6 +22,13 @@ def dynamodb_api_validate(action, post):
         schema = getattr(mod, 'post')
     except (ImportError, AttributeError):
         return post  # Fixme: should log
+
+    permissions = getattr(mod, 'permissions', None)
+    if permissions == None:
+        log.warning("No permissions set on %s" % action)
+    else:
+        if permissions == WRITE_PERMISSION and user["READ_ONLY"]:
+            raise AccessDeniedException("User: %s is not authorized to perform: dynamodb:%s on resource: *"%(user["name"], action))
 
     # ignore the 'request_id' key but propagate it
     schema['request_id'] = str

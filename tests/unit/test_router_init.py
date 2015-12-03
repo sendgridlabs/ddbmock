@@ -6,6 +6,7 @@ ACTION = "CreateTable"
 ACTION_404 = "!~I bet this route won't ever exist~!"
 ROUTE = "create_table"
 POST = {"toto":"titi"}
+USER = {"name": None}
 
 class TestRouterInit(unittest.TestCase):
     @mock.patch("ddbmock.router.import_module")
@@ -18,10 +19,10 @@ class TestRouterInit(unittest.TestCase):
         m_route.return_value = {}
         m_validated = m_validate.return_value
 
-        router(ACTION, POST)
+        router(ACTION, POST, USER)
 
         m_import.assert_called_with("ddbmock.operations.{}".format(ROUTE))
-        m_validate.assert_called_with(ROUTE, POST)
+        m_validate.assert_called_with(ROUTE, POST, USER)
         m_route.assert_called_with(m_validated)
 
     def test_do_request_route_404(self):
@@ -48,8 +49,8 @@ class TestRouterInit(unittest.TestCase):
         self.assertRaisesRegexp(InternalFailure,
                                 'ValueError',
                                 router,
-                                ACTION, POST)
+                                ACTION, POST, USER)
 
         m_import.assert_called_with("ddbmock.operations.{}".format(ROUTE))
-        m_validate.assert_called_with(ROUTE, POST)
+        m_validate.assert_called_with(ROUTE, POST, USER)
         m_route.assert_called_with(m_validated)

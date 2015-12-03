@@ -3,10 +3,19 @@
 # pyramid entry point: semantic name
 from __future__ import absolute_import
 
-from ddbmock.router import router
-from ddbmock.errors import DDBError
+from ..router import router
+from ..errors import DDBError, AccessDeniedException, MissingAuthenticationTokenException, InternalServerError
+from ..config import config, config_for_user, FAIL_KEY, reset_fail
+from ..utils import req_logger
 from pyramid.response import Response
 import json
+from time import sleep
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
+
+default_config = config["_default"]
 
 # wrap routing logic
 def pyramid_router(request):
@@ -18,18 +27,40 @@ def pyramid_router(request):
 
     # do the job
     try:
-        body = router(action, post)
+        auth = request.headers["Authorization"]
+        if not auth.startswith("AWS4-HMAC-SHA256"):
+            raise MissingAuthenticationTokenException
+        auth = auth[len("AWS4-HMAC-SHA256 "):]
+        auth = auth.split(", ")
+        auth = dict([x.split("=",1) for x in auth])
+        access_key = auth["Credential"].split("/")[0]
+        if access_key not in config.keys():
+            req_logger.error("Access denied for %s", access_key)
+            raise AccessDeniedException, "Can't find %s in users" % access_key
+        user = config_for_user(access_key)
+        sleep(user["DELAY_OPERATIONS"])
+        fail_every = user["FAIL_EVERY_N"]
+        if fail_every != None:
+            if fail_every + 1 == user[FAIL_KEY]: # hit the fail time
+                reset_fail(access_key)
+                raise InternalServerError("The server encountered an internal error trying to fulfill the request")
+
+        body = router(action, post, user)
         status = '200 OK'
     except DDBError as e:
+        logger.error("Error: ", e)
+        logger.error(traceback.format_exc())
         body = e.to_dict()
         status = '{} {}'.format(e.status, e.status_str)
+        user = None
 
     # prepare output
     response = Response()
     response.body = json.dumps(body)
     response.status = status
     response.content_type = 'application/x-amz-json-1.0'
-    response.headers['x-amzn-RequestId'] = post['request_id']  # added by router
+    if post.has_key("request_id"): # might not be present if user auth failed
+        response.headers['x-amzn-RequestId'] = post['request_id']  # added by router
 
     # done
     return response

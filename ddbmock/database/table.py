@@ -43,8 +43,7 @@ class Table(object):
         self.name = name
         self.rt = rt
         self.wt = wt
-        self.hash_key = hash_key
-        self.range_key = range_key
+        self.keys = [x for x in [hash_key, range_key] if x !=None]
         self.status = status
 
         self.store = Store(name)
@@ -243,19 +242,18 @@ class Table(object):
             raise ValidationException(
                 "Item size has exceeded the maximum allowed size of {}".format(config.MAX_ITEM_SIZE))
 
-        hash_key = item.read_key(self.hash_key, max_size=config.MAX_HK_SIZE)
-        range_key = item.read_key(self.range_key, max_size=config.MAX_RK_SIZE)
+        keys = [item.read_key(x, max_size=config.MAX_HK_SIZE) for x in self.keys]
 
         with self.write_lock:
             try:
-                old = self.store[hash_key, range_key]
+                old = self.store[keys]
                 old.assert_match_expected(expected)
             except KeyError:
                 # Item was not in the DB yet
                 self.count += 1
                 old = Item()
 
-            self.store[hash_key, range_key] = item
+            self.store[keys] = item
             new = copy.deepcopy(item)
 
         return old, new
@@ -272,14 +270,10 @@ class Table(object):
         :raises: :py:exc:`ddbmock.errors.ValidationException` if a ``range_key`` was provided while table has none.
         """
         key = Item(key)
-        hash_key = key.read_key(self.hash_key, u'HashKeyElement')
-        range_key = key.read_key(self.range_key, u'RangeKeyElement')
-
-        if self.range_key is None and u'RangeKeyElement' in key:
-            raise ValidationException("Table {} has no range_key".format(self.name))
+        keys = [key.read_key(x) for x in self.keys]
 
         try:
-            item = self.store[hash_key, range_key]
+            item = self.store[keys]
             return item.filter(fields)
         except KeyError:
             # Item was not in the DB yet
@@ -414,10 +408,14 @@ class Table(object):
 
         :return: fully initialized :py:class:`Table` instance
         """
-        hash_key = PrimaryKey.from_dict(data[u'KeySchema'][u'HashKeyElement'])
+
+        hash_key = None
         range_key = None
-        if u'RangeKeyElement' in data[u'KeySchema']:
-            range_key = PrimaryKey.from_dict(data[u'KeySchema'][u'RangeKeyElement'])
+        key = PrimaryKey.from_dict(data[u'KeySchema'][0])
+        if key.typename == "HASH":
+            hash_key = key
+        else:
+            range_key = key
 
         return cls( data[u'TableName'],
                     data[u'ProvisionedThroughput'][u'ReadCapacityUnits'],
@@ -460,9 +458,7 @@ class Table(object):
 
         ret = {
             "CreationDateTime": self.creation_time,
-            "KeySchema": {
-                "HashKeyElement": self.hash_key.to_dict(),
-            },
+            "KeySchema": [x.to_dict() for x in self.keys],
             "ProvisionedThroughput": {
                 "ReadCapacityUnits": self.rt,
                 "WriteCapacityUnits": self.wt,
@@ -479,9 +475,6 @@ class Table(object):
             ret[u'ProvisionedThroughput'][u'LastIncreaseDateTime'] = self.last_increase_time
         if self.last_decrease_time:
             ret[u'ProvisionedThroughput'][u'LastDecreaseDateTime'] = self.last_decrease_time
-
-        if self.range_key is not None:
-            ret[u'KeySchema'][u'RangeKeyElement'] = self.range_key.to_dict()
 
         return ret
 

@@ -7,7 +7,7 @@ KEY_TYPE = "humanoid"
 
 KEY_DEF = {
     'AttributeName': KEY_NAME,
-    'AttributeType': KEY_TYPE,
+    'KeyType': KEY_TYPE,
 }
 
 KEY_VALUE = "TadaList"
@@ -48,7 +48,7 @@ class TestKey(unittest.TestCase):
 
         expected = {
             "AttributeName": KEY_NAME,
-            "AttributeType": KEY_TYPE,
+            "KeyType": KEY_TYPE,
         }
 
         self.assertEqual(expected, k.to_dict())

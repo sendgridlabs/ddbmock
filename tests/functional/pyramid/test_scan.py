@@ -65,11 +65,8 @@ class TestScan(unittest.TestCase):
         from ddbmock.database.table import Table
         from ddbmock.database.key import PrimaryKey
 
-        from ddbmock import main
-        app = main({})
-        from webtest import TestApp
-        self.app = TestApp(app)
-
+        import helpers
+        self.app = helpers.makeTestApp()
         dynamodb.hard_reset()
 
         hash_key = PrimaryKey(TABLE_HK_NAME, TABLE_HK_TYPE)
@@ -140,7 +137,7 @@ class TestScan(unittest.TestCase):
         }
 
         expected = {
-            u'__type': u'com.amazonaws.dynamodb.v20111205#ValidationException',
+            u'__type': u'com.amazonaws.dynamodb.v20120810#ValidationException',
             u'message': u'Can not filter fields when only count is requested'
         }
 

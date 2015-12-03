@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pyramid.config import Configurator
-from ddbmock.router.pyramid import pyramid_router
-
-def noop(*args, **kwargs): pass
+from .router.pyramid import pyramid_router
 
 # Pyramid entry point
 def main(global_config, **settings):
@@ -30,7 +28,13 @@ def connect_boto_network(host='localhost', port=6543):
 # Request hijacking Yeah !
 real_boto = {}
 
-def connect_boto_patch():
+def layer1_mock_init(self, access_key, *args, **kwargs):
+    class provider(object):
+        pass
+    self.provider = provider()
+    self.provider.access_key = access_key
+
+def connect_boto_patch(aws_access_key_id=None):
     """Connect to ddbmock as a library via boto"""
     import boto
 
@@ -46,10 +50,10 @@ def connect_boto_patch():
 
     # Bypass network *and* authentication
     Layer1.make_request = boto_router
-    Layer1.__init__ = noop
+    Layer1.__init__ = layer1_mock_init
 
     # Just one more shortcut
-    return boto.connect_dynamodb()
+    return boto.connect_dynamodb(aws_access_key_id = aws_access_key_id)
 
 def clean_boto_patch():
     """Restore real boto code"""

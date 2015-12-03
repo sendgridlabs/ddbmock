@@ -10,8 +10,8 @@ TABLE_NAME = "tabloid"
 TABLE_RT = 45
 TABLE_WT = 123
 
-HASH_KEY = {"AttributeName":"hash_key","AttributeType":"N"}
-RANGE_KEY = {"AttributeName":"range_key","AttributeType":"S"}
+HASH_KEY = {"AttributeName":"hash_key","KeyType":"N"}
+RANGE_KEY = {"AttributeName":"range_key","KeyType":"S"}
 
 class TestDBSchemaPersist(unittest.TestCase):
     @mock.patch('ddbmock.database.db.Store')
@@ -22,10 +22,7 @@ class TestDBSchemaPersist(unittest.TestCase):
 
         data = {
             "TableName": TABLE_NAME,
-            "KeySchema": {
-                "HashKeyElement": HASH_KEY,
-                "RangeKeyElement": RANGE_KEY,
-            },
+            "KeySchema": [HASH_KEY, RANGE_KEY],
             "ProvisionedThroughput": {
                 "ReadCapacityUnits": TABLE_RT,
                 "WriteCapacityUnits": TABLE_WT,

@@ -36,7 +36,7 @@ table_page = All(
 
 key_name = All(
     unicode,
-    Length(min=1, max=255, msg="Key lenght must be between 1 and 255"),
+    Length(min=1, max=255, msg="Key length must be between 1 and 255"),
 )
 
 primary_key_type = All(
@@ -103,10 +103,14 @@ primary_key = {
     u'AttributeType': primary_key_type,
 }
 
-table_key_schema = {
-    u'HashKeyElement': primary_key,
-    Optional(u'RangeKeyElement'): primary_key,
+key_schema = {
+    u'AttributeName': key_name,
+    u'KeyType': Any(u'HASH', u'RANGE', msg="value may only be one of 'HASH' or 'RANGE'")
 }
+
+attribute_definitions = All([primary_key])
+
+table_key_schema = All(Length(min=1, max=2), [key_schema])
 
 # Fixme: max 1 item
 simple_field_value = {
@@ -134,11 +138,6 @@ single_str_bin_list = All(Length(min=1, max=1), [{
 
 item_schema = {
     Required(field_name): field_value,
-}
-
-get_key_schema = {
-    u'HashKeyElement': key_field_value,
-    Optional(u'RangeKeyElement'): key_field_value,
 }
 
 attributes_to_get_schema = All(
@@ -205,3 +204,10 @@ scan_condition = Any(
 scan_filter = {
     field_name: scan_condition,
 }
+
+consumed_capacity = Any(u'INDEXES', u'TOTAL', u'NONE', msg="value may only be one of 'INDEXES', 'TOTAL' or 'NONE'")
+
+# Permissions
+
+READ_PERMISSION = "read"
+WRITE_PERMISSION = "write"

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import socket
 
 HOST = 'samaritain'
 PORT = -12321
@@ -12,25 +13,30 @@ class TestDdbmockInit(unittest.TestCase):
         clean_boto_patch()
 
     def test_connect_boto_patch_patch(self):
-        from ddbmock import connect_boto_patch, real_boto, noop
+        from ddbmock import connect_boto_patch, real_boto, layer1_mock_init
         from ddbmock.router.boto import boto_router
 
         db = connect_boto_patch()
 
         self.assertEqual(boto_router, db.layer1.make_request.im_func)
-        self.assertEqual(noop, db.layer1.__init__.im_func)
+        self.assertEqual(layer1_mock_init, db.layer1.__init__.im_func)
         self.assertNotEqual(real_boto['Layer1.make_request'], boto_router)
-        self.assertNotEqual(real_boto['Layer1.__init__'], noop)
+        self.assertNotEqual(real_boto['Layer1.__init__'], layer1_mock_init)
 
         # do it twice to make sure it is safe
         db = connect_boto_patch()
 
         self.assertEqual(boto_router, db.layer1.make_request.im_func)
-        self.assertEqual(noop, db.layer1.__init__.im_func)
+        self.assertEqual(layer1_mock_init, db.layer1.__init__.im_func)
         self.assertNotEqual(real_boto['Layer1.make_request'], boto_router)
-        self.assertNotEqual(real_boto['Layer1.__init__'], noop)
+        self.assertNotEqual(real_boto['Layer1.__init__'], layer1_mock_init)
 
     def test_connect_boto_patch_network(self):
+        try:
+            socket.gethostbyname(HOST)
+        except Exception:
+            self.skipTest("Can't connect to test host: %s" % HOST)
+
         from ddbmock import connect_boto_network, clean_boto_patch
 
         clean_boto_patch()
