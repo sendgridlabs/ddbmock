@@ -10,6 +10,10 @@ from ..utils import req_logger
 from pyramid.response import Response
 import json
 from time import sleep
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
 
 default_config = config["_default"]
 
@@ -44,6 +48,8 @@ def pyramid_router(request):
         body = router(action, post, user)
         status = '200 OK'
     except DDBError as e:
+        logger.error("Error: ", e)
+        logger.error(traceback.format_exc())
         body = e.to_dict()
         status = '{} {}'.format(e.status, e.status_str)
         user = None
